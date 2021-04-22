@@ -3,17 +3,27 @@ package com.exasol.bucketfs.client;
 import java.util.concurrent.Callable;
 
 import picocli.CommandLine;
-import picocli.CommandLine.Command;
+import picocli.CommandLine.*;
+import picocli.CommandLine.Model.CommandSpec;
 
-@Command(name = "bfs", subcommands = { CopyCommand.class }, description = "Exasol BucketFS client")
+@Command( //
+        name = "bfs", //
+        subcommands = { CopyCommand.class }, //
+        description = "Exasol BucketFS client" //
+)
 public class BucketFsClient implements Callable<Integer> {
+    @Spec
+    CommandSpec spec;
 
     public static void main(final String[] arguments) {
-        new CommandLine(new BucketFsClient()).execute(arguments);
+        final CommandLine commandLineClient = new CommandLine(new BucketFsClient())
+                .setExecutionExceptionHandler(new PrintExceptionMessageHandler());
+        final int exitCode = commandLineClient.execute(arguments);
+        System.exit(exitCode);
     }
 
     @Override
-    public Integer call() throws Exception {
-        return 0;
+    public Integer call() {
+        throw new ParameterException(this.spec.commandLine(), "Missing required subcommand");
     }
 }

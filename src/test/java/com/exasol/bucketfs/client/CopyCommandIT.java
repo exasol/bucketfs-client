@@ -4,13 +4,20 @@ import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKET;
 import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKETFS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
+import static org.itsallcode.junit.sysextensions.AssertExit.assertExitWithStatus;
+import static picocli.CommandLine.ExitCode.OK;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeoutException;
 
+import org.itsallcode.io.Capturable;
+import org.itsallcode.junit.sysextensions.ExitGuard;
+import org.itsallcode.junit.sysextensions.SystemErrGuard;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -20,12 +27,15 @@ import com.exasol.config.BucketConfiguration;
 import com.exasol.containers.ExasolContainer;
 import com.exasol.containers.ExasolService;
 
+import picocli.CommandLine;
+
+@ExtendWith(ExitGuard.class)
+@ExtendWith(SystemErrGuard.class)
 @Testcontainers
-class BucketFsClientIT {
+class CopyCommandIT {
     @Container
     private static ExasolContainer<? extends ExasolContainer<?>> EXASOL = new ExasolContainer<>()//
-            .withRequiredServices(ExasolService.BUCKETFS) //
-            .withReuse(true);
+            .withRequiredServices(ExasolService.BUCKETFS).withReuse(true);
 
     @Test
     void testCopyFileFromBucketToLocalFile(@TempDir final Path tempDir)
@@ -35,9 +45,13 @@ class BucketFsClientIT {
         final Path destinationFile = tempDir.resolve(filename);
         final String destination = "file://" + destinationFile;
         uploadStringContent(expectedContent, filename);
-        final String source = getBucketFsUri(DEFAULT_BUCKETFS, DEFAULT_BUCKET, filename);
-        BucketFsClient.main(new String[] { "cp", source, destination });
+        final String source = getDefaultBucketUriToFile(filename);
+        assertExitWithStatus(OK, () -> BFSC.create("cp", source, destination).run());
         assertThat(Files.readString(destinationFile), equalTo(expectedContent));
+    }
+
+    private String getDefaultBucketUriToFile(final String filename) {
+        return getBucketFsUri(DEFAULT_BUCKETFS, DEFAULT_BUCKET, filename);
     }
 
     private String getBucketFsUri(final String serviceName, final String bucketName, final String pathInBucket) {
@@ -48,13 +62,18 @@ class BucketFsClientIT {
     private void uploadStringContent(final String content, final String pathInBucket)
             throws InterruptedException, BucketAccessException, TimeoutException {
         getDefaultBucket().uploadStringContentNonBlocking(content, pathInBucket);
+        waitUntilObjectSynchronized();
+    }
+
+    @SuppressWarnings("java:S2925")
+    private void waitUntilObjectSynchronized() throws InterruptedException {
         Thread.sleep(500);
     }
 
     private UnsynchronizedBucket getDefaultBucket() {
         final BucketConfiguration bucketConfiguration = EXASOL.getClusterConfiguration() //
-                .getBucketFsServiceConfiguration("bfsdefault") //
-                .getBucketConfiguration("default");
+                .getBucketFsServiceConfiguration(DEFAULT_BUCKETFS) //
+                .getBucketConfiguration(DEFAULT_BUCKET);
         return WriteEnabledBucket.builder() //
                 .ipAddress(getHost()) //
                 .httpPort(getMappedBucketFsPort()) //
@@ -75,12 +94,35 @@ class BucketFsClientIT {
     @Test
     void testCopyFileFromBucketToFileWithoutProtocol(@TempDir final Path tempDir)
             throws InterruptedException, BucketAccessException, TimeoutException, IOException {
-        final String expectedContent = "the content";
+        final String expectedContent = "downloaded content";
         final String filename = "dir_test.txt";
         final Path destinationFile = tempDir.resolve(filename);
         uploadStringContent(expectedContent, filename);
-        final String source = getBucketFsUri(DEFAULT_BUCKETFS, DEFAULT_BUCKET, filename);
-        BucketFsClient.main(new String[] { "cp", source, destinationFile.toString() });
+        final String source = getDefaultBucketUriToFile(filename);
+        assertExitWithStatus(OK, () -> BFSC.create("cp", source, destinationFile.toString()).run());
         assertThat(Files.readString(destinationFile), equalTo(expectedContent));
+    }
+
+    @Test
+    void testCopyFileWithoutProtocolToBucket(@TempDir final Path tempDir)
+            throws InterruptedException, BucketAccessException, TimeoutException, IOException {
+        final String expectedContent = "uploaded content";
+        final String filename = "upload.txt";
+        final Path sourceFile = tempDir.resolve(filename);
+        Files.writeString(sourceFile, expectedContent);
+        final String destination = getDefaultBucketUriToFile(filename);
+        final String password = getDefaultBucket().getWritePassword();
+        assertExitWithStatus(OK,
+                () -> BFSC.create("cp", "-p", sourceFile.toString(), destination).feedStdIn(password).run());
+        waitUntilObjectSynchronized();
+        assertThat(getDefaultBucket().downloadFileAsString(filename), equalTo(expectedContent));
+    }
+
+    @Test
+    void testCopyWithMalformedBucketFsUrlRaisesError(final Capturable stream) {
+        final BFSC client = BFSC.create("cp", "bfs://illegal/", "some_file");
+        stream.capture();
+        assertExitWithStatus(CommandLine.ExitCode.SOFTWARE, () -> client.run());
+        assertThat(stream.getCapturedData(), startsWith("Illegal BucketFS source URL: bfs://illegal"));
     }
 }

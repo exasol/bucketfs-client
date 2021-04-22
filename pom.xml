@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>bucketfs-java</artifactId>
-            <version>1.0.0</version>
+            <version>1.1.0</version>
         </dependency>
         <dependency>
             <groupId>info.picocli</groupId>
@@ -68,6 +68,11 @@
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
             <version>3.5.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.itsallcode</groupId>
+            <artifactId>junit5-system-extensions</artifactId>
+            <version>1.2.0</version>
         </dependency>
     </dependencies>
     <build>
