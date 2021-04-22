@@ -119,10 +119,27 @@ class CopyCommandIT {
     }
 
     @Test
-    void testCopyWithMalformedBucketFsUrlRaisesError(final Capturable stream) {
+    void testCopyWithMalformedSourceBucketFsUrlRaisesError(final Capturable stream) {
         final BFSC client = BFSC.create("cp", "bfs://illegal/", "some_file");
         stream.capture();
         assertExitWithStatus(CommandLine.ExitCode.SOFTWARE, () -> client.run());
         assertThat(stream.getCapturedData(), startsWith("Illegal BucketFS source URL: bfs://illegal"));
+    }
+
+    @Test
+    void testCopyWithMalformedDestinationBucketFsUrlRaisesError(final Capturable stream) {
+        final BFSC client = BFSC.create("cp", "some_file", "bfs://illegal/");
+        stream.capture();
+        assertExitWithStatus(CommandLine.ExitCode.SOFTWARE, () -> client.run());
+        assertThat(stream.getCapturedData(), startsWith("Illegal BucketFS destination URL: bfs://illegal"));
+    }
+
+    @Test
+    void testDownloadingNonexisentObjectRaisesError(final Capturable stream) {
+        final String nonexistentObjectUri = getBucketFsUri(DEFAULT_BUCKETFS, DEFAULT_BUCKET, "/nonexistent-object");
+        final BFSC client = BFSC.create("cp", nonexistentObjectUri, "some_file");
+        stream.capture();
+        assertExitWithStatus(CommandLine.ExitCode.SOFTWARE, () -> client.run());
+        assertThat(stream.getCapturedData(), startsWith("Unable to download file"));
     }
 }

@@ -47,14 +47,14 @@ public class CopyCommand implements Callable<Integer> {
             bucket.uploadFileNonBlocking(sourcePath, url.getPathInBucket());
         } catch (final BucketAccessException exception) {
             throw new BucketFsClientException(
-                    "Unable to upload file to " + this.destination + " Reason: " + exception.getCause().getMessage(),
+                    "Unable to upload file to " + this.destination + "\nReason: " + exception.getCause().getMessage(),
                     exception);
         } catch (final InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new BucketFsClientException(
                     "Got interrupted trying to upload file from " + this.source + " to " + this.destination);
         } catch (final TimeoutException exception) {
-            // TODO Auto-generated catch block
+            throw new BucketFsClientException("Upload to " + this.destination + " timed out.");
         }
     }
 
@@ -82,9 +82,8 @@ public class CopyCommand implements Callable<Integer> {
             final Path destinationPath = convertSpecToPath(this.destination);
             bucket.downloadFile(sourceUrl.getPathInBucket(), destinationPath);
         } catch (final BucketAccessException exception) {
-            throw new BucketFsClientException(
-                    "Unable to download file from " + this.source + " Reason: " + exception.getCause().getMessage(),
-                    exception);
+            throw new BucketFsClientException("Unable to download file from \"" + this.source + "\"\nReason: "
+                    + exception.getCause().getMessage(), exception);
         } catch (final InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new BucketFsClientException(
