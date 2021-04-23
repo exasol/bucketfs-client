@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>bucketfs-client</artifactId>
@@ -127,7 +125,18 @@
                         </goals>
                     </execution>
 
-                </executions>
+                <execution>
+            <id>prepare-agent-integration</id>
+            <goals>
+                <goal>prepare-agent-integration</goal>
+            </goals>
+        </execution><execution>
+            <id>report-integration</id>
+            <phase>verify</phase>
+            <goals>
+                <goal>report-integration</goal>
+            </goals>
+        </execution></executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -154,7 +163,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>0.6.0</version>
+                <version>0.6.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -164,8 +173,8 @@
                 </executions>
                 <configuration>
                     <modules>
-                        <!-- add modules here: -->
-                        <!-- <module>For available modules see below.</module> -->
+                        <module>jar_artifact</module>
+                        <module>integration_tests</module>
                     </modules>
                 </configuration>
             </plugin>
@@ -319,7 +328,7 @@
                 </executions>
                 <configuration>
                     <charset>UTF-8</charset>
-                    <doclint />
+                    <doclint/>
                     <serialwarn>true</serialwarn>
                     <failOnError>true</failOnError>
                     <failOnWarnings>true</failOnWarnings>
@@ -342,6 +351,37 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
-        </plugins>
+        <plugin>
+    <artifactId>maven-assembly-plugin</artifactId>
+    <groupId>org.apache.maven.plugins</groupId>
+    <version>3.3.0</version>
+    <configuration>
+        <descriptors>
+            <descriptor>src/assembly/all-dependencies.xml</descriptor>
+        </descriptors>
+        <finalName>bfsc-${version}</finalName>
+        <appendAssemblyId>false</appendAssemblyId>
+    </configuration>
+    <executions>
+        <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+                <goal>single</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin><plugin>
+    <groupId>com.exasol</groupId>
+    <artifactId>artifact-reference-checker-maven-plugin</artifactId>
+    <version>0.3.1</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>verify</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin></plugins>
     </build>
 </project>

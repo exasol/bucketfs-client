@@ -23,9 +23,11 @@
 
 ### Plugin Dependency Updates
 
+* Added `com.exasol:artifact-reference-checker-maven-plugin:0.3.1`
 * Added `com.exasol:error-code-crawler-maven-plugin:0.1.1`
-* Added `com.exasol:project-keeper-maven-plugin:0.6.0`
+* Added `com.exasol:project-keeper-maven-plugin:0.6.1`
 * Added `io.github.zlika:reproducible-build-maven-plugin:0.13`
+* Added `org.apache.maven.plugins:maven-assembly-plugin:3.3.0`
 * Added `org.apache.maven.plugins:maven-clean-plugin:2.5`
 * Added `org.apache.maven.plugins:maven-compiler-plugin:3.8.1`
 * Added `org.apache.maven.plugins:maven-deploy-plugin:1.3.0`

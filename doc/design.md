@@ -75,7 +75,7 @@ Needs: impl, itest
 ### Sub-command Requires Hidden Write Password
 `dsn~sub-command-requires-hidden-password~1`
 
-In case of interactive password entry, sub-command (e.g. `cp`) tells the `picoli` library to prompt for a password with hidden entry.
+In case of interactive password entry, sub-command (e.g. `cp`) tells the `picocli` library to prompt for a password with hidden entry.
 
 Covers:
 
@@ -119,12 +119,12 @@ The choice of the CLI library has an impact on usability and maintainability of 
 
 ### Decisions
 
-We are using [picoli](https://picocli.info/). It is small enough, under active development, has no dependencies except the Java standard libraries and is well documented.
+We are using [picocli](https://picocli.info/). It is small enough, under active development, has no dependencies except the Java standard libraries and is well documented.
 
 #### Command Line Parsing
 `dsn~command-line-parsing~1`
 
-BFSC uses [picoli](https://picocli.info/) to parse the command line.
+BFSC uses [picocli](https://picocli.info/) to parse the command line.
 
 Covers:
 
