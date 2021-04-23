@@ -1,1 +1,6 @@
 /target/
+.dbeaver
+*.bak
+*.log
+*.lock
+*.md.html
