@@ -12,6 +12,7 @@ import com.exasol.bucketfs.url.BucketFsUrl;
 import picocli.CommandLine;
 import picocli.CommandLine.*;
 
+//[impl->dsn~command-line-parsing~1]
 @Command(name = "cp", description = "Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY")
 public class CopyCommand implements Callable<Integer> {
     @Parameters(index = "0", paramLabel = "SOURCE", description = "source")
@@ -20,6 +21,7 @@ public class CopyCommand implements Callable<Integer> {
     @Parameters(index = "1", paramLabel = "DEST", description = "destination")
     private URI destination;
 
+    // [impl->dsn~sub-command-requires-hidden-password~1]
     @Option(names = { "-p", "--password" }, description = "password", interactive = true)
     private String password;
 
@@ -33,6 +35,7 @@ public class CopyCommand implements Callable<Integer> {
         return CommandLine.ExitCode.OK;
     }
 
+    // [impl->dsn~copy-command-copies-file-to-bucket~1]
     private void upload() {
         try {
             final BucketFsUrl url = createDestinationBucketFsUrl();
@@ -70,6 +73,7 @@ public class CopyCommand implements Callable<Integer> {
         }
     }
 
+    // [impl->dsn~copy-command-copies-file-from-bucket~1]
     private void download() {
         try {
             final BucketFsUrl sourceUrl = createSourceBucketFsUrl();

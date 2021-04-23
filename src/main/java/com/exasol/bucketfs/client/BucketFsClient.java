@@ -6,6 +6,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.*;
 import picocli.CommandLine.Model.CommandSpec;
 
+// [impl->dsn~command-line-parsing~1]
 @Command( //
         name = "bfs", //
         subcommands = { CopyCommand.class }, //

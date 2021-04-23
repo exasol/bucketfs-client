@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
  *
  * For compatibility this class is modeled after {@link java.net.URL}.
  */
+// [impl->dsn~bucket-fs-url~1]
 public final class BucketFsUrl {
     public static final String BUCKETFS_PROTOCOL = "bfs";
     public static final String BUCKETFS_PROTOCOL_WITH_TLS = "bfss";

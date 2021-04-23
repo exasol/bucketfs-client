@@ -5,6 +5,13 @@
 * ISSUE_NUMBER: description
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Added `com.exasol:bucketfs-java:1.1.0`
+* Added `info.picocli:picocli:4.6.1`
+* Added `nl.jqno.equalsverifier:equalsverifier:3.5.5`
+* Added `org.itsallcode:junit5-system-extensions:1.2.0`
+
 ### Test Dependency Updates
 
 * Added `com.exasol:exasol-testcontainers:3.5.1`

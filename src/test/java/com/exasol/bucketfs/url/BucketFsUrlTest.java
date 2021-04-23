@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
+// [utest->dsn~bucket-fs-url~1]
 class BucketFsUrlTest {
     @CsvSource({ //
             "localhost, 8888, the_service, the_bucket, file.txt, false, bfs://localhost:8888/the_service/the_bucket/file.txt", //

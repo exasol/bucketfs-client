@@ -37,7 +37,51 @@ This section describes the runtime behavior of the software.
 
 ## Copying Files
 
+### BucketFsUrl
+`dsn~bucket-fs-url~1`
 
+The `BucketFsUrl` represents the uniform resource locator for objects on BucketFs.
+
+Covers:
+
+* `req~bucketfs-url~1`
+
+Needs: impl, utest
+
+### CopyCommand Copies File From Public Bucket
+`dsn~copy-command-copies-file-from-bucket~1`
+
+The `CopyCommand` copies a single file from a public bucket to the local filesystem.
+
+Covers:
+
+* `req~copy-single-file-from-public-bucket~1`
+
+Needs: impl, itest
+
+### CopyCommand Copies File To Bucket With Interactive Password
+`dsn~copy-command-copies-file-to-bucket~1`
+
+The `CopyCommand` copies a single file from the local filesystem to a bucket.
+
+Covers:
+
+* `req~copy-single-file-to-bucket-with-interactive-password~1`
+
+Needs: impl, itest
+
+## Command Line Interface
+
+### Sub-command Requires Hidden Write Password
+`dsn~sub-command-requires-hidden-password~1`
+
+In case of interactive password entry, sub-command (e.g. `cp`) tells the `picoli` library to prompt for a password with hidden entry.
+
+Covers:
+
+* `req~interactive-password-entry~1`
+
+Needs: impl, itest
 
 # Cross-cutting Concerns
 
@@ -84,9 +128,9 @@ BFSC uses [picoli](https://picocli.info/) to parse the command line.
 
 Covers:
 
-* `req~waiting-for-bucket-content-synchronization`
+* `req~gnu-style-command-line-arguments~1`
 
-Needs: impl, itest
+Needs: impl
 
 # Quality Scenarios
 

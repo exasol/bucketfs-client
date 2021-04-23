@@ -96,12 +96,29 @@ Needs: dsn
 
 ### Copying Files
 
-#### Copy Single File to BucketFS
-`req~copy-single-file-to-bucketfs~1`
+#### Copy Single File from Public Bucket
+`req~copy-single-file-from-public-bucket~1`
 
-Users can copy a single file from local file storage to BucketFS with the following command:
+Users can copy a single file from BucketFS to local file storage with the following command:
 
-    bfs cp <local-path> <bfs-url>
+    bfs cp  <bfs-url> <local-path>
+
+Covers:
+
+* [feat~copying-files~1](#copying-files)
+
+Needs: dsn
+
+#### Copy Single File to Bucket With Interactive Password
+`req~copy-single-file-to-bucket-with-interactive-password~1`
+
+Users can copy a single file from local file storage to a public bucket with the following command:
+
+    bfs cp --password <local-path> <bfs-url>
+
+Comment:
+
+See also: [Interactive Password Entry](#interactive-password-entry)
 
 Covers:
 
@@ -119,6 +136,25 @@ BSFC supports command line arguments that follow the [GNU command line style](ht
 Rationale:
 
 This style is well established and users are accustomed to using it. It is supported by a large number of popular CLI tools.
+
+Covers:
+
+* `feat~command-line-interface~1`
+
+Needs: dsn
+
+#### Interactive Password Entry
+`req~interactive-password-entry~1`
+
+When the `--password` switch is set, BFSC brings up a password prompt where users have to enter the password interactively.
+
+Rationale:
+
+Passwords should never be supplied via the command line because they otherwise are logged in the command history. This is not the case with interactive input.
+
+Comment:
+
+If batch mode is required, the password must be taken from a key store. But this is outside of the scope of this requirement.
 
 Covers:
 

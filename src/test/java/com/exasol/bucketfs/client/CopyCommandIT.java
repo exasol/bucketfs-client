@@ -37,6 +37,7 @@ class CopyCommandIT {
     private static ExasolContainer<? extends ExasolContainer<?>> EXASOL = new ExasolContainer<>()//
             .withRequiredServices(ExasolService.BUCKETFS).withReuse(true);
 
+    // [impl->dsn~copy-command-copies-file-from-bucket~1]
     @Test
     void testCopyFileFromBucketToLocalFile(@TempDir final Path tempDir)
             throws InterruptedException, BucketAccessException, TimeoutException, IOException {
@@ -91,6 +92,7 @@ class CopyCommandIT {
         return "127.0.0.1";
     }
 
+    // [itest->dsn~sub-command-requires-hidden-password~1]
     @Test
     void testCopyFileFromBucketToFileWithoutProtocol(@TempDir final Path tempDir)
             throws InterruptedException, BucketAccessException, TimeoutException, IOException {
@@ -103,6 +105,8 @@ class CopyCommandIT {
         assertThat(Files.readString(destinationFile), equalTo(expectedContent));
     }
 
+    // [itest->dsn~copy-command-copies-file-to-bucket~1]
+    // [itest->dsn~sub-command-requires-hidden-password~1]
     @Test
     void testCopyFileWithoutProtocolToBucket(@TempDir final Path tempDir)
             throws InterruptedException, BucketAccessException, TimeoutException, IOException {
@@ -118,6 +122,7 @@ class CopyCommandIT {
         assertThat(getDefaultBucket().downloadFileAsString(filename), equalTo(expectedContent));
     }
 
+    // [itest->dsn~copy-command-copies-file-to-bucket~1]
     @Test
     void testCopyWithMalformedSourceBucketFsUrlRaisesError(final Capturable stream) {
         final BFSC client = BFSC.create("cp", "bfs://illegal/", "some_file");
@@ -126,6 +131,7 @@ class CopyCommandIT {
         assertThat(stream.getCapturedData(), startsWith("Illegal BucketFS source URL: bfs://illegal"));
     }
 
+    // [itest->dsn~copy-command-copies-file-to-bucket~1]
     @Test
     void testCopyWithMalformedDestinationBucketFsUrlRaisesError(final Capturable stream) {
         final BFSC client = BFSC.create("cp", "some_file", "bfs://illegal/");
@@ -134,6 +140,7 @@ class CopyCommandIT {
         assertThat(stream.getCapturedData(), startsWith("Illegal BucketFS destination URL: bfs://illegal"));
     }
 
+    // [itest->dsn~copy-command-copies-file-from-bucket~1]
     @Test
     void testDownloadingNonexisentObjectRaisesError(final Capturable stream) {
         final String nonexistentObjectUri = getBucketFsUri(DEFAULT_BUCKETFS, DEFAULT_BUCKET, "/nonexistent-object");
