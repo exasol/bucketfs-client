@@ -1,7 +1,6 @@
 # bucketfs-client
 
 [![Build Status](https://travis-ci.com/exasol/bucketfs-client.svg?branch=main)](https://travis-ci.com/exasol/bucketfs-client)
-[![Maven Central](https://img.shields.io/maven-central/v/com.exasol/bucketfs-client)](https://search.maven.org/artifact/com.exasol/bucketfs-client)
 
 SonarCloud results:
 
