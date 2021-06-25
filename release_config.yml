@@ -1,0 +1,8 @@
+community-tags:
+  - BucketFS
+  - Command Line Interface
+  - CLI
+  - Open Source
+community-project-name: BucketFS Client
+community-project-description: |
+  A [command line client](https://github.com/exasol/bucketfs-client) for working with Exasol's [BucketFS](https://docs.exasol.com/database_concepts/bucketfs/bucketfs.htm).
