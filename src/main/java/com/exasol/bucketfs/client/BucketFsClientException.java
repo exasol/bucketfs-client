@@ -25,7 +25,21 @@ public class BucketFsClientException extends RuntimeException {
      * @param message error message
      * @param cause   exception that caused this one
      */
-    public BucketFsClientException(final String message, final BucketAccessException cause) {
+    public BucketFsClientException(final String message, final Throwable cause) {
         super(message, cause);
+    }
+
+    /**
+     * Wrap a {@link BucketAccessException}.
+     * <p>
+     * In most cases a {@link BucketAccessException} already contains everything the user needs to know, so the only
+     * thing left to do is wrap them in the right exception type so that the BucketFS client can use them to report the
+     * error.
+     * </p>
+     *
+     * @param wrappedException actual thing that went wrong
+     */
+    public BucketFsClientException(final BucketAccessException wrappedException) {
+        super(wrappedException.getMessage(), wrappedException);
     }
 }

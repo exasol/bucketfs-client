@@ -128,7 +128,7 @@ class CopyCommandIT {
         final BFSC client = BFSC.create("cp", "bfs://illegal/", "some_file");
         stream.capture();
         assertExitWithStatus(CommandLine.ExitCode.SOFTWARE, () -> client.run());
-        assertThat(stream.getCapturedData(), startsWith("Illegal BucketFS source URL: bfs://illegal"));
+        assertThat(stream.getCapturedData(), startsWith("E-BFSC-4: Illegal BucketFS source URL: bfs://illegal"));
     }
 
     // [itest->dsn~copy-command-copies-file-to-bucket~1]
@@ -137,7 +137,7 @@ class CopyCommandIT {
         final BFSC client = BFSC.create("cp", "some_file", "bfs://illegal/");
         stream.capture();
         assertExitWithStatus(CommandLine.ExitCode.SOFTWARE, () -> client.run());
-        assertThat(stream.getCapturedData(), startsWith("Illegal BucketFS destination URL: bfs://illegal"));
+        assertThat(stream.getCapturedData(), startsWith("E-BFSC-3: Illegal BucketFS destination URL: bfs://illegal"));
     }
 
     // [itest->dsn~copy-command-copies-file-from-bucket~1]
@@ -147,6 +147,6 @@ class CopyCommandIT {
         final BFSC client = BFSC.create("cp", nonexistentObjectUri, "some_file");
         stream.capture();
         assertExitWithStatus(CommandLine.ExitCode.SOFTWARE, () -> client.run());
-        assertThat(stream.getCapturedData(), startsWith("Unable to download file"));
+        assertThat(stream.getCapturedData(), startsWith("E-BFSJ-2: File or directory not found trying to download"));
     }
 }

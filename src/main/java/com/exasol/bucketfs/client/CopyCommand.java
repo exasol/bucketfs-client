@@ -1,5 +1,6 @@
 package com.exasol.bucketfs.client;
 
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -8,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 
 import com.exasol.bucketfs.*;
 import com.exasol.bucketfs.url.BucketFsUrl;
+import com.exasol.errorreporting.ExaError;
 
 import picocli.CommandLine;
 import picocli.CommandLine.*;
@@ -37,6 +39,7 @@ public class CopyCommand implements Callable<Integer> {
 
     // [impl->dsn~copy-command-copies-file-to-bucket~1]
     private void upload() {
+        final Path sourcePath = convertSpecToPath(this.source);
         try {
             final BucketFsUrl url = createDestinationBucketFsUrl();
             final UnsynchronizedBucket bucket = WriteEnabledBucket.builder() //
@@ -46,18 +49,15 @@ public class CopyCommand implements Callable<Integer> {
                     .name(url.getBucketName()) //
                     .writePassword(this.password) //
                     .build();
-            final Path sourcePath = convertSpecToPath(this.source);
             bucket.uploadFileNonBlocking(sourcePath, url.getPathInBucket());
         } catch (final BucketAccessException exception) {
-            throw new BucketFsClientException(
-                    "Unable to upload file to " + this.destination + "\nReason: " + exception.getCause().getMessage(),
-                    exception);
-        } catch (final InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            throw new BucketFsClientException(
-                    "Got interrupted trying to upload file from " + this.source + " to " + this.destination);
+            throw new BucketFsClientException(exception);
         } catch (final TimeoutException exception) {
-            throw new BucketFsClientException("Upload to " + this.destination + " timed out.");
+            throw new BucketFsClientException(ExaError.messageBuilder("E-BSFC-1")
+                    .message("Upload to {{destination}} timed out.", this.destination).toString());
+        } catch (final FileNotFoundException exception) {
+            throw new BucketFsClientException(ExaError.messageBuilder("E-BSFC-2")
+                    .message("Unable to upload. No such file or directory: {{source-path}}", sourcePath).toString());
         }
     }
 
@@ -69,7 +69,8 @@ public class CopyCommand implements Callable<Integer> {
         try {
             return BucketFsUrl.create(this.destination);
         } catch (final MalformedURLException exeption) {
-            throw new BucketFsClientException("Illegal BucketFS destination URL: " + this.destination);
+            throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-3")
+                    .message("Illegal BucketFS destination URL: {{url}}", this.destination).toString());
         }
     }
 
@@ -86,12 +87,7 @@ public class CopyCommand implements Callable<Integer> {
             final Path destinationPath = convertSpecToPath(this.destination);
             bucket.downloadFile(sourceUrl.getPathInBucket(), destinationPath);
         } catch (final BucketAccessException exception) {
-            throw new BucketFsClientException("Unable to download file from \"" + this.source + "\"\nReason: "
-                    + exception.getCause().getMessage(), exception);
-        } catch (final InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            throw new BucketFsClientException(
-                    "Got interrupted trying to download file from " + this.source + " to " + this.destination);
+            throw new BucketFsClientException(exception);
         }
     }
 
@@ -99,7 +95,8 @@ public class CopyCommand implements Callable<Integer> {
         try {
             return BucketFsUrl.create(this.source);
         } catch (final MalformedURLException exeption) {
-            throw new BucketFsClientException("Illegal BucketFS source URL: " + this.source);
+            throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-4")
+                    .message("Illegal BucketFS source URL: {{url}}", this.source).toString());
         }
     }
 }

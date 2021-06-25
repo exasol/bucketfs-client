@@ -7,19 +7,20 @@
 
 ### Compile Dependency Updates
 
-* Added `com.exasol:bucketfs-java:1.1.0`
+* Added `com.exasol:bucketfs-java:2.0.1`
+* Added `com.exasol:error-reporting-java:0.4.0`
 * Added `info.picocli:picocli:4.6.1`
-* Added `nl.jqno.equalsverifier:equalsverifier:3.5.5`
+* Added `nl.jqno.equalsverifier:equalsverifier:3.6.1`
 * Added `org.itsallcode:junit5-system-extensions:1.2.0`
 
 ### Test Dependency Updates
 
-* Added `com.exasol:exasol-testcontainers:3.5.1`
+* Added `com.exasol:exasol-testcontainers:3.5.3`
 * Added `org.hamcrest:hamcrest:2.2`
-* Added `org.junit.jupiter:junit-jupiter-engine:5.7.1`
-* Added `org.junit.jupiter:junit-jupiter-params:5.7.1`
-* Added `org.mockito:mockito-junit-jupiter:3.8.0`
-* Added `org.testcontainers:junit-jupiter:1.15.1`
+* Added `org.junit.jupiter:junit-jupiter-engine:5.7.2`
+* Added `org.junit.jupiter:junit-jupiter-params:5.7.2`
+* Added `org.mockito:mockito-junit-jupiter:3.11.2`
+* Added `org.testcontainers:junit-jupiter:1.15.3`
 
 ### Plugin Dependency Updates
 
@@ -30,7 +31,7 @@
 * Added `org.apache.maven.plugins:maven-assembly-plugin:3.3.0`
 * Added `org.apache.maven.plugins:maven-clean-plugin:2.5`
 * Added `org.apache.maven.plugins:maven-compiler-plugin:3.8.1`
-* Added `org.apache.maven.plugins:maven-deploy-plugin:1.3.0`
+* Added `org.apache.maven.plugins:maven-deploy-plugin:2.8.2`
 * Added `org.apache.maven.plugins:maven-enforcer-plugin:3.0.0-M3`
 * Added `org.apache.maven.plugins:maven-failsafe-plugin:3.0.0-M3`
 * Added `org.apache.maven.plugins:maven-gpg-plugin:1.6`
