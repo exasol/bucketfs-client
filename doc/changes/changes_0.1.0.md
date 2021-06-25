@@ -1,8 +1,16 @@
-# bucketfs-client 0.1.0, released 2021-??-??
+# bucketfs-client 0.1.0, released 2021-06-25
+
+Code name: single file copy
+
+## Summary
+
+Version 0.1.0 is the first release of the BucketFS client, a command line tool to interact with Exasol's BucketFS.
+In this release we added support for copying single files to and from BucketFS.
 
 ## Features
 
-* ISSUE_NUMBER: description
+* #1: Copy files to and from buckets
+
 ## Dependency Updates
 
 ### Compile Dependency Updates
