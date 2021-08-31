@@ -17,6 +17,25 @@ The most common use for BucketFS is storing files on it that UDFs need:
 * Configuration files
 * Immutable lookup tables
 
+## Prerequisites
+
+To run the BucketFS Client, you need Java 11 or later.
+
+Installation depends on your operating system.
+
+* Any operating system: [Adotium OpenJDK build](https://adoptium.net/)
+* Linux
+    * Ubuntu, Debian:
+      ```bash
+      sudo apt install openjdk-11-jre-headless
+      ```
+    * RedHat
+      ```bash
+      sudo yum install java-11-openjdk
+      ```
+    * SuSE: [OpenJDK build of the Leap project](https://software.opensuse.org/download/package?package=java-11-openjdk&project=openSUSE%3ALeap%3A15.1%3AUpdate)
+* Windows: [Microsoft OpenJDK build](https://www.microsoft.com/openjdk)
+
 ## Using the Client
 
 The client is a Java program.
