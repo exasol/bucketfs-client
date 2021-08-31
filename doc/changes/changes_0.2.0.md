@@ -4,7 +4,7 @@ Code name: Documentation improvements
 
 ## Summary
 
-BucketFS client 0.2.0 contains a *breaking change* in the Bucket URL scheme. We removed the BucketFS service name since it was redundant with the port number. While the service name is easier too remember than a port number, this also led to confusion and potential conflict between port number and service name.
+BucketFS client 0.2.0 contains a *breaking change* in the Bucket URL scheme. We removed the BucketFS service name since it was redundant with the port number. While the service name is easier to remember than a port number, this also led to confusion and potential conflict between port number and service name.
 
 Bucket FS URLs now have the following format:
 
