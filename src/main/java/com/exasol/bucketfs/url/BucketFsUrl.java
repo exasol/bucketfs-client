@@ -15,11 +15,10 @@ public final class BucketFsUrl {
     public static final String BUCKETFS_PROTOCOL = "bfs";
     public static final String BUCKETFS_PROTOCOL_WITH_TLS = "bfss";
     public static final String PATH_SEPARATOR = "/";
-    private static final Pattern PATH_PATTERN = Pattern.compile("/(\\w{1,128})/(\\w{1,128})(/.*)");
+    private static final Pattern PATH_PATTERN = Pattern.compile("/(\\w{1,128})(/.*)");
     private static final int DEFAULT_PORT = 2580;
     private static final int UNDEFINED_PORT = -1;
     private final URI uri;
-    private String cachedServiceName;
     private String cachedBucketName;
     private String cachedPathInBucket;
 
@@ -64,7 +63,6 @@ public final class BucketFsUrl {
      *
      * @param host         host on which the BucketFS service runs
      * @param port         port on which the BucketFS service listens
-     * @param serviceName  name of the BucketFS service
      * @param bucketName   name of the bucket
      * @param pathInBucket path inside the bucket
      * @param useTls       set to {@code true} if TLS should be used
@@ -72,13 +70,12 @@ public final class BucketFsUrl {
      * @throws MalformedURLException if the port is negative or if either BucketFS service or bucket are missing in the
      *                               path or the path is not an absolute path
      */
-    public BucketFsUrl(final String host, final int port, final String serviceName, final String bucketName,
-            final String pathInBucket, final boolean useTls) throws MalformedURLException {
+    public BucketFsUrl(final String host, final int port, final String bucketName, final String pathInBucket,
+            final boolean useTls) throws MalformedURLException {
         try {
-            final String path = calculatePath(serviceName, bucketName, pathInBucket);
+            final String path = calculatePath(bucketName, pathInBucket);
             final String protocol = calculateProtocol(useTls);
             this.uri = new URI(protocol, null, host, port, path, null, null);
-            this.cachedServiceName = serviceName;
             this.cachedBucketName = bucketName;
             this.cachedPathInBucket = pathInBucket;
         } catch (final URISyntaxException exception) {
@@ -86,8 +83,8 @@ public final class BucketFsUrl {
         }
     }
 
-    private String calculatePath(final String serviceName, final String bucketName, final String pathInBucket) {
-        return PATH_SEPARATOR + serviceName + PATH_SEPARATOR + bucketName + PATH_SEPARATOR + pathInBucket;
+    private String calculatePath(final String bucketName, final String pathInBucket) {
+        return PATH_SEPARATOR + bucketName + PATH_SEPARATOR + pathInBucket;
     }
 
     private String calculateProtocol(final boolean useTls) {
@@ -97,9 +94,8 @@ public final class BucketFsUrl {
     private void cacheUriPathElements(final String path) throws MalformedURLException {
         final Matcher matcher = PATH_PATTERN.matcher(path);
         if (matcher.matches()) {
-            this.cachedServiceName = matcher.group(1);
-            this.cachedBucketName = matcher.group(2);
-            this.cachedPathInBucket = matcher.group(3);
+            this.cachedBucketName = matcher.group(1);
+            this.cachedPathInBucket = matcher.group(2);
         } else {
             throw new MalformedURLException("Illegal path in bucket: '" + path
                     + "'. Path must have the following form: '/<bucketfs-service/<bucket>/<path-in-bucket>");
@@ -118,15 +114,6 @@ public final class BucketFsUrl {
      */
     public String getPath() {
         return this.uri.getPath();
-    }
-
-    /**
-     * Get the name of the BucketFS service from the URL.
-     *
-     * @return name of the BucketFS service
-     */
-    public String getServiceName() {
-        return this.cachedServiceName;
     }
 
     /**
