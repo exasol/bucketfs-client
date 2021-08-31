@@ -45,7 +45,6 @@ public class CopyCommand implements Callable<Integer> {
             final UnsynchronizedBucket bucket = WriteEnabledBucket.builder() //
                     .ipAddress(url.getHost()) //
                     .httpPort(url.getPort()) //
-                    .serviceName(url.getServiceName()) //
                     .name(url.getBucketName()) //
                     .writePassword(this.password) //
                     .build();
@@ -81,7 +80,6 @@ public class CopyCommand implements Callable<Integer> {
             final ReadOnlyBucket bucket = ReadEnabledBucket.builder() //
                     .ipAddress(sourceUrl.getHost()) //
                     .httpPort(sourceUrl.getPort()) //
-                    .serviceName(sourceUrl.getServiceName()) //
                     .name(sourceUrl.getBucketName()) //
                     .build();
             final Path destinationPath = convertSpecToPath(this.destination);

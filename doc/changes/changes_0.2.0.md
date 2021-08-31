@@ -1,6 +1,22 @@
-# bucketfs-client 0.1.1, released 2021-08-31
+# bucketfs-client 0.2.0, released 2021-08-31
 
 Code name: Documentation improvements
+
+## Summary
+
+BucketFS client 0.2.0 contains a *breaking change* in the Bucket URL scheme. We removed the BucketFS service name since it was redundant with the port number. While the service name is easier to remember than a port number, this also led to confusion and potential conflict between port number and service name.
+
+Bucket FS URLs now have the following format:
+
+```
+bfs[s]://<host>:<port>/<bucket>/<path-in-bucket>
+```
+
+We also updated dependencies and documented the prerequisites in the user guide.
+
+## Bugfix
+
+* #5: Remove redundant BucketFS service name from URL
 
 ## Refactoring
 
@@ -11,6 +27,7 @@ Code name: Documentation improvements
 
 * #3: Added missing dependencies file
 * #4: Added prerequisites in user guide
+
 
 ## Dependency Updates
 

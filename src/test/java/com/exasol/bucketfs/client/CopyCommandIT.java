@@ -56,8 +56,7 @@ class CopyCommandIT {
     }
 
     private String getBucketFsUri(final String serviceName, final String bucketName, final String pathInBucket) {
-        return "bfs://" + getHost() + ":" + getMappedBucketFsPort() + "/" + serviceName + "/" + bucketName + "/"
-                + pathInBucket;
+        return "bfs://" + getHost() + ":" + getMappedBucketFsPort() + "/" + bucketName + "/" + pathInBucket;
     }
 
     private void uploadStringContent(final String content, final String pathInBucket)

@@ -15,18 +15,18 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 // [utest->dsn~bucket-fs-url~1]
 class BucketFsUrlTest {
     @CsvSource({ //
-            "localhost, 8888, the_service, the_bucket, file.txt, false, bfs://localhost:8888/the_service/the_bucket/file.txt", //
+            "localhost, 8888, the_bucket, file.txt, false, bfs://localhost:8888/the_bucket/file.txt", //
     })
     @ParameterizedTest
-    void testCreateFromComponents(final String host, final int port, final String service, final String bucket,
-            final String pathInBucket, final boolean useTls, final String expectedUri) throws MalformedURLException {
-        final BucketFsUrl url = new BucketFsUrl(host, port, service, bucket, pathInBucket, false);
+    void testCreateFromComponents(final String host, final int port, final String bucket, final String pathInBucket,
+            final boolean useTls, final String expectedUri) throws MalformedURLException {
+        final BucketFsUrl url = new BucketFsUrl(host, port, bucket, pathInBucket, false);
         assertThat(url.toURI(), equalTo(URI.create(expectedUri)));
     }
 
     @CsvSource({ //
-            "bfs://localhost:8888/the_service/the_bucket/file.txt", //
-            "bfs://127.0.0.1:123/s/b/foo/bar/baz" //
+            "bfs://localhost:8888/the_bucket/file.txt", //
+            "bfs://127.0.0.1:123/b/foo/bar/baz" //
     })
     @ParameterizedTest
     void testCreateFromString(final String inputUri) throws MalformedURLException {
@@ -34,8 +34,8 @@ class BucketFsUrlTest {
     }
 
     @CsvSource({ //
-            "bfs://localhost:8888/the_service/the_bucket/file.txt", //
-            "bfs://127.0.0.1:123/s/b/foo/bar/baz" //
+            "bfs://localhost:8888/the_bucket/file.txt", //
+            "bfs://127.0.0.1:123/b/foo/bar/baz" //
     })
     @ParameterizedTest
     void testCreateFromUri(final URI inputUri) throws MalformedURLException {
@@ -43,8 +43,8 @@ class BucketFsUrlTest {
     }
 
     @CsvSource({ //
-            "bfs://localhost:8888/the_service/the_bucket/file.txt, /the_service/the_bucket/file.txt", //
-            "bfs://127.0.0.1:123/s/b/foo/bar/baz, /s/b/foo/bar/baz" //
+            "bfs://localhost:8888/the_bucket/file.txt, /the_bucket/file.txt", //
+            "bfs://127.0.0.1:123/b/foo/bar/baz, /b/foo/bar/baz" //
     })
 
     @ParameterizedTest
@@ -53,17 +53,8 @@ class BucketFsUrlTest {
     }
 
     @CsvSource({ //
-            "bfs://localhost:8888/the_service/the_bucket/file.txt, the_service", //
-            "bfs://127.0.0.1:123/s/b/foo/bar/baz, s" //
-    })
-    @ParameterizedTest
-    void testGetServiceName(final String inputUri, final String expectedServiceName) throws MalformedURLException {
-        assertThat(BucketFsUrl.create(inputUri).getServiceName(), equalTo(expectedServiceName));
-    }
-
-    @CsvSource({ //
-            "bfs://localhost:8888/the_service/the_bucket/file.txt, the_bucket", //
-            "bfs://127.0.0.1:123/s/b/foo/bar/baz, b" //
+            "bfs://localhost:8888/the_bucket/file.txt, the_bucket", //
+            "bfs://127.0.0.1:123/b/foo/bar/baz, b" //
     })
     @ParameterizedTest
     void testGetBucketName(final String inputUri, final String expectedBucketName) throws MalformedURLException {
@@ -71,8 +62,8 @@ class BucketFsUrlTest {
     }
 
     @CsvSource({ //
-            "bfs://localhost:8888/the_service/the_bucket/file.txt, /file.txt", //
-            "bfs://127.0.0.1:123/s/b/foo/bar/baz, /foo/bar/baz" //
+            "bfs://localhost:8888/the_bucket/file.txt, /file.txt", //
+            "bfs://127.0.0.1:123/b/foo/bar/baz, /foo/bar/baz" //
     })
     @ParameterizedTest
     void testGetPathInBucket(final String inputUri, final String expectedPath) throws MalformedURLException {
@@ -80,8 +71,8 @@ class BucketFsUrlTest {
     }
 
     @CsvSource({ //
-            "bfs://localhost:8888/the_service/the_bucket/file.txt, 8888", //
-            "bfs://127.0.0.1:123/s/b/foo/bar/baz, 123" //
+            "bfs://localhost:8888/the_bucket/file.txt, 8888", //
+            "bfs://127.0.0.1:123/b/foo/bar/baz, 123" //
     })
     @ParameterizedTest
     void testGetPort(final String inputUri, final int expectedPath) throws MalformedURLException {
@@ -95,7 +86,7 @@ class BucketFsUrlTest {
 
     private BucketFsUrl createRandomBucketFsUrl(final boolean useTls) {
         try {
-            return new BucketFsUrl("foo", 1234, "service", "bucket", "/path", useTls);
+            return new BucketFsUrl("foo", 1234, "bucket", "/path", useTls);
         } catch (final MalformedURLException exception) {
             throw new AssertionError("Unable to create BucketFS URL required for tests", exception);
         }
@@ -117,26 +108,26 @@ class BucketFsUrlTest {
     }
 
     @CsvSource({ //
-            "bfs://localhost:777/a/b/c, localhost", //
-            "bfs://192.168.1.1/a/b/c, 192.168.1.1" })
+            "bfs://localhost:777/a/b, localhost", //
+            "bfs://192.168.1.1/a/b, 192.168.1.1" })
     @ParameterizedTest
     void testGetHost(final String inputUri, final String expectedHost) throws MalformedURLException {
         assertThat(BucketFsUrl.create(inputUri).getHost(), equalTo(expectedHost));
     }
 
     @CsvSource({ //
-            "localhost, 8888, the_service, the_bucket, file.txt, false, bfs://localhost:8888/the_service/the_bucket/file.txt", //
+            "localhost, 8888, the_bucket, file.txt, false, bfs://localhost:8888/the_bucket/file.txt", //
     })
     @ParameterizedTest
-    void testToString(final String host, final int port, final String service, final String bucket,
-            final String pathInBucket, final boolean useTls, final String expectedUri) throws MalformedURLException {
-        final BucketFsUrl url = new BucketFsUrl(host, port, service, bucket, pathInBucket, false);
+    void testToString(final String host, final int port, final String bucket, final String pathInBucket,
+            final boolean useTls, final String expectedUri) throws MalformedURLException {
+        final BucketFsUrl url = new BucketFsUrl(host, port, bucket, pathInBucket, false);
         assertThat(url.toString(), equalTo(expectedUri));
     }
 
     @CsvSource({ //
-            "bfs://a/b/c/, false", //
-            "bfss://a/b/c/, true" //
+            "bfs://a/b/, false", //
+            "bfss://a/b/, true" //
     })
     @ParameterizedTest
     void testIsTlsEnabled(final String inputUri, final boolean useTls) throws MalformedURLException {
@@ -159,7 +150,6 @@ class BucketFsUrlTest {
 
     @Test
     void testEqualsContract() {
-        EqualsVerifier.forClass(BucketFsUrl.class)
-                .withIgnoredFields("cachedServiceName", "cachedBucketName", "cachedPathInBucket").verify();
+        EqualsVerifier.forClass(BucketFsUrl.class).withIgnoredFields("cachedBucketName", "cachedPathInBucket").verify();
     }
 }
