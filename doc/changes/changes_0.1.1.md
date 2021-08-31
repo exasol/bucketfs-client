@@ -9,6 +9,7 @@ Code name: Documentation improvements
 
 ## Documentation
 
+* #3: Added missing dependencies file
 * #4: Added prerequisites in user guide
 
 ## Dependency Updates
