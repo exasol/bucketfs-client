@@ -1,8 +1,6 @@
 # bucketfs-client
 
-[![Build Status](https://travis-ci.com/exasol/bucketfs-client.svg?branch=main)](https://travis-ci.com/exasol/bucketfs-client)
-
-SonarCloud results:
+[![Build Status](https://github.com/exasol/bucketfs-client/actions/workflows/ci-build.yml/badge.svg)](https://github.com/exasol/bucketfs-client/actions/workflows/ci-build.yml)
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.exasol%3Abucketfs-client&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.exasol%3Abucketfs-client)
 
