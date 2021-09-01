@@ -1,4 +1,4 @@
-# bucketfs-client 0.2.0, released 2021-08-31
+# bucketfs-client 0.2.0, released 2021-09-01
 
 Code name: Documentation improvements
 
