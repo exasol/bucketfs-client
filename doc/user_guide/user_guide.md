@@ -6,7 +6,7 @@ It allows you to read and write the contents of buckets.
 
 A bucket is a storage space on an Exasol cluster that automatically takes care of distributing files loaded onto it.
 
-Those objects can then be used in [User Defined Functions (UDFs)](https://docs.exasol.com/database_concepts/udf_scripts.htm).
+Those files can then be used in [User Defined Functions (UDFs)](https://docs.exasol.com/database_concepts/udf_scripts.htm).
 
 ## Use Cases
 
@@ -23,7 +23,7 @@ To run the BucketFS Client, you need Java 11 or later.
 
 Installation depends on your operating system.
 
-* Any operating system: [Adotium OpenJDK build](https://adoptium.net/)
+* Any operating system: [Adoptium OpenJDK build](https://adoptium.net/)
 * Linux
     * Ubuntu, Debian:
       ```bash
@@ -45,13 +45,13 @@ The client is a Java program.
 The purist way of starting that is of course starting the application straight out of the JAR archive.
 
 ```bash
-java -jar "<path-to-bfcs-jar>" <command> <option> ...
+java -jar "<path-to-bfsc-jar>" <command> <option> ...
 ```
 
 Since this gets a little bit unwieldy very quickly, you should set an alias:
 
 ```bash
-alias bfsc='java -jar <path-to-bfcs-jar>'
+alias bfsc='java -jar <path-to-bfsc-jar>'
 ```
 
 ## Sub-commands and Command Line Options
@@ -90,13 +90,13 @@ While buckets can be public for reading depending on their configuration, writin
 
 So for all writing operations on a bucket, the `--password` switch is mandatory.
 
-When you provide the `--password` switch, BFSC will bring up an interactive password prompt with hidden entry after you submitted the command. The reason the password is not specified in on the command line is that this would be a security issue, since the password would then show up in the command history.
+When you provide the `--password` switch, BFSC will bring up an interactive password prompt with hidden entry after you submitted the command. The reason the password is not specified on the command line is that this would be a security issue, since the password would then show up in the command history.
 
 As a general rule you should never put any credentials directly in to a command line.
 
 ### Copying Files
 
-In the majority of all cases you will copy file _to_ a bucket. For example if you want to install a library that you plan to use in a Python or Java UDF.
+In the majority of all cases you will copy files _to_ a bucket. For example if you want to install a library that you plan to use in a Python or Java UDF.
 
 ```bash
 bfsc cp [--password] <from> <to>
