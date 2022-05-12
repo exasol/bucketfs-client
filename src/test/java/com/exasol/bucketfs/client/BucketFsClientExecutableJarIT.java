@@ -68,10 +68,11 @@ class BucketFsClientExecutableJarIT {
     }
 
     private void writeToStdIn(final Process process, final String value) throws IOException {
-        final OutputStream outputStream = process.getOutputStream();
-        outputStream.write(value.getBytes(StandardCharsets.UTF_8));
-        outputStream.write(LINE_FEED_CHAR);
-        outputStream.flush();
+        LOGGER.fine("Writing value to stdin");
+        try (final BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8))) {
+            writer.write(value);
+        }
     }
 
     private String getDefaultBucketUriToFile(final String filename) {
