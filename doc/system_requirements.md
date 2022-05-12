@@ -128,14 +128,14 @@ Needs: dsn
 
 ### Command Line Interface
 
-BSFC is a command line tool. GNU tools like `cp` and `ls` serve as template for the arguments, mostly because a lot of users are familiar with them.
+BFSC is a command line tool. GNU tools like `cp` and `ls` serve as template for the arguments, mostly because a lot of users are familiar with them.
 
 We considered also aligning the error messages, but experiments showed that this is not ideal. For one, working with BucketFS can cause errors that either are slightly different in cause than their counterparts in the GNU tools and on the other hand the error message coming from the GNU tools tend to be cryptic in some cases, probably for historical reasons. We want to improve the user experience in that particular point.
 
 #### GNU-style Command Line Arguments
 `req~gnu-style-command-line-arguments~1`
 
-BSFC supports command line arguments that follow the [GNU command line style](https://www.gnu.org/software/libc/manual/html_node/Argument-Syntax.html).
+BFSC supports command line arguments that follow the [GNU command line style](https://www.gnu.org/software/libc/manual/html_node/Argument-Syntax.html).
 
 Rationale:
 

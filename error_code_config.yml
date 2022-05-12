@@ -1,0 +1,5 @@
+error-tags:
+  BFSC:
+    packages:
+      - com.exasol.bucketfs
+    highest-index: 4

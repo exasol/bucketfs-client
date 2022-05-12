@@ -52,10 +52,10 @@ public class CopyCommand implements Callable<Integer> {
         } catch (final BucketAccessException exception) {
             throw new BucketFsClientException(exception);
         } catch (final TimeoutException exception) {
-            throw new BucketFsClientException(ExaError.messageBuilder("E-BSFC-1")
+            throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-1")
                     .message("Upload to {{destination}} timed out.", this.destination).toString());
         } catch (final FileNotFoundException exception) {
-            throw new BucketFsClientException(ExaError.messageBuilder("E-BSFC-2")
+            throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-2")
                     .message("Unable to upload. No such file or directory: {{source-path}}", sourcePath).toString());
         }
     }
