@@ -86,6 +86,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven.surefire-and-failsafe.version}</version>
+                <configuration>
+                    <!-- Required to avoid error running integration tests:
+                        java.lang.IllegalAccessError: class com.exasol.bucketfs.client.BucketFsClientExecutableJarIT (in module jakarta.json) cannot access class java.util.logging.Logger (in module java.logging) because module jakarta.json does not read module java.logging -->
+                    <useModulePath>false</useModulePath>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -175,6 +180,11 @@
                 <version>3.3.0</version>
                 <configuration>
                     <finalName>bfsc-${project.version}</finalName>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.exasol.bucketfs.client.BucketFsClient</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
             <plugin>
