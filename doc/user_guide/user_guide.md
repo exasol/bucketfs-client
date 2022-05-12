@@ -42,16 +42,16 @@ The client is a Java program.
 
 ### Using the JAR File Directly
 
- The purist way of starting that is of course starting the application straight out of the JAR archive.
+The purist way of starting that is of course starting the application straight out of the JAR archive.
 
 ```bash
-java -cp "<path-to-bfcs-jar>:<path-to-picocli-jar>" <command> org.myorg.MainClass <option> ...
+java -jar "<path-to-bfcs-jar>" <command> <option> ...
 ```
 
 Since this gets a little bit unwieldy very quickly, you should set an alias:
 
 ```bash
-alias bfsc='java -cp <...>'
+alias bfsc='java -jar <path-to-bfcs-jar>'
 ```
 
 ## Sub-commands and Command Line Options
