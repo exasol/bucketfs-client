@@ -141,7 +141,7 @@ class CopyCommandIT {
 
     // [itest->dsn~copy-command-copies-file-from-bucket~1]
     @Test
-    void testDownloadingNonexisentObjectRaisesError(final Capturable stream) {
+    void testDownloadingNonexistentObjectRaisesError(final Capturable stream) {
         final String nonexistentObjectUri = getBucketFsUri(DEFAULT_BUCKETFS, DEFAULT_BUCKET, "/nonexistent-object");
         final BFSC client = BFSC.create("cp", nonexistentObjectUri, "some_file");
         stream.capture();
