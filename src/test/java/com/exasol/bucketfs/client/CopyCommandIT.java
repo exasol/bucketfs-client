@@ -76,7 +76,7 @@ class CopyCommandIT {
                 .getBucketConfiguration(DEFAULT_BUCKET);
         return WriteEnabledBucket.builder() //
                 .ipAddress(getHost()) //
-                .httpPort(getMappedBucketFsPort()) //
+                .port(getMappedBucketFsPort()) //
                 .serviceName("bfsdefault") //
                 .name("default") //
                 .writePassword(bucketConfiguration.getWritePassword()) //
@@ -88,7 +88,7 @@ class CopyCommandIT {
     }
 
     private String getHost() {
-        return "127.0.0.1";
+        return EXASOL.getContainerIpAddress();
     }
 
     // [itest->dsn~sub-command-requires-hidden-password~1]

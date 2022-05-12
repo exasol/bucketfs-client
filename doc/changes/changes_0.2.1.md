@@ -36,9 +36,11 @@ The BucketFS client JAR file did not have a main manifest attribute, that's why 
 * Updated `org.apache.maven.plugins:maven-compiler-plugin:3.8.1` to `3.10.1`
 * Updated `org.apache.maven.plugins:maven-deploy-plugin:2.8.2` to `2.7`
 * Updated `org.apache.maven.plugins:maven-enforcer-plugin:3.0.0-M3` to `3.0.0`
+* Updated `org.apache.maven.plugins:maven-failsafe-plugin:3.0.0-M3` to `3.0.0-M6`
 * Removed `org.apache.maven.plugins:maven-gpg-plugin:1.6`
 * Updated `org.apache.maven.plugins:maven-jar-plugin:3.2.0` to `3.2.2`
 * Updated `org.apache.maven.plugins:maven-javadoc-plugin:3.2.0` to `3.4.0`
+* Updated `org.apache.maven.plugins:maven-surefire-plugin:3.0.0-M3` to `3.0.0-M6`
 * Added `org.codehaus.mojo:flatten-maven-plugin:1.2.7`
 * Updated `org.codehaus.mojo:versions-maven-plugin:2.7` to `2.10.0`
 * Updated `org.itsallcode:openfasttrace-maven-plugin:1.0.0` to `1.5.0`

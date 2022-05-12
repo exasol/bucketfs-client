@@ -44,7 +44,7 @@ public class CopyCommand implements Callable<Integer> {
             final BucketFsUrl url = createDestinationBucketFsUrl();
             final UnsynchronizedBucket bucket = WriteEnabledBucket.builder() //
                     .ipAddress(url.getHost()) //
-                    .httpPort(url.getPort()) //
+                    .port(url.getPort()) //
                     .name(url.getBucketName()) //
                     .writePassword(this.password) //
                     .build();
@@ -67,7 +67,7 @@ public class CopyCommand implements Callable<Integer> {
     private BucketFsUrl createDestinationBucketFsUrl() {
         try {
             return BucketFsUrl.create(this.destination);
-        } catch (final MalformedURLException exeption) {
+        } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-3")
                     .message("Illegal BucketFS destination URL: {{url}}", this.destination).toString());
         }
@@ -79,7 +79,7 @@ public class CopyCommand implements Callable<Integer> {
             final BucketFsUrl sourceUrl = createSourceBucketFsUrl();
             final ReadOnlyBucket bucket = ReadEnabledBucket.builder() //
                     .ipAddress(sourceUrl.getHost()) //
-                    .httpPort(sourceUrl.getPort()) //
+                    .port(sourceUrl.getPort()) //
                     .name(sourceUrl.getBucketName()) //
                     .build();
             final Path destinationPath = convertSpecToPath(this.destination);
@@ -92,7 +92,7 @@ public class CopyCommand implements Callable<Integer> {
     private BucketFsUrl createSourceBucketFsUrl() {
         try {
             return BucketFsUrl.create(this.source);
-        } catch (final MalformedURLException exeption) {
+        } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-4")
                     .message("Illegal BucketFS source URL: {{url}}", this.source).toString());
         }
