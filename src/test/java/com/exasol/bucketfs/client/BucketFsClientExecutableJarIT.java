@@ -84,15 +84,26 @@ class BucketFsClientExecutableJarIT {
                 + EXASOL.getMappedPort(EXASOL.getDefaultInternalBucketfsPort()) + "/" + bucketName + "/" + pathInBucket;
     }
 
-    private Process run(final String... args) throws IOException {
+    private Process run(final String... args) throws IOException, InterruptedException {
+        final Path jar = getJarFile();
+        final List<String> commandLine = new ArrayList<>(List.of("java", "-jar", jar.toString()));
+        commandLine.addAll(asList(args));
+        LOGGER.info("Launching command '" + String.join(" ", commandLine) + "'...");
+        final ProcessBuilder process = new ProcessBuilder(commandLine).redirectErrorStream(false);
+        waitUntilStartupComplete();
+        return process.start();
+    }
+
+    private Path getJarFile() {
         final Path jar = Paths.get("target/bfsc-0.2.1.jar").toAbsolutePath();
         if (!Files.exists(jar)) {
             fail("Jar " + jar + " not found. Run 'mvn package' to build it.");
         }
-        final List<String> commandLine = new ArrayList<>(List.of("java", "-jar", jar.toString()));
-        commandLine.addAll(asList(args));
-        LOGGER.info("Launching command '" + String.join(" ", commandLine) + "'...");
-        return new ProcessBuilder(commandLine).redirectErrorStream(false).start();
+        return jar;
+    }
+
+    private void waitUntilStartupComplete() throws InterruptedException {
+        Thread.sleep(50);
     }
 
     private void assertProcessSucceeds(final Process process, final String expectedMessage)
@@ -138,4 +149,5 @@ class BucketFsClientExecutableJarIT {
             throw new UncheckedIOException(exception);
         }
     }
+
 }
