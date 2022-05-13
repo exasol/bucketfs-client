@@ -1,4 +1,4 @@
-# bucketfs-client 0.2.1, released 2022-??-??
+# bucketfs-client 0.2.1, released 2022-05-13
 
 Code name: 0.2.1: Make JAR executable
 
