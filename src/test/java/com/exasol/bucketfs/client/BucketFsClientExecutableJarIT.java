@@ -30,9 +30,8 @@ import picocli.CommandLine.ExitCode;
 
 @Testcontainers
 class BucketFsClientExecutableJarIT {
-    private static final char LINE_FEED_CHAR = 0x0A;
     private static final Logger LOGGER = Logger.getLogger(BucketFsClientExecutableJarIT.class.getName());
-    private static final Duration PROCESS_TIMEOUT = Duration.ofSeconds(2);
+    private static final Duration PROCESS_TIMEOUT = Duration.ofSeconds(5);
     @Container
     private static ExasolContainer<? extends ExasolContainer<?>> EXASOL = new ExasolContainer<>()//
             .withRequiredServices(ExasolService.BUCKETFS).withReuse(true);
@@ -89,9 +88,9 @@ class BucketFsClientExecutableJarIT {
         final List<String> commandLine = new ArrayList<>(List.of("java", "-jar", jar.toString()));
         commandLine.addAll(asList(args));
         LOGGER.info("Launching command '" + String.join(" ", commandLine) + "'...");
-        final ProcessBuilder process = new ProcessBuilder(commandLine).redirectErrorStream(false);
+        final Process process = new ProcessBuilder(commandLine).redirectErrorStream(false).start();
         waitUntilStartupComplete();
-        return process.start();
+        return process;
     }
 
     private Path getJarFile() {
