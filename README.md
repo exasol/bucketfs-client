@@ -14,7 +14,7 @@
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=com.exasol%3Abucketfs-client&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=com.exasol%3Abucketfs-client)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=com.exasol%3Abucketfs-client&metric=ncloc)](https://sonarcloud.io/dashboard?id=com.exasol%3Abucketfs-client)
 
-This project is a command line client Exasol's [BucketFS](https://docs.exasol.com/administration/on-premise/bucketfs/bucketfs.htm).
+This project is a command line client for Exasol's [BucketFS](https://docs.exasol.com/administration/on-premise/bucketfs/bucketfs.htm).
 
 ## Features
 
