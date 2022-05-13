@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.hamcrest.Matcher;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.junit.jupiter.Container;
@@ -44,19 +43,6 @@ class BucketFsClientExecutableJarIT {
         assertProcessFails(run(), ExitCode.USAGE, equalTo(""),
                 equalTo("Missing required subcommand\nUsage: bfs [COMMAND]\nExasol BucketFS client\nCommands:\n"
                         + "  cp  Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY\n"));
-    }
-
-    @Test
-    @Disabled
-    void copyFileSucceeds(@TempDir final Path tempDir) throws InterruptedException, IOException, BucketAccessException {
-        final String filename = "upload.txt";
-        final Path sourceFile = tempDir.resolve(filename);
-        Files.writeString(sourceFile, "content");
-        final String destination = getDefaultBucketUriToFile(filename);
-        final String password = EXASOL.getClusterConfiguration().getDefaultBucketWritePassword();
-        final Process process = run("cp", "--password", sourceFile.toString(), destination);
-        writeToStdIn(process, password);
-        assertProcessSucceeds(process, "Enter value for --password (password): ");
     }
 
     @Test
@@ -114,20 +100,6 @@ class BucketFsClientExecutableJarIT {
             fail("Jar " + jar + " not found. Run 'mvn package' to build it.");
         }
         return jar;
-    }
-
-    private void assertProcessSucceeds(final Process process, final String expectedMessage)
-            throws InterruptedException {
-        assertProcessFinishes(process, PROCESS_TIMEOUT);
-        final int exitCode = process.exitValue();
-        final String stdOut = readString(process.getInputStream());
-        final String stdErr = readString(process.getErrorStream());
-        if (exitCode != ExitCode.OK) {
-            LOGGER.warning("Process failed with message\n---\n" + stdErr + "\n---");
-        }
-        assertAll(() -> assertThat(exitCode, equalTo(0)), //
-                () -> assertThat("std error", stdErr, equalTo("")), //
-                () -> assertThat("std output", stdOut, equalTo(expectedMessage)));
     }
 
     private void assertProcessFinishes(final Process process, final Duration timeout) throws InterruptedException {
