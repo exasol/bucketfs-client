@@ -40,18 +40,17 @@ public class BFSC {
      */
     public void run() {
         if (isStdInOverridden()) {
-            runWithOverridenStdIn();
+            runWithOverriddenStdIn();
         } else {
             BucketFsClient.main(this.parameters);
         }
-
     }
 
     private boolean isStdInOverridden() {
         return this.in != null;
     }
 
-    private void runWithOverridenStdIn() {
+    private void runWithOverriddenStdIn() {
         final InputStream previousStdIn = System.in;
         try {
             System.setIn(new ByteArrayInputStream(this.in.getBytes()));

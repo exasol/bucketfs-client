@@ -7,10 +7,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
 import static org.itsallcode.junit.sysextensions.AssertExit.assertExitWithStatus;
 import static picocli.CommandLine.ExitCode.OK;
+import static picocli.CommandLine.ExitCode.SOFTWARE;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.concurrent.TimeoutException;
 
 import org.itsallcode.io.Capturable;
@@ -76,7 +76,7 @@ class CopyCommandIT {
                 .getBucketConfiguration(DEFAULT_BUCKET);
         return WriteEnabledBucket.builder() //
                 .ipAddress(getHost()) //
-                .httpPort(getMappedBucketFsPort()) //
+                .port(getMappedBucketFsPort()) //
                 .serviceName("bfsdefault") //
                 .name("default") //
                 .writePassword(bucketConfiguration.getWritePassword()) //
@@ -88,7 +88,7 @@ class CopyCommandIT {
     }
 
     private String getHost() {
-        return "127.0.0.1";
+        return EXASOL.getContainerIpAddress();
     }
 
     // [itest->dsn~sub-command-requires-hidden-password~1]
@@ -121,6 +121,17 @@ class CopyCommandIT {
         assertThat(getDefaultBucket().downloadFileAsString(filename), equalTo(expectedContent));
     }
 
+    @Test
+    void testCopyNonExistingFileWithoutProtocolToBucket()
+            throws InterruptedException, BucketAccessException, TimeoutException, IOException {
+        final String filename = "non-existing-local-file";
+        final Path sourceFile = Paths.get(filename);
+        final String destination = getDefaultBucketUriToFile(filename);
+        final String password = getDefaultBucket().getWritePassword();
+        assertExitWithStatus(SOFTWARE,
+                () -> BFSC.create("cp", "-p", sourceFile.toString(), destination).feedStdIn(password).run());
+    }
+
     // [itest->dsn~copy-command-copies-file-to-bucket~1]
     @Test
     void testCopyWithMalformedSourceBucketFsUrlRaisesError(final Capturable stream) {
@@ -141,7 +152,7 @@ class CopyCommandIT {
 
     // [itest->dsn~copy-command-copies-file-from-bucket~1]
     @Test
-    void testDownloadingNonexisentObjectRaisesError(final Capturable stream) {
+    void testDownloadingNonexistentObjectRaisesError(final Capturable stream) {
         final String nonexistentObjectUri = getBucketFsUri(DEFAULT_BUCKETFS, DEFAULT_BUCKET, "/nonexistent-object");
         final BFSC client = BFSC.create("cp", nonexistentObjectUri, "some_file");
         stream.capture();
