@@ -5,6 +5,7 @@ import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKETFS;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import org.hamcrest.Matcher;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.junit.jupiter.Container;
@@ -38,12 +41,13 @@ class BucketFsClientExecutableJarIT {
 
     @Test
     void executableFailsWithoutArguments() throws InterruptedException, IOException {
-        assertProcessFails(run(), ExitCode.USAGE, "",
-                "Missing required subcommand\nUsage: bfs [COMMAND]\nExasol BucketFS client\nCommands:\n"
-                        + "  cp  Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY\n");
+        assertProcessFails(run(), ExitCode.USAGE, equalTo(""),
+                equalTo("Missing required subcommand\nUsage: bfs [COMMAND]\nExasol BucketFS client\nCommands:\n"
+                        + "  cp  Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY\n"));
     }
 
     @Test
+    @Disabled
     void copyFileSucceeds(@TempDir final Path tempDir) throws InterruptedException, IOException, BucketAccessException {
         final String filename = "upload.txt";
         final Path sourceFile = tempDir.resolve(filename);
@@ -56,14 +60,26 @@ class BucketFsClientExecutableJarIT {
     }
 
     @Test
-    void copyFileFails() throws InterruptedException, IOException, BucketAccessException {
+    void copyFileFailsForMissingPassword(@TempDir final Path tempDir)
+            throws InterruptedException, IOException, BucketAccessException {
+        final String filename = "upload.txt";
+        final Path sourceFile = tempDir.resolve(filename);
+        Files.writeString(sourceFile, "content");
+        final String destination = getDefaultBucketUriToFile(filename);
+        final Process process = run("cp", sourceFile.toString(), destination);
+        assertProcessFails(process, ExitCode.SOFTWARE, equalTo(""),
+                startsWith("E-BFSJ-3: Access denied trying to upload "));
+    }
+
+    @Test
+    void copyFileFailsForNonExistingFile() throws InterruptedException, IOException, BucketAccessException {
         final Path sourceFile = Paths.get("non-existing-file");
         final String destination = getDefaultBucketUriToFile(sourceFile.toString());
         final String password = EXASOL.getClusterConfiguration().getDefaultBucketWritePassword();
         final Process process = run("cp", "--password", sourceFile.toString(), destination);
         writeToStdIn(process, password);
-        assertProcessFails(process, ExitCode.SOFTWARE, "Enter value for --password (password): ",
-                "E-BFSC-2: Unable to upload. No such file or directory: non-existing-file\n");
+        assertProcessFails(process, ExitCode.SOFTWARE, equalTo("Enter value for --password (password): "),
+                equalTo("E-BFSC-2: Unable to upload. No such file or directory: non-existing-file\n"));
     }
 
     private void writeToStdIn(final Process process, final String value) throws IOException {
@@ -89,7 +105,6 @@ class BucketFsClientExecutableJarIT {
         commandLine.addAll(asList(args));
         LOGGER.info("Launching command '" + String.join(" ", commandLine) + "'...");
         final Process process = new ProcessBuilder(commandLine).redirectErrorStream(false).start();
-        waitUntilStartupComplete();
         return process;
     }
 
@@ -99,10 +114,6 @@ class BucketFsClientExecutableJarIT {
             fail("Jar " + jar + " not found. Run 'mvn package' to build it.");
         }
         return jar;
-    }
-
-    private void waitUntilStartupComplete() throws InterruptedException {
-        Thread.sleep(50);
     }
 
     private void assertProcessSucceeds(final Process process, final String expectedMessage)
@@ -130,15 +141,16 @@ class BucketFsClientExecutableJarIT {
         }
     }
 
-    private void assertProcessFails(final Process process, final int expectedExitCode, final String expectedStdOut,
-            final String expectedStdErr) throws InterruptedException, IOException {
+    private void assertProcessFails(final Process process, final int expectedExitCode,
+            final Matcher<String> expectedStdOut, final Matcher<String> expectedStdErr)
+            throws InterruptedException, IOException {
         assertProcessFinishes(process, PROCESS_TIMEOUT);
         final int exitCode = process.exitValue();
         final String stdOut = readString(process.getInputStream());
         final String stdErr = readString(process.getErrorStream());
         assertAll(() -> assertThat(exitCode, equalTo(expectedExitCode)), //
-                () -> assertThat(stdOut, equalTo(expectedStdOut)), //
-                () -> assertThat(stdErr, equalTo(expectedStdErr)));
+                () -> assertThat(stdOut, expectedStdOut), //
+                () -> assertThat(stdErr, expectedStdErr));
     }
 
     private String readString(final InputStream stream) {
@@ -148,5 +160,4 @@ class BucketFsClientExecutableJarIT {
             throw new UncheckedIOException(exception);
         }
     }
-
 }
