@@ -65,7 +65,7 @@ Needs: req
 
 ### BucketFS URLs
 
-To make BucketFS access similar to other file systems, BFSC introduces the concept of a BucktFS URL. This URL serves to identify resources inside a bucket.
+To make BucketFS access similar to other file systems, BFSC introduces the concept of a BucketFS URL. This URL serves to identify resources inside a bucket.
 
 #### BucketFS URL
 `req~bucketfs-url~1`
@@ -82,7 +82,7 @@ A Bucket URL locates a resource inside a bucket with the following syntax:
     
     path-in-bucket = 1*("/" segment)
     
-    segment = psegment-start-character *segment-character
+    segment = segment-start-character *segment-character
     
     segment-start-character = (ALPHA / DIGIT / "_")
     
