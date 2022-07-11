@@ -59,6 +59,7 @@
 [1]: https://opensource.org/licenses/MIT
 [16]: https://github.com/mockito/mockito
 [52]: https://maven.apache.org/surefire/maven-failsafe-plugin/
+[32]: https://www.mojohaus.org/flatten-maven-plugin/
 [42]: https://github.com/exasol/project-keeper/
 [44]: http://www.mojohaus.org/versions-maven-plugin/
 [15]: http://opensource.org/licenses/BSD-3-Clause
@@ -82,7 +83,6 @@
 [10]: https://junit.org/junit5/
 [34]: https://sonatype.github.io/ossindex-maven/maven-plugin/
 [20]: https://testcontainers.org
-[32]: https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin
 [8]: https://github.com/itsallcode/junit5-system-extensions
 [24]: https://maven.apache.org/plugins/maven-source-plugin/
 [14]: http://hamcrest.org/JavaHamcrest/
