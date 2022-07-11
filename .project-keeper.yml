@@ -4,3 +4,5 @@ sources:
     modules:
       - integration_tests
       - jar_artifact
+linkReplacements:
+  - "https://www.mojohaus.org/flatten-maven-plugin/flatten-maven-plugin|https://www.mojohaus.org/flatten-maven-plugin/"

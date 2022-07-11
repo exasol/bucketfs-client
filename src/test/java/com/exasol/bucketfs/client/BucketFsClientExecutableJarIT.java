@@ -95,7 +95,7 @@ class BucketFsClientExecutableJarIT {
     }
 
     private Path getJarFile() {
-        final Path jar = Paths.get("target/bfsc-0.2.1.jar").toAbsolutePath();
+        final Path jar = Paths.get("target/bfsc-0.2.2.jar").toAbsolutePath();
         if (!Files.exists(jar)) {
             fail("Jar " + jar + " not found. Run 'mvn package' to build it.");
         }

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>bucketfs-client</artifactId>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
     <description>Command line client for BucketFS</description>
     <url>https://github.com/exasol/bucketfs-client/</url>
     <properties>
@@ -113,7 +113,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>2.4.2</version>
+                <version>2.4.6</version>
                 <executions>
                     <execution>
                         <goals>
@@ -202,7 +202,7 @@
     <parent>
         <artifactId>bucketfs-client-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>0.2.1</version>
+        <version>0.2.2</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>
