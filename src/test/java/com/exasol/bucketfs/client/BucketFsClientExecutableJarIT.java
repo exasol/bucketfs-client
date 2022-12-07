@@ -24,7 +24,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.exasol.bucketfs.BucketAccessException;
 import com.exasol.containers.ExasolContainer;
 import com.exasol.containers.ExasolService;
 
@@ -39,15 +38,17 @@ class BucketFsClientExecutableJarIT {
             .withRequiredServices(ExasolService.BUCKETFS).withReuse(true);
 
     @Test
-    void executableFailsWithoutArguments() throws InterruptedException, IOException {
-        assertProcessFails(run(), ExitCode.USAGE, equalTo(""),
-                equalTo("Missing required subcommand\nUsage: bfs [COMMAND]\nExasol BucketFS client\nCommands:\n"
-                        + "  cp  Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY\n"));
+    void executableFailsWithoutArguments() throws Exception {
+        assertProcessFails(run(), ExitCode.USAGE, equalTo(""), equalTo(lines("Missing required subcommand", //
+                "Usage: bfs [COMMAND]", //
+                "Exasol BucketFS client", //
+                "Commands:", //
+                "  cp  Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY", //
+                "")));
     }
 
     @Test
-    void copyFileFailsForMissingPassword(@TempDir final Path tempDir)
-            throws InterruptedException, IOException, BucketAccessException {
+    void copyFileFailsForMissingPassword(@TempDir final Path tempDir) throws Exception {
         final String filename = "upload.txt";
         final Path sourceFile = tempDir.resolve(filename);
         Files.writeString(sourceFile, "content");
@@ -58,14 +59,14 @@ class BucketFsClientExecutableJarIT {
     }
 
     @Test
-    void copyFileFailsForNonExistingFile() throws InterruptedException, IOException, BucketAccessException {
+    void copyFileFailsForNonExistingFile() throws Exception {
         final Path sourceFile = Paths.get("non-existing-file");
         final String destination = getDefaultBucketUriToFile(sourceFile.toString());
         final String password = EXASOL.getClusterConfiguration().getDefaultBucketWritePassword();
         final Process process = run("cp", "--password", sourceFile.toString(), destination);
         writeToStdIn(process, password);
         assertProcessFails(process, ExitCode.SOFTWARE, equalTo("Enter value for --password (password): "),
-                equalTo("E-BFSC-2: Unable to upload. No such file or directory: non-existing-file\n"));
+                equalTo(lines("E-BFSC-2: Unable to upload. No such file or directory: 'non-existing-file'", "")));
     }
 
     private void writeToStdIn(final Process process, final String value) throws IOException {
@@ -81,8 +82,8 @@ class BucketFsClientExecutableJarIT {
     }
 
     private String getBucketFsUri(final String serviceName, final String bucketName, final String pathInBucket) {
-        return "bfs://" + EXASOL.getContainerIpAddress() + ":"
-                + EXASOL.getMappedPort(EXASOL.getDefaultInternalBucketfsPort()) + "/" + bucketName + "/" + pathInBucket;
+        return "bfs://" + EXASOL.getHost() + ":" + EXASOL.getMappedPort(EXASOL.getDefaultInternalBucketfsPort()) + "/"
+                + bucketName + "/" + pathInBucket;
     }
 
     private Process run(final String... args) throws IOException, InterruptedException {
@@ -131,5 +132,9 @@ class BucketFsClientExecutableJarIT {
         } catch (final IOException exception) {
             throw new UncheckedIOException(exception);
         }
+    }
+
+    private String lines(final String... lines) {
+        return String.join(System.lineSeparator(), lines);
     }
 }

@@ -54,7 +54,7 @@ Since this gets a little bit unwieldy very quickly, you should set an alias:
 alias bfsc='java -jar <path-to-bfsc-jar>'
 ```
 
-## Sub-commands and Command Line Options
+### Sub-commands and Command Line Options
 
 Sub-commands control the action that BFSC is taking. For each type of action there is a sub-command. The way to use this is:
 
@@ -73,7 +73,9 @@ BFSC supports the following sub commands to inspect and manipulate files in the 
 
 The following sections describe the commands in detail.
 
-## BucketFS URLs
+### General Concepts
+
+#### BucketFS URLs
 
 BFSC uses specific URL to refer to files or paths in a bucket.
 
@@ -87,9 +89,15 @@ You specify the host or IP address of the machine where the BucketFS service run
 
 The first path element is always the name of the bucket. The next elements are the path relative to that buckets root.
 
-## Environment Variables for Default Parameters
+#### Password Protected Bucket Access
 
-BFSC supports the following environment variables for applying parameters to all subsequent commands. If an environment variable is unset then BFSC uses the specified default value. Parameters supplied on the commandline will override the environment variables.
+While buckets can be public for reading depending on their configuration, writing is always password protected. For write operations like copying files to the BucketFS or deleting files from the BucketFS BFSC will retrieve the required write password. BFSC supports to read the password either from an [environment variable](#environment-variables-for-default-parameters) or from an interactive prompt hiding the characters typed by the user.
+
+BFSC does not support to provide the password on the command line to avoid the password showing up in the command history. As a general rule you should never put any credentials directly in to a command line.
+
+#### Environment Variables for Default Parameters
+
+BFSC supports the following environment variables for applying parameters to all subsequent commands. If an environment variable is unset then BFSC uses the corresponding default value shown in the table below. Parameters supplied on the commandline will override the environment variables.
 
 | Parameter                       | Environment variable | Default value |
 |---------------------------------|----------------------|---------------|
@@ -108,22 +116,8 @@ bfsc cp foo.jar bfs:drivers
 
 Is identical to
 ```bash
-bfsc -p abc cp foo.jar bfs://localhost:2580/simba/drivers/foo.jar
+bfsc cp foo.jar bfs://localhost:2580/simba/drivers/foo.jar
 ```
-
-## Bucket Operations
-
-### General Considerations
-
-#### Password Protected Bucket Access
-
-While buckets can be public for reading depending on their configuration, writing is always password protected. You can provide a password by setting the `--password` (or short `-p`) command line switch.
-
-So for all writing operations on a bucket, the `--password` switch is mandatory.
-
-When you provide the `--password` switch, BFSC will bring up an interactive password prompt with hidden entry after you submitted the command. The reason the password is not specified on the command line is that this would be a security issue, since the password would then show up in the command history.
-
-As a general rule you should never put any credentials directly in to a command line.
 
 #### Retriving the Password, Base64 Encoding
 
@@ -132,18 +126,20 @@ The password for write operations to the BucketFS is usually stored in file `/ex
 WritePass = <value>
 ```
 
-Additionally the `<value>` is base64 encoded.  For additional convenience BFSC allows you to specify the password in base64 encoded format and let BFSC decode it with commandline flag `--decode-base64-password` or `-d`.
+Additionally the `<value>` is base64 encoded.  For additional convenience BFSC allows you to provide the password in base64 encoded format and let BFSC decode it with commandline flag `--decode-base64-password` or `-d`. This applies to all methods providing the password: via environment `BUCKETFS_PASSWORD`, as well as via interactive prompt.
 
 ```bash
-bfsc cp -d -p <base64 encoded password> a.txt bfs:/
+bfsc cp -d a.txt bfs:/
 ```
 
-### Copying Files
+### Bucket Operations
+
+#### Copying Files
 
 In the majority of all cases you will copy files _to_ a bucket. For example if you want to install a library that you plan to use in a Python or Java UDF.
 
 ```bash
-bfsc cp [--password <password>] <from> <to>
+bfsc cp <from> <to>
 ```
 
 Example:
