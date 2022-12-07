@@ -8,11 +8,27 @@ import com.exasol.bucketfs.client.OsCheck.OSType;
 
 import picocli.CommandLine.ITypeConverter;
 
+/**
+ * Converts String to URI even on windows OS
+ */
 public class UriConverter implements ITypeConverter<URI> {
 
     private static final String FILE = "file://";
     private static final Pattern SCHEME_PATTERN = Pattern.compile("^(" + FILE + "|" + FILE + "[^/].*)$");
     private static final Pattern DRIVE_LETTER = Pattern.compile("^[a-z]:/", Pattern.CASE_INSENSITIVE);
+
+    private final OSType osType;
+
+    /**
+     * Constructor
+     */
+    public UriConverter() {
+        this(new OsCheck().getOperatingSystemType());
+    }
+
+    UriConverter(final OSType osType) {
+        this.osType = osType;
+    }
 
     @Override
     public URI convert(final String value) throws URISyntaxException {
@@ -35,6 +51,6 @@ public class UriConverter implements ITypeConverter<URI> {
     }
 
     private boolean isWindows() {
-        return new OsCheck().getOperatingSystemType() == OSType.WINDOWS;
+        return this.osType == OSType.WINDOWS;
     }
 }

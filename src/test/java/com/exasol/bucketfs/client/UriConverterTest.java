@@ -6,6 +6,8 @@ import static org.hamcrest.Matchers.equalTo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import com.exasol.bucketfs.client.OsCheck.OSType;
+
 class UriConverterTest {
 
     @ParameterizedTest
@@ -19,7 +21,7 @@ class UriConverterTest {
     })
 
     void testWindowsUri(final String uri, final String expected) throws Exception {
-        final String actual = new UriConverter().convert(uri).toString();
+        final String actual = new UriConverter(OSType.WINDOWS).convert(uri).toString();
         assertThat(actual, equalTo(expected));
     }
 }
