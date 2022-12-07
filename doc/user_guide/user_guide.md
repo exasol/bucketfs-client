@@ -2,11 +2,11 @@
 
 The BucketFS Client (BFSC) is a client program for Exasol's BucketFS distributed file system.
 
-It allows you to read and write the contents of buckets.
+BFSC allows you to read and write the contents of buckets.
 
-A bucket is a storage space on an Exasol cluster that automatically takes care of distributing files loaded onto it.
+A bucket is a storage space on an Exasol cluster that automatically takes care of distributing files loaded onto it, see [official documentation](https://docs.exasol.com/db/latest/database_concepts/bucketfs/bucketfs.htm) for details.
 
-Those files can then be used in [User Defined Functions (UDFs)](https://docs.exasol.com/database_concepts/udf_scripts.htm).
+Those files can then be used in [User Defined Functions (UDFs)](https://docs.exasol.com/database_concepts/udf_scripts.htm), e.g. for [Virtual Schemas](https://docs.exasol.com/db/latest/database_concepts/virtual_schemas.htm) which are a special type of UDFs.
 
 ## Use Cases
 
@@ -62,9 +62,16 @@ Sub-commands control the action that BFSC is taking. For each type of action the
 bfsc <sub-command> <option> ...
 ```
 
-BFSC recognizes the following sub-commands:
+BFSC supports the following sub commands to inspect and manipulate files in the BucketFS:
 
-* `cp`: copy files from and to BucketFS
+| Command                | Description                                        |
+|------------------------|--------------------------------------------------- |
+| `bfsc ls`              | List contents of BucketFS                          |
+| `bfsc cp a.jar bfs:/`  | Upload file from local fie system to BucketFS      |
+| `bfsc cp bfs:/a.jar .` | Download a file from BucketFS to local file system |
+| `bfsc rm /a.jar`       | Remove file from BucketFS                          |
+
+The following sections describe the commands in detail.
 
 ## BucketFS URLs
 
@@ -80,6 +87,30 @@ You specify the host or IP address of the machine where the BucketFS service run
 
 The first path element is always the name of the bucket. The next elements are the path relative to that buckets root.
 
+## Environment Variables for Default Parameters
+
+BFSC supports the following environment variables for applying parameters to all subsequent commands. If an environment variable is unset then BFSC uses the specified default value. Parameters supplied on the commandline will override the environment variables.
+
+| Parameter                       | Environment variable | Default value |
+|---------------------------------|----------------------|---------------|
+| Host address of BucketFS server | `BUCKETFS_HOST`      | `localhost`   |
+| Port                            | `BUCKETFS_PORT`      | `2580`        |
+| Write passsword                 | `BUCKETFS_PASSWORD`  | (none)        |
+| Name of root bucket             | `BUCKETFS_BUCKET`    | `default`     |
+
+Example
+```bash
+BUCKETFS_PASSWORD=abc
+BUCKETFS_BUCKET=simba
+
+bfsc cp foo.jar bfs:drivers
+```
+
+Is identical to
+```bash
+bfsc -p abc cp foo.jar bfs://localhost:2580/simba/drivers/foo.jar
+```
+
 ## Bucket Operations
 
 ### General Considerations
@@ -94,16 +125,36 @@ When you provide the `--password` switch, BFSC will bring up an interactive pass
 
 As a general rule you should never put any credentials directly in to a command line.
 
+#### Retriving the Password, Base64 Encoding
+
+The password for write operations to the BucketFS is usually stored in file `/exa/etc/EXAConf`:
+```
+WritePass = <value>
+```
+
+Additionally the `<value>` is base64 encoded.  For additional convenience BFSC allows you to specify the password in base64 encoded format and let BFSC decode it with commandline flag `--decode-base64-password` or `-d`.
+
+```bash
+bfsc cp -d -p <base64 encoded password> a.txt bfs:/
+```
+
 ### Copying Files
 
 In the majority of all cases you will copy files _to_ a bucket. For example if you want to install a library that you plan to use in a Python or Java UDF.
 
 ```bash
-bfsc cp [--password] <from> <to>
+bfsc cp [--password <password>] <from> <to>
 ```
 
 Example:
 
 ```bash
 bfsc cp foo-driver-1.2.3.jar bfs://192.168.0.1:2580/default/drivers/foo-driver-1.2.3.jar
+```
+
+While the `cp` command can rename the copied file in the target location you can also omit the filename to tell BFSC to leave the filename unchanged just as the GNU `cp` command does:
+
+```bash
+bfsc cp foo.jar bfs:drivers/
+bfsc cp bfs:drivers/foo.jar .
 ```
