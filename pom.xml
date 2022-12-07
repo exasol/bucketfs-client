@@ -6,7 +6,6 @@
     <url>https://github.com/exasol/bucketfs-client/</url>
     <properties>
         <junit.version>5.9.1</junit.version>
-        <testcontainers.version>1.15.2</testcontainers.version>
         <picocli.version>4.7.0</picocli.version>
     </properties>
     <dependencies>

@@ -31,7 +31,7 @@ Added missing functionality to list and delete files in BucketFS and improved co
 
 * Updated `com.exasol:artifact-reference-checker-maven-plugin:0.4.1` to `0.4.2`
 * Updated `com.exasol:error-code-crawler-maven-plugin:1.1.1` to `1.2.1`
-* Updated `com.exasol:project-keeper-maven-plugin:2.4.2` to `2.9.2`
+* Updated `com.exasol:project-keeper-maven-plugin:2.4.2` to `2.9.1`
 * Updated `io.github.zlika:reproducible-build-maven-plugin:0.15` to `0.16`
 * Updated `org.apache.maven.plugins:maven-assembly-plugin:3.3.0` to `3.4.2`
 * Updated `org.apache.maven.plugins:maven-enforcer-plugin:3.0.0` to `3.1.0`
