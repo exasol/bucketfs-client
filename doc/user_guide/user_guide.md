@@ -34,7 +34,6 @@ Installation depends on your operating system.
       sudo yum install java-11-openjdk
       ```
     * SuSE: [OpenJDK build of the Leap project](https://software.opensuse.org/download/package?package=java-11-openjdk&project=openSUSE%3ALeap%3A15.1%3AUpdate)
-* Windows: [Microsoft OpenJDK build](https://www.microsoft.com/openjdk)
 
 ## Using the Client
 
