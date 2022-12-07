@@ -25,6 +25,7 @@ public class CopyCommand implements Callable<Integer> {
 
     // [impl->dsn~sub-command-requires-hidden-password~1]
     @Option(names = { "-p", "--password" }, description = "password", interactive = true)
+    // System.Console().console.readPassword("Enter your secret password: ");
     private String password;
 
     @Override
