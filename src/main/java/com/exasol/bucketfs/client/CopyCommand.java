@@ -17,10 +17,10 @@ import picocli.CommandLine.*;
 //[impl->dsn~command-line-parsing~1]
 @Command(name = "cp", description = "Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY")
 public class CopyCommand implements Callable<Integer> {
-    @Parameters(index = "0", paramLabel = "SOURCE", description = "source")
+    @Parameters(index = "0", paramLabel = "SOURCE", description = "source", converter = UriConverter.class)
     private URI source;
 
-    @Parameters(index = "1", paramLabel = "DEST", description = "destination")
+    @Parameters(index = "1", paramLabel = "DEST", description = "destination", converter = UriConverter.class)
     private URI destination;
 
     // [impl->dsn~sub-command-requires-hidden-password~1]
@@ -35,6 +35,10 @@ public class CopyCommand implements Callable<Integer> {
             download();
         }
         return CommandLine.ExitCode.OK;
+    }
+
+    String readPassword() {
+        return new String(System.console().readPassword("Enter your secret password: "));
     }
 
     // [impl->dsn~copy-command-copies-file-to-bucket~1]

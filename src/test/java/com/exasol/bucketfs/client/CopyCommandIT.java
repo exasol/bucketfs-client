@@ -9,7 +9,6 @@ import static org.itsallcode.junit.sysextensions.AssertExit.assertExitWithStatus
 import static picocli.CommandLine.ExitCode.OK;
 import static picocli.CommandLine.ExitCode.SOFTWARE;
 
-import java.io.IOException;
 import java.nio.file.*;
 import java.util.concurrent.TimeoutException;
 
@@ -39,8 +38,7 @@ class CopyCommandIT {
 
     // [impl->dsn~copy-command-copies-file-from-bucket~1]
     @Test
-    void testCopyFileFromBucketToLocalFile(@TempDir final Path tempDir)
-            throws InterruptedException, BucketAccessException, TimeoutException, IOException {
+    void testCopyFileFromBucketToLocalFile(@TempDir final Path tempDir) throws Exception {
         final String expectedContent = "the content";
         final String filename = "dir_test.txt";
         final Path destinationFile = tempDir.resolve(filename);
@@ -88,13 +86,12 @@ class CopyCommandIT {
     }
 
     private String getHost() {
-        return EXASOL.getContainerIpAddress();
+        return EXASOL.getHost();
     }
 
     // [itest->dsn~sub-command-requires-hidden-password~1]
     @Test
-    void testCopyFileFromBucketToFileWithoutProtocol(@TempDir final Path tempDir)
-            throws InterruptedException, BucketAccessException, TimeoutException, IOException {
+    void testCopyFileFromBucketToFileWithoutProtocol(@TempDir final Path tempDir) throws Exception {
         final String expectedContent = "downloaded content";
         final String filename = "dir_test.txt";
         final Path destinationFile = tempDir.resolve(filename);
@@ -107,8 +104,7 @@ class CopyCommandIT {
     // [itest->dsn~copy-command-copies-file-to-bucket~1]
     // [itest->dsn~sub-command-requires-hidden-password~1]
     @Test
-    void testCopyFileWithoutProtocolToBucket(@TempDir final Path tempDir)
-            throws InterruptedException, BucketAccessException, TimeoutException, IOException {
+    void testCopyFileWithoutProtocolToBucket(@TempDir final Path tempDir) throws Exception {
         final String expectedContent = "uploaded content";
         final String filename = "upload.txt";
         final Path sourceFile = tempDir.resolve(filename);
@@ -122,8 +118,7 @@ class CopyCommandIT {
     }
 
     @Test
-    void testCopyNonExistingFileWithoutProtocolToBucket()
-            throws InterruptedException, BucketAccessException, TimeoutException, IOException {
+    void testCopyNonExistingFileWithoutProtocolToBucket() throws Exception {
         final String filename = "non-existing-local-file";
         final Path sourceFile = Paths.get(filename);
         final String destination = getDefaultBucketUriToFile(filename);
@@ -138,7 +133,7 @@ class CopyCommandIT {
         final BFSC client = BFSC.create("cp", "bfs://illegal/", "some_file");
         stream.capture();
         assertExitWithStatus(CommandLine.ExitCode.SOFTWARE, () -> client.run());
-        assertThat(stream.getCapturedData(), startsWith("E-BFSC-4: Illegal BucketFS source URL: bfs://illegal"));
+        assertThat(stream.getCapturedData(), startsWith("E-BFSC-4: Illegal BucketFS source URL: 'bfs://illegal/'"));
     }
 
     // [itest->dsn~copy-command-copies-file-to-bucket~1]
@@ -147,7 +142,8 @@ class CopyCommandIT {
         final BFSC client = BFSC.create("cp", "some_file", "bfs://illegal/");
         stream.capture();
         assertExitWithStatus(CommandLine.ExitCode.SOFTWARE, () -> client.run());
-        assertThat(stream.getCapturedData(), startsWith("E-BFSC-3: Illegal BucketFS destination URL: bfs://illegal"));
+        assertThat(stream.getCapturedData(),
+                startsWith("E-BFSC-3: Illegal BucketFS destination URL: 'bfs://illegal/'"));
     }
 
     // [itest->dsn~copy-command-copies-file-from-bucket~1]
