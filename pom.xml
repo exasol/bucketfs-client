@@ -24,6 +24,7 @@
             <artifactId>picocli</artifactId>
             <version>${picocli.version}</version>
         </dependency>
+        <!-- test dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
@@ -64,11 +65,13 @@
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
             <version>3.12.1</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.itsallcode</groupId>
             <artifactId>junit5-system-extensions</artifactId>
             <version>1.2.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

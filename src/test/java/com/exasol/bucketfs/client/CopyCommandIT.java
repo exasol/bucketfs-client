@@ -42,10 +42,9 @@ class CopyCommandIT {
         final String expectedContent = "the content";
         final String filename = "dir_test.txt";
         final Path destinationFile = tempDir.resolve(filename);
-        final String destination = "file://" + destinationFile;
         uploadStringContent(expectedContent, filename);
         final String source = getDefaultBucketUriToFile(filename);
-        assertExitWithStatus(OK, () -> BFSC.create("cp", source, destination).run());
+        assertExitWithStatus(OK, () -> BFSC.create("cp", source, destinationFile.toString()).run());
         assertThat(Files.readString(destinationFile), equalTo(expectedContent));
     }
 

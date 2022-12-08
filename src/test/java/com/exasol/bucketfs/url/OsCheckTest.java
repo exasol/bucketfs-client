@@ -1,4 +1,4 @@
-package com.exasol.bucketfs.client;
+package com.exasol.bucketfs.url;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -8,7 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import com.exasol.bucketfs.client.OsCheck.OSType;
+import com.exasol.bucketfs.url.OsCheck;
+import com.exasol.bucketfs.url.OsCheck.OSType;
 
 class OsCheckTest {
     private static final String OS_NAME_SYSTEM_PROPERTY = "os.name";

@@ -1,10 +1,10 @@
-package com.exasol.bucketfs.client;
+package com.exasol.bucketfs.url;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
-import com.exasol.bucketfs.client.OsCheck.OSType;
+import com.exasol.bucketfs.url.OsCheck.OSType;
 
 import picocli.CommandLine.ITypeConverter;
 
@@ -14,7 +14,6 @@ import picocli.CommandLine.ITypeConverter;
 public class UriConverter implements ITypeConverter<URI> {
 
     private static final String FILE = "file://";
-    private static final Pattern SCHEME_PATTERN = Pattern.compile("^(" + FILE + "|" + FILE + "[^/].*)$");
     private static final Pattern DRIVE_LETTER = Pattern.compile("^[a-z]:/", Pattern.CASE_INSENSITIVE);
 
     private final OSType osType;
@@ -39,15 +38,13 @@ public class UriConverter implements ITypeConverter<URI> {
         if ((value == null) || !isWindows()) {
             return value;
         }
+        return fixDriveLetter(value.replace('\\', '/'));
+    }
 
-        final String result = value.replace('\\', '/');
-        if (DRIVE_LETTER.matcher(result).find()) {
-            return FILE + "/" + result;
-        }
-        if (SCHEME_PATTERN.matcher(result).matches()) {
-            return result.replace(FILE, FILE + "/");
-        }
-        return result;
+    private String fixDriveLetter(final String value) {
+        return DRIVE_LETTER.matcher(value).find() //
+                ? FILE + "/" + value
+                : value;
     }
 
     private boolean isWindows() {
