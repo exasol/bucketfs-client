@@ -9,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 
 import com.exasol.bucketfs.*;
 import com.exasol.bucketfs.url.BucketFsUrl;
+import com.exasol.bucketfs.url.UriConverter;
 import com.exasol.errorreporting.ExaError;
 
 import picocli.CommandLine;
