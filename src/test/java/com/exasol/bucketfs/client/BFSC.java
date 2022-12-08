@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 /**
- * Wrapper for executing the BucketFsClient (BFSC) in integration tests.
+ * Executes the BucketFsClient (BFSC) in integration tests.
  */
 public class BFSC {
     private final String[] parameters;

@@ -1,4 +1,4 @@
-package com.exasol.bucketfs.client;
+package com.exasol.bucketfs.url;
 
 import java.util.Locale;
 

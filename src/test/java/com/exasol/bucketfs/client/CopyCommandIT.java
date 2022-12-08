@@ -22,7 +22,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.exasol.bucketfs.*;
-import com.exasol.bucketfs.url.UriConverter;
 import com.exasol.config.BucketConfiguration;
 import com.exasol.containers.ExasolContainer;
 import com.exasol.containers.ExasolService;
@@ -43,11 +42,9 @@ class CopyCommandIT {
         final String expectedContent = "the content";
         final String filename = "dir_test.txt";
         final Path destinationFile = tempDir.resolve(filename);
-        final String destination = new UriConverter().convert(destinationFile).toString();
-//        final String destination = "file://" + destinationFile;
         uploadStringContent(expectedContent, filename);
         final String source = getDefaultBucketUriToFile(filename);
-        assertExitWithStatus(OK, () -> BFSC.create("cp", source, destination).run());
+        assertExitWithStatus(OK, () -> BFSC.create("cp", source, destinationFile.toString()).run());
         assertThat(Files.readString(destinationFile), equalTo(expectedContent));
     }
 
