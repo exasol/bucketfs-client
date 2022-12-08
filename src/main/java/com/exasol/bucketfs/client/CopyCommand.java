@@ -13,7 +13,8 @@ import com.exasol.bucketfs.url.UriConverter;
 import com.exasol.errorreporting.ExaError;
 
 import picocli.CommandLine;
-import picocli.CommandLine.*;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 //[impl->dsn~command-line-parsing~1]
 @Command(name = "cp", description = "Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY")
@@ -24,26 +25,19 @@ public class CopyCommand implements Callable<Integer> {
     @Parameters(index = "1", paramLabel = "DEST", description = "destination", converter = UriConverter.class)
     private URI destination;
 
-    // [impl->dsn~sub-command-requires-hidden-password~1]
-    @Option(names = { "-p", "--password" }, description = "password", interactive = true)
-    private String password;
-
     @Override
     public Integer call() {
         if (BucketFsUrl.isBucketFsUrl(this.destination)) {
-            upload();
+            final String password = PasswordReader.readPassword();
+            upload(password);
         } else {
             download();
         }
         return CommandLine.ExitCode.OK;
     }
 
-    String readPassword() {
-        return new String(System.console().readPassword("Enter your secret password: "));
-    }
-
     // [impl->dsn~copy-command-copies-file-to-bucket~1]
-    private void upload() {
+    private void upload(final String password) {
         final Path sourcePath = convertSpecToPath(this.source);
         try {
             final BucketFsUrl url = createDestinationBucketFsUrl();
@@ -51,7 +45,7 @@ public class CopyCommand implements Callable<Integer> {
                     .ipAddress(url.getHost()) //
                     .port(url.getPort()) //
                     .name(url.getBucketName()) //
-                    .writePassword(this.password) //
+                    .writePassword(password) //
                     .build();
             bucket.uploadFileNonBlocking(sourcePath, url.getPathInBucket());
         } catch (final BucketAccessException exception) {

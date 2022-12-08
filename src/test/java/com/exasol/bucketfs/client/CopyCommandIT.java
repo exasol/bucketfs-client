@@ -123,7 +123,7 @@ class CopyCommandIT {
         final String destination = getDefaultBucketUriToFile(filename);
         final String password = getDefaultBucket().getWritePassword();
         assertExitWithStatus(SOFTWARE,
-                () -> BFSC.create("cp", "-p", sourceFile.toString(), destination).feedStdIn(password).run());
+                () -> BFSC.create("cp", sourceFile.toString(), destination).feedStdIn(password).run());
     }
 
     // [itest->dsn~copy-command-copies-file-to-bucket~1]
