@@ -3,24 +3,24 @@
 
 ## Compile Dependencies
 
-| Dependency                               | License                                       |
-| ---------------------------------------- | --------------------------------------------- |
-| [BucketFS Java][0]                       | [MIT License][1]                              |
-| [error-reporting-java][2]                | [MIT License][3]                              |
-| [picocli][4]                             | [The Apache Software License, version 2.0][5] |
-| [EqualsVerifier | release normal jar][6] | [Apache License, Version 2.0][7]              |
-| [JUnit5 System Extensions][8]            | [Eclipse Public License v2.0][9]              |
+| Dependency                | License                                       |
+| ------------------------- | --------------------------------------------- |
+| [BucketFS Java][0]        | [MIT License][1]                              |
+| [error-reporting-java][2] | [MIT License][3]                              |
+| [picocli][4]              | [The Apache Software License, version 2.0][5] |
 
 ## Test Dependencies
 
 | Dependency                                      | License                           |
 | ----------------------------------------------- | --------------------------------- |
-| [JUnit Jupiter Engine][10]                      | [Eclipse Public License v2.0][11] |
-| [JUnit Jupiter Params][10]                      | [Eclipse Public License v2.0][11] |
-| [Hamcrest][12]                                  | [BSD License 3][13]               |
-| [mockito-junit-jupiter][14]                     | [The MIT License][15]             |
-| [Test containers for Exasol on Docker][16]      | [MIT License][17]                 |
-| [Testcontainers :: JUnit Jupiter Extension][18] | [MIT][19]                         |
+| [JUnit Jupiter Engine][6]                       | [Eclipse Public License v2.0][7]  |
+| [JUnit Jupiter Params][6]                       | [Eclipse Public License v2.0][7]  |
+| [Hamcrest][8]                                   | [BSD License 3][9]                |
+| [mockito-junit-jupiter][10]                     | [The MIT License][11]             |
+| [Test containers for Exasol on Docker][12]      | [MIT License][13]                 |
+| [Testcontainers :: JUnit Jupiter Extension][14] | [MIT][15]                         |
+| [EqualsVerifier | release normal jar][16]       | [Apache License, Version 2.0][17] |
+| [JUnit5 System Extensions][18]                  | [Eclipse Public License v2.0][19] |
 
 ## Plugin Dependencies
 
@@ -29,16 +29,16 @@
 | [SonarQube Scanner for Maven][20]                       | [GNU LGPL 3][21]                              |
 | [OpenFastTrace Maven Plugin][22]                        | [GNU General Public License v3.0][23]         |
 | [Project keeper maven plugin][24]                       | [The MIT License][25]                         |
-| [Apache Maven Compiler Plugin][26]                      | [Apache License, Version 2.0][7]              |
-| [Apache Maven Enforcer Plugin][27]                      | [Apache License, Version 2.0][7]              |
-| [Maven Flatten Plugin][28]                              | [Apache Software Licenese][7]                 |
+| [Apache Maven Compiler Plugin][26]                      | [Apache License, Version 2.0][17]             |
+| [Apache Maven Enforcer Plugin][27]                      | [Apache License, Version 2.0][17]             |
+| [Maven Flatten Plugin][28]                              | [Apache Software Licenese][17]                |
 | [org.sonatype.ossindex.maven:ossindex-maven-plugin][29] | [ASL2][5]                                     |
-| [Maven Surefire Plugin][30]                             | [Apache License, Version 2.0][7]              |
-| [Versions Maven Plugin][31]                             | [Apache License, Version 2.0][7]              |
-| [Apache Maven Assembly Plugin][32]                      | [Apache License, Version 2.0][7]              |
-| [Apache Maven JAR Plugin][33]                           | [Apache License, Version 2.0][7]              |
+| [Maven Surefire Plugin][30]                             | [Apache License, Version 2.0][17]             |
+| [Versions Maven Plugin][31]                             | [Apache License, Version 2.0][17]             |
+| [Apache Maven Assembly Plugin][32]                      | [Apache License, Version 2.0][17]             |
+| [Apache Maven JAR Plugin][33]                           | [Apache License, Version 2.0][17]             |
 | [Artifact reference checker and unifier][34]            | [MIT License][35]                             |
-| [Maven Failsafe Plugin][36]                             | [Apache License, Version 2.0][7]              |
+| [Maven Failsafe Plugin][36]                             | [Apache License, Version 2.0][17]             |
 | [JaCoCo :: Maven Plugin][37]                            | [Eclipse Public License 2.0][38]              |
 | [error-code-crawler-maven-plugin][39]                   | [MIT License][40]                             |
 | [Reproducible Build Maven Plugin][41]                   | [Apache 2.0][5]                               |
@@ -54,20 +54,20 @@
 [3]: https://github.com/exasol/error-reporting-java/blob/main/LICENSE
 [4]: https://picocli.info
 [5]: http://www.apache.org/licenses/LICENSE-2.0.txt
-[6]: https://www.jqno.nl/equalsverifier
-[7]: https://www.apache.org/licenses/LICENSE-2.0.txt
-[8]: https://github.com/itsallcode/junit5-system-extensions
-[9]: http://www.eclipse.org/legal/epl-v20.html
-[10]: https://junit.org/junit5/
-[11]: https://www.eclipse.org/legal/epl-v20.html
-[12]: http://hamcrest.org/JavaHamcrest/
-[13]: http://opensource.org/licenses/BSD-3-Clause
-[14]: https://github.com/mockito/mockito
-[15]: https://github.com/mockito/mockito/blob/main/LICENSE
-[16]: https://github.com/exasol/exasol-testcontainers/
-[17]: https://github.com/exasol/exasol-testcontainers/blob/main/LICENSE
-[18]: https://testcontainers.org
-[19]: http://opensource.org/licenses/MIT
+[6]: https://junit.org/junit5/
+[7]: https://www.eclipse.org/legal/epl-v20.html
+[8]: http://hamcrest.org/JavaHamcrest/
+[9]: http://opensource.org/licenses/BSD-3-Clause
+[10]: https://github.com/mockito/mockito
+[11]: https://github.com/mockito/mockito/blob/main/LICENSE
+[12]: https://github.com/exasol/exasol-testcontainers/
+[13]: https://github.com/exasol/exasol-testcontainers/blob/main/LICENSE
+[14]: https://testcontainers.org
+[15]: http://opensource.org/licenses/MIT
+[16]: https://www.jqno.nl/equalsverifier
+[17]: https://www.apache.org/licenses/LICENSE-2.0.txt
+[18]: https://github.com/itsallcode/junit5-system-extensions
+[19]: http://www.eclipse.org/legal/epl-v20.html
 [20]: http://sonarsource.github.io/sonar-scanner-maven/
 [21]: http://www.gnu.org/licenses/lgpl.txt
 [22]: https://github.com/itsallcode/openfasttrace-maven-plugin
