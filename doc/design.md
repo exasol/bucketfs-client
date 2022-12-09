@@ -59,27 +59,28 @@ Covers:
 
 Needs: impl, itest
 
-### CopyCommand Copies File To Bucket With Interactive Password
+### CopyCommand Copies File To Bucket With Write Password
 `dsn~copy-command-copies-file-to-bucket~1`
 
 The `CopyCommand` copies a single file from the local filesystem to a bucket.
 
 Covers:
 
-* `req~copy-single-file-to-bucket-with-interactive-password~1`
+* `req~copy-single-file-to-bucket-with-interactive-password~2`
 
 Needs: impl, itest
 
 ## Command Line Interface
 
 ### Sub-command Requires Hidden Write Password
-`dsn~sub-command-requires-hidden-password~1`
+`dsn~sub-command-requires-hidden-password~2`
 
-In case of interactive password entry, sub-command (e.g. `cp`) tells the `picocli` library to prompt for a password with hidden entry.
+In case of interactive password entry BFSC prompts for a password with hidden entry.
 
 Covers:
 
-* `req~interactive-password-entry~1`
+* `req~no-command-line-option-for-password~1`
+* `req~password-protected-bucket-access~1`
 
 Needs: impl, itest
 

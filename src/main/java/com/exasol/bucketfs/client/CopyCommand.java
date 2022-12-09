@@ -28,8 +28,7 @@ public class CopyCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         if (BucketFsUrl.isBucketFsUrl(this.destination)) {
-            final String password = PasswordReader.readPassword();
-            upload(password);
+            upload();
         } else {
             download();
         }
@@ -37,10 +36,11 @@ public class CopyCommand implements Callable<Integer> {
     }
 
     // [impl->dsn~copy-command-copies-file-to-bucket~1]
-    private void upload(final String password) {
+    private void upload() {
         final Path sourcePath = convertSpecToPath(this.source);
         try {
             final BucketFsUrl url = createDestinationBucketFsUrl();
+            final String password = PasswordReader.readPassword();
             final UnsynchronizedBucket bucket = WriteEnabledBucket.builder() //
                     .ipAddress(url.getHost()) //
                     .port(url.getPort()) //
@@ -68,7 +68,7 @@ public class CopyCommand implements Callable<Integer> {
             return BucketFsUrl.create(this.destination);
         } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-3")
-                    .message("Illegal BucketFS destination URL: {{url}}", this.destination).toString());
+                    .message("Invalid BucketFS destination URL: {{url}}", this.destination).toString());
         }
     }
 
@@ -93,7 +93,7 @@ public class CopyCommand implements Callable<Integer> {
             return BucketFsUrl.create(this.source);
         } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-4")
-                    .message("Illegal BucketFS source URL: {{url}}", this.source).toString());
+                    .message("Invalid BucketFS source URL: {{url}}", this.source).toString());
         }
     }
 }

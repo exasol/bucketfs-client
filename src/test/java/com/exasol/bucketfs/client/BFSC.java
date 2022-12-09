@@ -1,7 +1,7 @@
 package com.exasol.bucketfs.client;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Executes the BucketFsClient (BFSC) in integration tests.
@@ -9,6 +9,7 @@ import java.io.InputStream;
 public class BFSC {
     private final String[] parameters;
     private String in = null;
+    private String out = null;
 
     /**
      * Create the wrapper with the given parameters.
@@ -31,6 +32,16 @@ public class BFSC {
         return this;
     }
 
+    /**
+     * Catch STDOUT into string for verification in test
+     *
+     * @return {@code this} for fluent programming
+     */
+    public BFSC catchStdout() {
+        this.out = "";
+        return this;
+    }
+
     private BFSC(final String[] parameters) {
         this.parameters = parameters;
     }
@@ -39,24 +50,49 @@ public class BFSC {
      * Run the BucketFS client.
      */
     public void run() {
-        if (isStdInOverridden()) {
-            runWithOverriddenStdIn();
+        overridingStdIn(catchingStdOut(() -> BucketFsClient.main(this.parameters))).run();
+    }
+
+    private Runnable catchingStdOut(final Runnable runnable) {
+        if (this.out != null) {
+            return () -> catchStdOut(runnable);
         } else {
-            BucketFsClient.main(this.parameters);
+            return runnable;
         }
     }
 
-    private boolean isStdInOverridden() {
-        return this.in != null;
+    private Runnable overridingStdIn(final Runnable runnable) {
+        if (this.in != null) {
+            return () -> overrideStdIn(runnable);
+        } else {
+            return runnable;
+        }
     }
 
-    private void runWithOverriddenStdIn() {
+    private void overrideStdIn(final Runnable runnable) {
         final InputStream previousStdIn = System.in;
         try {
             System.setIn(new ByteArrayInputStream(this.in.getBytes()));
-            BucketFsClient.main(this.parameters);
+            runnable.run();
+            // BucketFsClient.main(this.parameters);
         } finally {
             System.setIn(previousStdIn);
         }
+    }
+
+    private void catchStdOut(final Runnable runnable) {
+        final PrintStream previous = System.out;
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(out));
+            runnable.run();
+        } finally {
+            System.setOut(previous);
+            this.out = out.toString(StandardCharsets.UTF_8);
+        }
+    }
+
+    public String getStdOut() {
+        return this.out;
     }
 }

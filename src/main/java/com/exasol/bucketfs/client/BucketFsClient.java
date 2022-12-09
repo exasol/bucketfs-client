@@ -9,7 +9,7 @@ import picocli.CommandLine.Model.CommandSpec;
 // [impl->dsn~command-line-parsing~1]
 @Command( //
         name = "bfs", //
-        subcommands = { CopyCommand.class }, //
+        subcommands = { CopyCommand.class, ListCommand.class }, //
         description = "Exasol BucketFS client" //
 )
 public class BucketFsClient implements Callable<Integer> {

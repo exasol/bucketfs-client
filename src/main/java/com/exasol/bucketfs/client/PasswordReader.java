@@ -8,8 +8,12 @@ import java.io.*;
  * In tests the password is read from stdin.
  * </p>
  */
-// [impl->dsn~sub-command-requires-hidden-password~1]
+// [impl->dsn~sub-command-requires-hidden-password~2]
 public class PasswordReader {
+
+    /**
+     * @return password for write operations to bucket
+     */
     public static String readPassword() {
         final Console console = System.console();
         if (console != null) {

@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.*;
 import java.net.URISyntaxException;
 
 import org.junit.jupiter.api.Test;
@@ -14,24 +13,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import com.exasol.bucketfs.url.OsCheck.OSType;
 
 class UriConverterTest {
-
-    @Test
-    void test() throws IOException {
-        String p = runWithOverriddenStdIn("Hello");
-        p = null;
-    }
-
-    private String runWithOverriddenStdIn(final String in) throws IOException {
-        final InputStream previousStdIn = System.in;
-        try {
-            System.setIn(new ByteArrayInputStream(in.getBytes()));
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-                return reader.readLine();
-            }
-        } finally {
-            System.setIn(previousStdIn);
-        }
-    }
 
     @ParameterizedTest
     @CsvSource(value = { //
