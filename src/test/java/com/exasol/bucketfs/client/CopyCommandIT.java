@@ -10,6 +10,7 @@ import static picocli.CommandLine.ExitCode.OK;
 import static picocli.CommandLine.ExitCode.SOFTWARE;
 
 import java.nio.file.*;
+import java.util.Map;
 
 import org.itsallcode.io.Capturable;
 import org.itsallcode.junit.sysextensions.ExitGuard;
@@ -19,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
-import picocli.CommandLine;
+import com.exasol.bucketfs.env.EnvironmentVariables;
 
 @ExtendWith(ExitGuard.class)
 @ExtendWith(SystemErrGuard.class)
@@ -34,7 +35,7 @@ class CopyCommandIT {
 
     // [impl->dsn~copy-command-copies-file-from-bucket~1]
     @Test
-    void testCopyFileFromBucketToLocalFile(@TempDir final Path tempDir) throws Exception {
+    void copyFileFromBucketToLocalFile(@TempDir final Path tempDir) throws Exception {
         final String expectedContent = "the content";
         final String filename = "dir_test.txt";
         final Path destinationFile = tempDir.resolve(filename);
@@ -46,7 +47,7 @@ class CopyCommandIT {
 
     // [itest->dsn~sub-command-requires-hidden-password~2]
     @Test
-    void testCopyFileFromBucketToFileWithoutProtocol(@TempDir final Path tempDir) throws Exception {
+    void copyFileFromBucketToFileWithoutProtocol(@TempDir final Path tempDir) throws Exception {
         final String expectedContent = "downloaded content";
         final String filename = "dir_test.txt";
         final Path destinationFile = tempDir.resolve(filename);
@@ -59,20 +60,34 @@ class CopyCommandIT {
     // [itest->dsn~copy-command-copies-file-to-bucket~1]
     // [itest->dsn~sub-command-requires-hidden-password~2]
     @Test
-    void testCopyFileWithoutProtocolToBucket(@TempDir final Path tempDir) throws Exception {
+    void copyFileWithoutProtocolToBucket(@TempDir final Path tempDir) throws Exception {
+        verifyUpload(tempDir, BFSC.defaultEnv(Map.of()), SETUP.getDefaultBucket().getWritePassword());
+    }
+
+    @Test
+    void copyWithPassswordFromEnvironmentVariable(@TempDir final Path tempDir) throws Exception {
+        final Map<String, String> env = BFSC.defaultEnv(Map.of( //
+                EnvironmentVariables.PASSWORD, SETUP.getDefaultBucket().getWritePassword()));
+        verifyUpload(tempDir, env, "");
+    }
+
+    private void verifyUpload(final Path tempDir, final Map<String, String> env, final String interactivePassword)
+            throws Exception {
         final String expectedContent = "uploaded content";
         final String filename = "upload.txt";
         final Path sourceFile = tempDir.resolve(filename);
         Files.writeString(sourceFile, expectedContent);
         final String destination = SETUP.getDefaultBucketUriToFile(filename);
-        final String password = SETUP.getDefaultBucket().getWritePassword();
-        assertExitWithStatus(OK, () -> BFSC.create("cp", sourceFile.toString(), destination).feedStdIn(password).run());
+        assertExitWithStatus(OK, () -> BFSC.create("cp", sourceFile.toString(), destination) //
+                .feedStdIn(interactivePassword) //
+                .withEnv(env) //
+                .run());
         SETUP.waitUntilObjectSynchronized();
         assertThat(SETUP.getDefaultBucket().downloadFileAsString(filename), equalTo(expectedContent));
     }
 
     @Test
-    void testCopyNonExistingFileWithoutProtocolToBucket() throws Exception {
+    void copyNonExistingFileWithoutProtocolToBucket() throws Exception {
         final String filename = "non-existing-local-file";
         final Path sourceFile = Paths.get(filename);
         final String destination = SETUP.getDefaultBucketUriToFile(filename);
@@ -83,31 +98,31 @@ class CopyCommandIT {
 
     // [itest->dsn~copy-command-copies-file-to-bucket~1]
     @Test
-    void testCopyWithMalformedSourceBucketFsUrlRaisesError(final Capturable stream) {
+    void copyWithMalformedSourceBucketFsUrlRaisesError(final Capturable stream) {
         final BFSC client = BFSC.create("cp", "bfs://illegal/", "some_file");
         stream.capture();
-        assertExitWithStatus(CommandLine.ExitCode.SOFTWARE, () -> client.run());
+        assertExitWithStatus(SOFTWARE, () -> client.run());
         assertThat(stream.getCapturedData(), startsWith("E-BFSC-4: Invalid BucketFS source URL: 'bfs://illegal/'"));
     }
 
     // [itest->dsn~copy-command-copies-file-to-bucket~1]
     @Test
-    void testCopyWithMalformedDestinationBucketFsUrlRaisesError(final Capturable stream) {
+    void copyWithMalformedDestinationBucketFsUrlRaisesError(final Capturable stream) {
         final BFSC client = BFSC.create("cp", "some_file", "bfs://illegal/");
         stream.capture();
-        assertExitWithStatus(CommandLine.ExitCode.SOFTWARE, () -> client.run());
+        assertExitWithStatus(SOFTWARE, () -> client.run());
         assertThat(stream.getCapturedData(),
                 startsWith("E-BFSC-3: Invalid BucketFS destination URL: 'bfs://illegal/'"));
     }
 
     // [itest->dsn~copy-command-copies-file-from-bucket~1]
     @Test
-    void testDownloadingNonexistentObjectRaisesError(final Capturable stream) {
+    void downloadingNonexistentObjectRaisesError(final Capturable stream) {
         final String nonexistentObjectUri = SETUP.getBucketFsUri(DEFAULT_BUCKETFS, DEFAULT_BUCKET,
                 "/nonexistent-object");
         final BFSC client = BFSC.create("cp", nonexistentObjectUri, "some_file");
         stream.capture();
-        assertExitWithStatus(CommandLine.ExitCode.SOFTWARE, () -> client.run());
+        assertExitWithStatus(SOFTWARE, () -> client.run());
         assertThat(stream.getCapturedData(), startsWith("E-BFSJ-2: File or directory not found trying to download"));
     }
 }

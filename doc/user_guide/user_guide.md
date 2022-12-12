@@ -76,25 +76,25 @@ The following sections describe the commands in detail.
 
 #### BucketFS URLs
 
-BFSC uses specific URL to refer to files or paths in a bucket.
+BFSC uses specific URLs to refer to files or paths in a bucket.
 
 ```
-bfs[s]://<host>:<port>/<bucket>/<path-in-bucket>
+bfs[s]://<host>:<port>/<path-in-bucket>
 ```
 
 The protocol is either `bfs` or `bfss` for a connection that is TLS secured.
 
 You specify the host or IP address of the machine where the BucketFS service runs. Each service has its own port that you set in the BucketFS service configuration so a port number identifies the service.
 
-The first path element is always the name of the bucket. The next elements are the path relative to that buckets root.
+By default BFSC assumes the root bucket to be named `default`. The following elements are the path relative to that bucket's root. For specifying the bucket name on the command line please set the environment variable `BUCKETFS_BUCKET` to an empty string:
 
-#### Password Protected Bucket Access
+```bash
+BUCKETFS_BUCKET=; bfs[s]://<host>:<port>/<bucket>/<path-in-bucket>
+```
 
-While buckets can be public for reading depending on their configuration, writing is always password protected. For write operations like copying files to the BucketFS or deleting files from the BucketFS BFSC will retrieve the required write password. BFSC supports to read the password either from an [environment variable](#environment-variables-for-default-parameters) or from an interactive prompt hiding the characters typed by the user.
+See also sections [Environment Variables](#environment-variables) and [Name of the Root Bucket](#name-of-the-root-bucket).
 
-BFSC does not support to provide the password on the command line to avoid the password showing up in the command history. As a general rule you should never put any credentials directly in to a command line.
-
-#### Environment Variables for Default Parameters
+#### Environment Variables
 
 BFSC supports the following environment variables for applying parameters to all subsequent commands. If an environment variable is unset then BFSC uses the corresponding default value shown in the table below. Parameters supplied on the commandline will override the environment variables.
 
@@ -109,8 +109,7 @@ Example
 ```bash
 BUCKETFS_PASSWORD=abc
 BUCKETFS_BUCKET=simba
-
-bfsc cp foo.jar bfs:drivers
+bfsc cp foo.jar bfs:/drivers
 ```
 
 Is identical to
@@ -118,7 +117,24 @@ Is identical to
 bfsc cp foo.jar bfs://localhost:2580/simba/drivers/foo.jar
 ```
 
-#### Retriving the Password, Base64 Encoding
+#### Name of the Root Bucket
+
+If the environment variable `BUCKETFS_BUCKET` is unset BFSC assumes the root bucket to be named `default`. For specifying the bucket name on the command line please set the environment variable to an empty string.
+
+| Input                                                | Resulting URI                          |
+|------------------------------------------------------|----------------------------------------|
+| `unset BUCKETFS_BUCKET;   bfsc ls bfs:/b/a.txt`      | `bfs://localhost:2580/default/b/a.txt` |
+| `BUCKETFS_BUCKET=drivers; bfsc ls bfs:/b/a.txt`      | `bfs://localhost:2580/drivers/b/a.txt` |
+| `BUCKETFS_BUCKET=;        bfsc ls bfs:/bucket/a.txt` | `bfs://localhost:2580/bucket/a.txt`    |
+
+
+#### Password Protected Bucket Access
+
+While buckets can be public for reading depending on their configuration, writing is always password protected. For write operations like copying files to the BucketFS or deleting files from the BucketFS BFSC will retrieve the required write password. BFSC supports to read the password either from an [environment variable](#environment-variables-for-default-parameters) or from an interactive prompt hiding the characters typed by the user.
+
+BFSC does not support to provide the password on the command line to avoid the password showing up in the command history. As a general rule you should never put any credentials directly into a command line.
+
+#### Retrieving the Password, Base64 Encoding
 
 The password for write operations to the BucketFS is usually stored in file `/exa/etc/EXAConf`:
 ```
@@ -150,6 +166,6 @@ bfsc cp foo-driver-1.2.3.jar bfs://192.168.0.1:2580/default/drivers/foo-driver-1
 While the `cp` command can rename the copied file in the target location you can also omit the filename to tell BFSC to leave the filename unchanged just as the GNU `cp` command does:
 
 ```bash
-bfsc cp foo.jar bfs:drivers/
-bfsc cp bfs:drivers/foo.jar .
+bfsc cp foo.jar bfs:/drivers/
+bfsc cp bfs:/drivers/foo.jar .
 ```

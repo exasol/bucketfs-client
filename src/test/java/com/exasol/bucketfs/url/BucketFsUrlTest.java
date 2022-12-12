@@ -1,26 +1,37 @@
 package com.exasol.bucketfs.url;
 
+import static com.exasol.bucketfs.env.EnvironmentVariables.*;
+import static com.exasol.bucketfs.url.BucketFsUrl.BUCKETFS_PROTOCOL;
+import static com.exasol.bucketfs.url.BucketFsUrl.BUCKETFS_PROTOCOL_WITH_TLS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import java.net.MalformedURLException;
-import java.net.URI;
+import java.net.*;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import com.exasol.bucketfs.env.EnvironmentVariables;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 // [utest->dsn~bucket-fs-url~1]
+
 class BucketFsUrlTest {
+
+    EnvironmentVariables env = EnvironmentVariables.from(Map.of(BUCKET, ""));
+    EnvironmentVariables emptyEnv = EnvironmentVariables.from(Map.of());
+
     @CsvSource({ //
             "localhost, 8888, the_bucket, file.txt, false, bfs://localhost:8888/the_bucket/file.txt", //
     })
     @ParameterizedTest
-    void testCreateFromComponents(final String host, final int port, final String bucket, final String pathInBucket,
-            final boolean useTls, final String expectedUri) throws MalformedURLException {
-        final BucketFsUrl url = new BucketFsUrl(host, port, bucket, pathInBucket, false);
+    void createFromComponents(final String host, final int port, final String bucket, final String pathInBucket,
+            final boolean useTls, final String expectedUri) throws Exception {
+        final BucketFsUrl url = testee(host, port, bucket, pathInBucket, false);
         assertThat(url.toURI(), equalTo(URI.create(expectedUri)));
     }
 
@@ -29,8 +40,8 @@ class BucketFsUrlTest {
             "bfs://127.0.0.1:123/b/foo/bar/baz" //
     })
     @ParameterizedTest
-    void testCreateFromString(final String inputUri) throws MalformedURLException {
-        assertThat(BucketFsUrl.create(inputUri).toURI(), equalTo(URI.create(inputUri)));
+    void createFromString(final String spec) throws Exception {
+        assertThat(testee(spec).toURI(), equalTo(URI.create(spec)));
     }
 
     @CsvSource({ //
@@ -38,8 +49,8 @@ class BucketFsUrlTest {
             "bfs://127.0.0.1:123/b/foo/bar/baz" //
     })
     @ParameterizedTest
-    void testCreateFromUri(final URI inputUri) throws MalformedURLException {
-        assertThat(BucketFsUrl.create(inputUri).toURI(), equalTo(inputUri));
+    void createFromUri(final URI inputUri) throws Exception {
+        assertThat(BucketFsUrl.from(inputUri, this.env).toURI(), equalTo(inputUri));
     }
 
     @CsvSource({ //
@@ -48,8 +59,8 @@ class BucketFsUrlTest {
     })
 
     @ParameterizedTest
-    void testGetPath(final String inputUri, final String expectedPath) throws MalformedURLException {
-        assertThat(BucketFsUrl.create(inputUri).getPath(), equalTo(expectedPath));
+    void testGetPath(final String inputUri, final String expectedPath) throws Exception {
+        assertThat(testee(inputUri).getPath(), equalTo(expectedPath));
     }
 
     @CsvSource({ //
@@ -57,8 +68,8 @@ class BucketFsUrlTest {
             "bfs://127.0.0.1:123/b/foo/bar/baz, b" //
     })
     @ParameterizedTest
-    void testGetBucketName(final String inputUri, final String expectedBucketName) throws MalformedURLException {
-        assertThat(BucketFsUrl.create(inputUri).getBucketName(), equalTo(expectedBucketName));
+    void testGetBucketName(final String inputUri, final String expectedBucketName) throws Exception {
+        assertThat(testee(inputUri).getBucketName(), equalTo(expectedBucketName));
     }
 
     @CsvSource({ //
@@ -66,8 +77,8 @@ class BucketFsUrlTest {
             "bfs://127.0.0.1:123/b/foo/bar/baz, /foo/bar/baz" //
     })
     @ParameterizedTest
-    void testGetPathInBucket(final String inputUri, final String expectedPath) throws MalformedURLException {
-        assertThat(BucketFsUrl.create(inputUri).getPathInBucket(), equalTo(expectedPath));
+    void testGetPathInBucket(final String inputUri, final String expectedPath) throws Exception {
+        assertThat(testee(inputUri).getPathInBucket(), equalTo(expectedPath));
     }
 
     @CsvSource({ //
@@ -75,44 +86,40 @@ class BucketFsUrlTest {
             "bfs://127.0.0.1:123/b/foo/bar/baz, 123" //
     })
     @ParameterizedTest
-    void testGetPort(final String inputUri, final int expectedPath) throws MalformedURLException {
-        assertThat(BucketFsUrl.create(inputUri).getPort(), equalTo(expectedPath));
+    void testGetPort(final String inputUri, final int expectedPath) throws Exception {
+        assertThat(testee(inputUri).getPort(), equalTo(expectedPath));
     }
 
     @Test
-    void testGetDefaultPortWithoutTls() {
-        assertThat(createRandomBucketFsUrl(false).getDefaultPort(), equalTo(2580));
-    }
-
-    private BucketFsUrl createRandomBucketFsUrl(final boolean useTls) {
-        try {
-            return new BucketFsUrl("foo", 1234, "bucket", "/path", useTls);
-        } catch (final MalformedURLException exception) {
-            throw new AssertionError("Unable to create BucketFS URL required for tests", exception);
-        }
+    void testGetDefaultPortWithoutTls() throws Exception {
+        assertThat(randomBucketFsUrl(false).getDefaultPort(), equalTo(2580));
     }
 
     @Test
-    void testGetDefaultPortWithTls() {
-        assertThat(createRandomBucketFsUrl(true).getDefaultPort(), equalTo(-1));
+    void testGetDefaultPortWithTls() throws Exception {
+        assertThat(randomBucketFsUrl(true).getDefaultPort(), equalTo(-1));
     }
 
     @Test
-    void testGetProtocolWithouTls() {
-        assertThat(createRandomBucketFsUrl(false).getProtocol(), equalTo("bfs"));
+    void testGetProtocolWithouTls() throws Exception {
+        assertThat(randomBucketFsUrl(false).getProtocol(), equalTo("bfs"));
     }
 
     @Test
-    void testGetProtocolWithTls() {
-        assertThat(createRandomBucketFsUrl(true).getProtocol(), equalTo("bfss"));
+    void testGetProtocolWithTls() throws Exception {
+        assertThat(randomBucketFsUrl(true).getProtocol(), equalTo("bfss"));
+    }
+
+    private BucketFsUrl randomBucketFsUrl(final boolean useTls) throws Exception {
+        return testee("foo", 1234, "bucket", "/path", useTls);
     }
 
     @CsvSource({ //
             "bfs://localhost:777/a/b, localhost", //
             "bfs://192.168.1.1/a/b, 192.168.1.1" })
     @ParameterizedTest
-    void testGetHost(final String inputUri, final String expectedHost) throws MalformedURLException {
-        assertThat(BucketFsUrl.create(inputUri).getHost(), equalTo(expectedHost));
+    void testGetHost(final String inputUri, final String expectedHost) throws Exception {
+        assertThat(testee(inputUri).getHost(), equalTo(expectedHost));
     }
 
     @CsvSource({ //
@@ -120,8 +127,8 @@ class BucketFsUrlTest {
     })
     @ParameterizedTest
     void testToString(final String host, final int port, final String bucket, final String pathInBucket,
-            final boolean useTls, final String expectedUri) throws MalformedURLException {
-        final BucketFsUrl url = new BucketFsUrl(host, port, bucket, pathInBucket, false);
+            final boolean useTls, final String expectedUri) throws Exception {
+        final BucketFsUrl url = testee(host, port, bucket, pathInBucket, false);
         assertThat(url.toString(), equalTo(expectedUri));
     }
 
@@ -130,8 +137,8 @@ class BucketFsUrlTest {
             "bfss://a/b/, true" //
     })
     @ParameterizedTest
-    void testIsTlsEnabled(final String inputUri, final boolean useTls) throws MalformedURLException {
-        assertThat(BucketFsUrl.create(inputUri).isTlsEnabled(), equalTo(useTls));
+    void testIsTlsEnabled(final String inputUri, final boolean useTls) throws Exception {
+        assertThat(testee(inputUri).isTlsEnabled(), equalTo(useTls));
     }
 
     @CsvSource({ //
@@ -148,8 +155,86 @@ class BucketFsUrlTest {
         assertThat(BucketFsUrl.isBucketFsUrl(inputUri), equalTo(expectedEvaluation));
     }
 
+    /**
+     * TODO: Test path without port and unset environment variable default port and TLS / protocol bfss:
+     */
+
+    @ParameterizedTest
+    @CsvSource(value = { //
+            "bfs:/a/b.txt,              bfs://localhost:2580/default/a/b.txt", // nothing
+            "bfs://1.2.3.4/a/b.txt,     bfs://1.2.3.4:2580/default/a/b.txt", // host
+            "bfs://1.2.3.4:999/a/b.txt, bfs://1.2.3.4:999/default/a/b.txt", // host and port
+    // port can only be specified together with host
+    })
+    void emptyEnvironment(final String spec, final String expected) throws Exception {
+        verifyWithEnv(spec, this.emptyEnv, expected);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = { //
+            "bfs:/a/b.txt,          bfs://host-from-environment:2580/default/a/b.txt",
+            "bfs://1.2.3.4/a/b.txt, bfs://1.2.3.4:2580/default/a/b.txt", })
+    void environmentHost(final String spec, final String expected) throws Exception {
+        final EnvironmentVariables env = EnvironmentVariables.from(Map.of(HOST, "host-from-environment"));
+        verifyWithEnv(spec, env, expected);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = { //
+            "bfs:/a/b.txt,               bfs://localhost:9999/default/a/b.txt",
+            "bfs://1.2.3.4:1234/a/b.txt, bfs://1.2.3.4:1234/default/a/b.txt", })
+    void environmentPort(final String spec, final String expected) throws Exception {
+        final EnvironmentVariables env = EnvironmentVariables.from(Map.of(PORT, "9999"));
+        verifyWithEnv(spec, env, expected);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = { "bfs:/a/b.txt, bfs://localhost:2580/bucket-from-environment/a/b.txt" })
+    void environmentBucket(final String spec, final String expected) throws Exception {
+        final EnvironmentVariables env = EnvironmentVariables.from(Map.of(BUCKET, "bucket-from-environment"));
+        verifyWithEnv(spec, env, expected);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "bfs:/my_bucket/a/b.txt", "bfs:///my_bucket/a/b.txt" })
+    void bucketNameFromSpec(final String spec) throws Exception {
+        verifyWithEnv(spec, this.env, "bfs://localhost:2580/my_bucket/a/b.txt");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "bfs:/drivers/a.txt" })
+    void relative(final String spec) throws Exception {
+        verifyWithEnv(spec, this.emptyEnv, "bfs://localhost:2580/default/drivers/a.txt");
+    }
+
+    // ------------------------------------------------
+
+    private void verifyWithEnv(final String spec, final EnvironmentVariables env, final String expected)
+            throws MalformedURLException, URISyntaxException {
+        assertThat(testee(spec, env).toURI().toString(), equalTo(expected));
+    }
+
     @Test
     void testEqualsContract() {
-        EqualsVerifier.forClass(BucketFsUrl.class).withIgnoredFields("cachedBucketName", "cachedPathInBucket").verify();
+        EqualsVerifier.forClass(BucketFsUrl.class).withIgnoredFields("protocol", "host", "port", "bucketFsPath")
+                .verify();
+    }
+
+    private BucketFsUrl testee(final String host, final int port, final String bucketName, final String pathInBucket,
+            final boolean useTls) throws MalformedURLException, URISyntaxException {
+        return new BucketFsUrl(calculateProtocol(useTls), host, port, new BucketFsPath(bucketName, "/" + pathInBucket));
+    }
+
+    private String calculateProtocol(final boolean useTls) {
+        return useTls ? BUCKETFS_PROTOCOL_WITH_TLS : BUCKETFS_PROTOCOL;
+    }
+
+    private BucketFsUrl testee(final String spec) throws MalformedURLException, URISyntaxException {
+        return testee(spec, this.env);
+    }
+
+    private BucketFsUrl testee(final String spec, final EnvironmentVariables env)
+            throws MalformedURLException, URISyntaxException {
+        return BucketFsUrl.from(new URI(spec), env);
     }
 }

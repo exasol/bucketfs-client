@@ -1,13 +1,26 @@
 package com.exasol.bucketfs.client;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+import com.exasol.bucketfs.env.EnvironmentVariables;
 
 /**
  * Executes the BucketFsClient (BFSC) in integration tests.
  */
 public class BFSC {
+
+    static Map<String, String> defaultEnv(final Map<String, String> additional) {
+        final Map<String, String> result = new HashMap<>();
+        result.put(EnvironmentVariables.BUCKET, "");
+        result.putAll(additional);
+        return result;
+    }
+
     private final String[] parameters;
+    private Map<String, String> env = defaultEnv(Map.of());
     private String in = null;
     private String out = null;
 
@@ -19,6 +32,10 @@ public class BFSC {
      */
     static BFSC create(final String... parameters) {
         return new BFSC(parameters);
+    }
+
+    private BFSC(final String[] parameters) {
+        this.parameters = parameters;
     }
 
     /**
@@ -42,15 +59,24 @@ public class BFSC {
         return this;
     }
 
-    private BFSC(final String[] parameters) {
-        this.parameters = parameters;
+    BFSC withEnv(final Map<String, String> env) {
+        this.env = env;
+        return this;
     }
 
     /**
      * Run the BucketFS client.
+     *
+     * @throws Exception
      */
     public void run() {
-        overridingStdIn(catchingStdOut(() -> BucketFsClient.main(this.parameters))).run();
+        final Map<String, String> envBefore = System.getenv();
+        try {
+            setEnv(this.env);
+            overridingStdIn(catchingStdOut(() -> BucketFsClient.main(this.parameters))).run();
+        } finally {
+            setEnv(envBefore);
+        }
     }
 
     private Runnable catchingStdOut(final Runnable runnable) {
@@ -74,7 +100,6 @@ public class BFSC {
         try {
             System.setIn(new ByteArrayInputStream(this.in.getBytes()));
             runnable.run();
-            // BucketFsClient.main(this.parameters);
         } finally {
             System.setIn(previousStdIn);
         }
@@ -89,6 +114,41 @@ public class BFSC {
         } finally {
             System.setOut(previous);
             this.out = out.toString(StandardCharsets.UTF_8);
+        }
+    }
+
+    // https://stackoverflow.com/questions/318239
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static void setEnv(final Map<String, String> newenv) {
+        try {
+            try {
+                final Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
+                final Field theEnvironmentField = processEnvironmentClass.getDeclaredField("theEnvironment");
+                theEnvironmentField.setAccessible(true);
+                final Map<String, String> env = (Map<String, String>) theEnvironmentField.get(null);
+                env.putAll(newenv);
+                final Field theCaseInsensitiveEnvironmentField = processEnvironmentClass
+                        .getDeclaredField("theCaseInsensitiveEnvironment");
+                theCaseInsensitiveEnvironmentField.setAccessible(true);
+                final Map<String, String> cienv = (Map<String, String>) theCaseInsensitiveEnvironmentField.get(null);
+                cienv.putAll(newenv);
+            } catch (final NoSuchFieldException e) {
+                final Class[] classes = Collections.class.getDeclaredClasses();
+                final Map<String, String> env = System.getenv();
+                for (final Class cl : classes) {
+                    if ("java.util.Collections$UnmodifiableMap".equals(cl.getName())) {
+                        final Field field = cl.getDeclaredField("m");
+                        field.setAccessible(true);
+                        final Object obj = field.get(env);
+                        final Map<String, String> map = (Map<String, String>) obj;
+                        map.clear();
+                        map.putAll(newenv);
+                    }
+                }
+            }
+        } catch (ClassNotFoundException | IllegalArgumentException | IllegalAccessException | SecurityException
+                | NoSuchFieldException e) {
+            throw new IllegalStateException(e);
         }
     }
 

@@ -39,12 +39,15 @@ class ListCommandIT {
 
     /**
      * <ul>
-     * <li>setup files and folders
-     * <li>define filter for relevant entries
+     * <li>+ setup files and folders
+     * <li>+ define filter for relevant entries
      * <li>single tests for
-     * <li>files in root folder
-     * <li>files in sub folder
-     * <li>non existing folder
+     * <ul>
+     * <li>+ files in root folder
+     * <li>+ files in sub folder
+     * <li>+ (empty folder -- not possible)
+     * <li>+ (non existing folder -- not possible)
+     * </ul>
      * </ul>
      */
 
@@ -52,22 +55,6 @@ class ListCommandIT {
     void clean() throws BucketAccessException {
         // SETUP.cleanBucketFS();
         SETUP.getDefaultBucket().deleteFileNonBlocking("folder/b.txt");
-    }
-
-    @Test
-    void test() throws Exception {
-//        SETUP.cleanBucketFS();
-        final UnsynchronizedBucket bucket = SETUP.getDefaultBucket();
-        bucket.uploadStringContentNonBlocking("aaaa", "a.txt");
-        bucket.uploadStringContentNonBlocking("bbbb", "folder/b1.txt");
-        System.out.println("Actual content: " + bucket.listContents());
-        final String path = SETUP.getDefaultBucketUriToFile("");
-
-        final BFSC client = BFSC.create("ls", path).catchStdout();
-        assertExitWithStatus(OK, () -> client.run());
-        final List<String> actual = listing(client.getStdOut(), s -> s.matches("a.txt|b.txt"));
-        System.out.println(actual);
-        assertThat(actual, equalTo(List.of("a.txt", "b.txt")));
     }
 
     private static void createFile(final UnsynchronizedBucket bucket, final String path) {
