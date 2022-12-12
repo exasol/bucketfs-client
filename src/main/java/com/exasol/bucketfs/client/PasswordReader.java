@@ -2,7 +2,7 @@ package com.exasol.bucketfs.client;
 
 import java.io.*;
 
-import com.exasol.bucketfs.env.EnvironmentVariables;
+import com.exasol.bucketfs.profile.Profile;
 
 /**
  * This class asks user for password while hiding the typed characters.
@@ -16,12 +16,12 @@ public class PasswordReader {
     static final String PROMPT = "Write password for BucketFS: ";
 
     /**
-     * @param env
+     * @param profile
      * @return password for write operations to bucket
      */
-    public static String readPassword(final EnvironmentVariables env) {
-        if (env.password() != null) {
-            return env.password();
+    public static String readPassword(final Profile profile) {
+        if (profile.password() != null) {
+            return profile.password();
         }
         final Console console = System.console();
         if (console != null) {

@@ -2,7 +2,8 @@ package com.exasol.bucketfs.client;
 
 import java.util.concurrent.Callable;
 
-import com.exasol.bucketfs.env.EnvironmentVariables;
+import com.exasol.bucketfs.profile.ProfileProvider;
+import com.exasol.bucketfs.profile.ProfileReader;
 
 import picocli.CommandLine;
 import picocli.CommandLine.*;
@@ -21,10 +22,10 @@ public class BucketFsClient implements Callable<Integer> {
     CommandSpec spec;
 
     public static void main(final String[] arguments) {
-        final EnvironmentVariables env = EnvironmentVariables.from(System.getenv());
+        final ProfileProvider profileProvider = new ProfileReader();
         final CommandLine commandLineClient = new CommandLine(new BucketFsClient()) //
-                .addSubcommand(new CopyCommand(env)) //
-                .addSubcommand(new ListCommand(env)) //
+                .addSubcommand(new CopyCommand(profileProvider)) //
+                .addSubcommand(new ListCommand(profileProvider)) //
                 .setExecutionExceptionHandler(new PrintExceptionMessageHandler());
         final int exitCode = commandLineClient.execute(arguments);
         System.exit(exitCode);

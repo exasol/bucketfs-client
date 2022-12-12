@@ -2,6 +2,7 @@ package com.exasol.bucketfs.client;
 
 import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKET;
 import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKETFS;
+import static com.exasol.bucketfs.Lines.lines;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
@@ -9,8 +10,8 @@ import static org.itsallcode.junit.sysextensions.AssertExit.assertExitWithStatus
 import static picocli.CommandLine.ExitCode.OK;
 import static picocli.CommandLine.ExitCode.SOFTWARE;
 
-import java.nio.file.*;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.itsallcode.io.Capturable;
 import org.itsallcode.junit.sysextensions.ExitGuard;
@@ -19,8 +20,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-
-import com.exasol.bucketfs.env.EnvironmentVariables;
 
 @ExtendWith(ExitGuard.class)
 @ExtendWith(SystemErrGuard.class)
@@ -61,17 +60,17 @@ class CopyCommandIT {
     // [itest->dsn~sub-command-requires-hidden-password~2]
     @Test
     void copyFileWithoutProtocolToBucket(@TempDir final Path tempDir) throws Exception {
-        verifyUpload(tempDir, BFSC.defaultEnv(Map.of()), SETUP.getDefaultBucket().getWritePassword());
+        verifyUpload(tempDir, null, SETUP.getDefaultBucket().getWritePassword());
     }
 
     @Test
-    void copyWithPassswordFromEnvironmentVariable(@TempDir final Path tempDir) throws Exception {
-        final Map<String, String> env = BFSC.defaultEnv(Map.of( //
-                EnvironmentVariables.PASSWORD, SETUP.getDefaultBucket().getWritePassword()));
-        verifyUpload(tempDir, env, "");
+    void copyWithPassswordFromProfile(@TempDir final Path tempDir) throws Exception {
+        final Path configFile = tempDir.resolve(".bucketfs-client-config");
+        Files.writeString(configFile, lines("[default]", "password=" + SETUP.getDefaultBucket().getWritePassword()));
+        verifyUpload(tempDir, configFile, "");
     }
 
-    private void verifyUpload(final Path tempDir, final Map<String, String> env, final String interactivePassword)
+    private void verifyUpload(final Path tempDir, final Path configFile, final String interactivePassword)
             throws Exception {
         final String expectedContent = "uploaded content";
         final String filename = "upload.txt";
@@ -80,7 +79,7 @@ class CopyCommandIT {
         final String destination = SETUP.getDefaultBucketUriToFile(filename);
         assertExitWithStatus(OK, () -> BFSC.create("cp", sourceFile.toString(), destination) //
                 .feedStdIn(interactivePassword) //
-                .withEnv(env) //
+                .withConfigFile(configFile) //
                 .run());
         SETUP.waitUntilObjectSynchronized();
         assertThat(SETUP.getDefaultBucket().downloadFileAsString(filename), equalTo(expectedContent));
@@ -89,7 +88,7 @@ class CopyCommandIT {
     @Test
     void copyNonExistingFileWithoutProtocolToBucket() throws Exception {
         final String filename = "non-existing-local-file";
-        final Path sourceFile = Paths.get(filename);
+        final Path sourceFile = Path.of(filename);
         final String destination = SETUP.getDefaultBucketUriToFile(filename);
         final String password = SETUP.getDefaultBucket().getWritePassword();
         assertExitWithStatus(SOFTWARE,

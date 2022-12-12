@@ -6,7 +6,7 @@ import java.util.concurrent.Callable;
 
 import com.exasol.bucketfs.ReadEnabledBucket;
 import com.exasol.bucketfs.ReadOnlyBucket;
-import com.exasol.bucketfs.env.EnvironmentVariables;
+import com.exasol.bucketfs.profile.ProfileProvider;
 import com.exasol.bucketfs.url.BucketFsUrl;
 import com.exasol.bucketfs.url.UriConverter;
 import com.exasol.errorreporting.ExaError;
@@ -21,12 +21,12 @@ import picocli.CommandLine.Parameters;
 @Command(name = "ls", description = "List contents of PATH")
 public class ListCommand implements Callable<Integer> {
 
-    private final EnvironmentVariables env;
+    private final ProfileProvider profileProvider;
     @Parameters(index = "0", paramLabel = "PATH", description = "path", converter = UriConverter.class)
     private URI uri;
 
-    public ListCommand(final EnvironmentVariables env) {
-        this.env = env;
+    public ListCommand(final ProfileProvider profileProvider) {
+        this.profileProvider = profileProvider;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ListCommand implements Callable<Integer> {
 
     private BucketFsUrl bucketFsUrl() {
         try {
-            return BucketFsUrl.from(this.uri, this.env);
+            return BucketFsUrl.from(this.uri, this.profileProvider.getProfile());
         } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-5") //
                     .message("Invalid BucketFS URL: {{url}}", this.uri).toString());

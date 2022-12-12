@@ -1,9 +1,11 @@
 package com.exasol.bucketfs.url;
 
+import static com.exasol.bucketfs.Fallback.fallback;
+
 import java.net.*;
 import java.util.Objects;
 
-import com.exasol.bucketfs.env.EnvironmentVariables;
+import com.exasol.bucketfs.profile.Profile;
 
 /**
  * BucketFS-specific URL.
@@ -30,28 +32,18 @@ public final class BucketFsUrl {
     public static final int UNDEFINED_PORT = -1;
 
     /**
-     * @param uri URI to create the URL from
-     * @param env default values for specific parts of BucketFS URLs
+     * @param uri     URI to create the URL from
+     * @param profile default values for specific parts of BucketFS URLs
      * @return new BucketFS URL
      * @throws MalformedURLException if BucketFS service or bucket are missing in the path or the path is not an
      *                               absolute path
      */
-    public static BucketFsUrl from(final URI uri, final EnvironmentVariables env) throws MalformedURLException {
+    public static BucketFsUrl from(final URI uri, final Profile profile) throws MalformedURLException {
         return new BucketFsUrl( //
                 uri.getScheme(), //
-                fallback(null, uri.getHost(), env.host(), DEFAULT_HOST), //
-                fallback(UNDEFINED_PORT, uri.getPort(), env.port(), DEFAULT_PORT), //
-                BucketFsPath.from(uri, env.bucket()));
-    }
-
-    @SafeVarargs
-    static <T> T fallback(final T undefined, final T... candidates) {
-        for (final T c : candidates) {
-            if (c != undefined) {
-                return c;
-            }
-        }
-        return undefined;
+                fallback(null, uri.getHost(), profile.host(), DEFAULT_HOST), //
+                fallback(UNDEFINED_PORT, uri.getPort(), profile.port(), DEFAULT_PORT), //
+                BucketFsPath.from(uri, profile.bucket()));
     }
 
     private final String protocol;

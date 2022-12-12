@@ -8,19 +8,19 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.exasol.bucketfs.Fallback;
 import com.exasol.errorreporting.ExaError;
 
 public class BucketFsPath {
 
-    private static final String DEFAULT_BUCKET = "default";
     private static final Pattern PATH_PATTERN = Pattern.compile("/(\\w{1,128})(/.*)");
 
     // java doc for standard java class URI:
     // The path of a hierarchical URI that is either absolute or specifies an authority is always absolute.
     public static BucketFsPath from(final URI uri, final String defaultBucket) throws MalformedURLException {
-        final String bucket = BucketFsUrl.fallback(null, defaultBucket, DEFAULT_BUCKET);
+        final String bucket = Fallback.fallback(null, defaultBucket);
         final String path = Optional.ofNullable(uri.getPath()).orElse("");
-        if (!bucket.isEmpty()) {
+        if (bucket != null) {
             return new BucketFsPath(bucket, path);
         }
 

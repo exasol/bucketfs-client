@@ -1,26 +1,18 @@
 package com.exasol.bucketfs.client;
 
-import java.io.*;
-import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import static com.exasol.bucketfs.profile.ProfileReader.CONFIG_FILE_PROPERTY;
 
-import com.exasol.bucketfs.env.EnvironmentVariables;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 /**
  * Executes the BucketFsClient (BFSC) in integration tests.
  */
 public class BFSC {
 
-    static Map<String, String> defaultEnv(final Map<String, String> additional) {
-        final Map<String, String> result = new HashMap<>();
-        result.put(EnvironmentVariables.BUCKET, "");
-        result.putAll(additional);
-        return result;
-    }
-
     private final String[] parameters;
-    private Map<String, String> env = defaultEnv(Map.of());
+    private Path configFile;
     private String in = null;
     private String out = null;
 
@@ -59,8 +51,8 @@ public class BFSC {
         return this;
     }
 
-    BFSC withEnv(final Map<String, String> env) {
-        this.env = env;
+    BFSC withConfigFile(final Path path) {
+        this.configFile = path;
         return this;
     }
 
@@ -70,13 +62,10 @@ public class BFSC {
      * @throws Exception
      */
     public void run() {
-        final Map<String, String> envBefore = System.getenv();
-        try {
-            setEnv(this.env);
-            overridingStdIn(catchingStdOut(() -> BucketFsClient.main(this.parameters))).run();
-        } finally {
-            setEnv(envBefore);
+        if (this.configFile != null) {
+            System.setProperty(CONFIG_FILE_PROPERTY, this.configFile.toString());
         }
+        overridingStdIn(catchingStdOut(() -> BucketFsClient.main(this.parameters))).run();
     }
 
     private Runnable catchingStdOut(final Runnable runnable) {
@@ -114,41 +103,6 @@ public class BFSC {
         } finally {
             System.setOut(previous);
             this.out = out.toString(StandardCharsets.UTF_8);
-        }
-    }
-
-    // https://stackoverflow.com/questions/318239
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static void setEnv(final Map<String, String> newenv) {
-        try {
-            try {
-                final Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
-                final Field theEnvironmentField = processEnvironmentClass.getDeclaredField("theEnvironment");
-                theEnvironmentField.setAccessible(true);
-                final Map<String, String> env = (Map<String, String>) theEnvironmentField.get(null);
-                env.putAll(newenv);
-                final Field theCaseInsensitiveEnvironmentField = processEnvironmentClass
-                        .getDeclaredField("theCaseInsensitiveEnvironment");
-                theCaseInsensitiveEnvironmentField.setAccessible(true);
-                final Map<String, String> cienv = (Map<String, String>) theCaseInsensitiveEnvironmentField.get(null);
-                cienv.putAll(newenv);
-            } catch (final NoSuchFieldException e) {
-                final Class[] classes = Collections.class.getDeclaredClasses();
-                final Map<String, String> env = System.getenv();
-                for (final Class cl : classes) {
-                    if ("java.util.Collections$UnmodifiableMap".equals(cl.getName())) {
-                        final Field field = cl.getDeclaredField("m");
-                        field.setAccessible(true);
-                        final Object obj = field.get(env);
-                        final Map<String, String> map = (Map<String, String>) obj;
-                        map.clear();
-                        map.putAll(newenv);
-                    }
-                }
-            }
-        } catch (ClassNotFoundException | IllegalArgumentException | IllegalAccessException | SecurityException
-                | NoSuchFieldException e) {
-            throw new IllegalStateException(e);
         }
     }
 

@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
 import com.exasol.bucketfs.*;
-import com.exasol.bucketfs.env.EnvironmentVariables;
+import com.exasol.bucketfs.profile.ProfileProvider;
 import com.exasol.bucketfs.url.BucketFsUrl;
 import com.exasol.bucketfs.url.UriConverter;
 import com.exasol.errorreporting.ExaError;
@@ -24,14 +24,14 @@ import picocli.CommandLine.Parameters;
 @Command(name = "cp", description = "Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY")
 public class CopyCommand implements Callable<Integer> {
 
-    private final EnvironmentVariables env;
+    private final ProfileProvider profileProvider;
     @Parameters(index = "0", paramLabel = "SOURCE", description = "source", converter = UriConverter.class)
     private URI source;
     @Parameters(index = "1", paramLabel = "DEST", description = "destination", converter = UriConverter.class)
     private URI destination;
 
-    public CopyCommand(final EnvironmentVariables env) {
-        this.env = env;
+    public CopyCommand(final ProfileProvider profileProvider) {
+        this.profileProvider = profileProvider;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class CopyCommand implements Callable<Integer> {
         final Path sourcePath = convertSpecToPath(this.source);
         try {
             final BucketFsUrl url = createDestinationBucketFsUrl();
-            final String password = PasswordReader.readPassword(this.env);
+            final String password = PasswordReader.readPassword(this.profileProvider.getProfile());
             final UnsynchronizedBucket bucket = WriteEnabledBucket.builder() //
                     .ipAddress(url.getHost()) //
                     .port(url.getPort()) //
@@ -74,7 +74,7 @@ public class CopyCommand implements Callable<Integer> {
 
     private BucketFsUrl createDestinationBucketFsUrl() {
         try {
-            return BucketFsUrl.from(this.destination, this.env);
+            return BucketFsUrl.from(this.destination, this.profileProvider.getProfile());
         } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-3")
                     .message("Invalid BucketFS destination URL: {{url}}", this.destination).toString());
@@ -99,7 +99,7 @@ public class CopyCommand implements Callable<Integer> {
 
     private BucketFsUrl createSourceBucketFsUrl() {
         try {
-            return BucketFsUrl.from(this.source, this.env);
+            return BucketFsUrl.from(this.source, this.profileProvider.getProfile());
         } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-4")
                     .message("Invalid BucketFS source URL: {{url}}", this.source).toString());

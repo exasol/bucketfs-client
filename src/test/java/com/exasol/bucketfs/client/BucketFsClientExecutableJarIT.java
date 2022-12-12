@@ -2,6 +2,7 @@ package com.exasol.bucketfs.client;
 
 import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKET;
 import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKETFS;
+import static com.exasol.bucketfs.Lines.lines;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -11,7 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +64,7 @@ class BucketFsClientExecutableJarIT {
 
     @Test
     void copyFileFailsForNonExistingFile() throws Exception {
-        final Path sourceFile = Paths.get("non-existing-file");
+        final Path sourceFile = Path.of("non-existing-file");
         final String destination = getDefaultBucketUriToFile(sourceFile.toString());
         final String password = EXASOL.getClusterConfiguration().getDefaultBucketWritePassword();
         final Process process = run("cp", sourceFile.toString(), destination);
@@ -98,7 +100,7 @@ class BucketFsClientExecutableJarIT {
     }
 
     private Path getJarFile() {
-        final Path jar = Paths.get("target/bfsc-1.0.0.jar").toAbsolutePath();
+        final Path jar = Path.of("target/bfsc-1.0.0.jar").toAbsolutePath();
         if (!Files.exists(jar)) {
             fail("Jar " + jar + " not found. Run 'mvn package' to build it.");
         }
@@ -137,9 +139,5 @@ class BucketFsClientExecutableJarIT {
         } catch (final IOException exception) {
             throw new UncheckedIOException(exception);
         }
-    }
-
-    private String lines(final String... lines) {
-        return String.join(System.lineSeparator(), lines);
     }
 }
