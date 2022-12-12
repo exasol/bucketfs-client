@@ -41,7 +41,7 @@ public class ProfileReader implements ProfileProvider {
         try (InputStream stream = Files.newInputStream(this.configFile)) {
             return Optional.of(read(stream));
         } catch (final IOException exception) {
-            throw new UncheckedIOException(ExaError.messageBuilder("E-BFSC-6") //
+            throw new UncheckedIOException(ExaError.messageBuilder("E-BFSC-7") //
                     .message("Failed to read profile from {{file}}", this.configFile) //
                     .message("caused by {{cause}}", exception.getMessage()) //
                     .toString(), //
