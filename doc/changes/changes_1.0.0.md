@@ -14,8 +14,9 @@ Added missing functionality to list and delete files in BucketFS and improved co
 
 ### Compile Dependency Updates
 
-* Updated `com.exasol:bucketfs-java:2.3.0` to `2.4.1`
+* Updated `com.exasol:bucketfs-java:2.3.0` to `2.5.0`
 * Updated `com.exasol:error-reporting-java:0.4.1` to `1.0.0`
+* Added `com.github.vincentrussell:java-ini-parser:1.3`
 * Updated `info.picocli:picocli:4.6.3` to `4.7.0`
 * Removed `nl.jqno.equalsverifier:equalsverifier:3.10`
 * Removed `org.itsallcode:junit5-system-extensions:1.2.0`
@@ -25,6 +26,7 @@ Added missing functionality to list and delete files in BucketFS and improved co
 * Updated `com.exasol:exasol-testcontainers:6.1.1` to `6.4.0`
 * Added `nl.jqno.equalsverifier:equalsverifier:3.12.1`
 * Added `org.itsallcode:junit5-system-extensions:1.2.0`
+* Added `org.junit-pioneer:junit-pioneer:1.7.1`
 * Updated `org.junit.jupiter:junit-jupiter-engine:5.8.2` to `5.9.1`
 * Updated `org.junit.jupiter:junit-jupiter-params:5.8.2` to `5.9.1`
 * Updated `org.mockito:mockito-junit-jupiter:4.5.1` to `4.9.0`
