@@ -86,51 +86,11 @@ The protocol is either `bfs` or `bfss` for a connection that is TLS secured.
 
 You specify the host or IP address of the machine where the BucketFS service runs. Each service has its own port that you set in the BucketFS service configuration so a port number identifies the service.
 
-By default BFSC assumes the root bucket to be named `default`. The following elements are the path relative to that bucket's root. For specifying the bucket name on the command line please set the environment variable `BUCKETFS_BUCKET` to an empty string:
-
-```bash
-BUCKETFS_BUCKET=; bfs[s]://<host>:<port>/<bucket>/<path-in-bucket>
-```
-
-See also sections [Environment Variables](#environment-variables) and [Name of the Root Bucket](#name-of-the-root-bucket).
-
-#### Environment Variables
-
-BFSC supports the following environment variables for applying parameters to all subsequent commands. If an environment variable is unset then BFSC uses the corresponding default value shown in the table below. Parameters supplied on the commandline will override the environment variables.
-
-| Parameter                       | Environment variable | Default value |
-|---------------------------------|----------------------|---------------|
-| Host address of BucketFS server | `BUCKETFS_HOST`      | `localhost`   |
-| Port                            | `BUCKETFS_PORT`      | `2580`        |
-| Write passsword                 | `BUCKETFS_PASSWORD`  | (none)        |
-| Name of root bucket             | `BUCKETFS_BUCKET`    | `default`     |
-
-Example
-```bash
-BUCKETFS_PASSWORD=abc
-BUCKETFS_BUCKET=simba
-bfsc cp foo.jar bfs:/drivers
-```
-
-Is identical to
-```bash
-bfsc cp foo.jar bfs://localhost:2580/simba/drivers/foo.jar
-```
-
-#### Name of the Root Bucket
-
-If the environment variable `BUCKETFS_BUCKET` is unset BFSC assumes the root bucket to be named `default`. For specifying the bucket name on the command line please set the environment variable to an empty string.
-
-| Input                                                | Resulting URI                          |
-|------------------------------------------------------|----------------------------------------|
-| `unset BUCKETFS_BUCKET;   bfsc ls bfs:/b/a.txt`      | `bfs://localhost:2580/default/b/a.txt` |
-| `BUCKETFS_BUCKET=drivers; bfsc ls bfs:/b/a.txt`      | `bfs://localhost:2580/drivers/b/a.txt` |
-| `BUCKETFS_BUCKET=;        bfsc ls bfs:/bucket/a.txt` | `bfs://localhost:2580/bucket/a.txt`    |
-
+The first path element is always the name of the bucket. The next elements are the path relative to that buckets root.
 
 #### Password Protected Bucket Access
 
-While buckets can be public for reading depending on their configuration, writing is always password protected. For write operations like copying files to the BucketFS or deleting files from the BucketFS BFSC will retrieve the required write password. BFSC supports to read the password either from an [environment variable](#environment-variables-for-default-parameters) or from an interactive prompt hiding the characters typed by the user.
+While buckets can be public for reading depending on their configuration, writing is always password protected. For write operations like copying files to the BucketFS or deleting files from the BucketFS BFSC will retrieve the required write password. BFSC supports to read the password either from the profile in the [configuration file](#configuration-file) or from an interactive prompt hiding the characters typed by the user.
 
 BFSC does not support to provide the password on the command line to avoid the password showing up in the command history. As a general rule you should never put any credentials directly into a command line.
 
@@ -141,11 +101,58 @@ The password for write operations to the BucketFS is usually stored in file `/ex
 WritePass = <value>
 ```
 
-Additionally the `<value>` is base64 encoded.  For additional convenience BFSC allows you to provide the password in base64 encoded format and let BFSC decode it with commandline flag `--decode-base64-password` or `-d`. This applies to all methods providing the password: via environment `BUCKETFS_PASSWORD`, as well as via interactive prompt.
+Additionally the `<value>` is base64 encoded.  For additional convenience BFSC allows you to provide the password in base64 encoded format and let BFSC decode it with commandline flag `--decode-base64-password` or `-d`. This applies to all methods providing the password: via the profile in your configuration file, as well as via interactive prompt.
 
 ```bash
 bfsc cp -d a.txt bfs:/
 ```
+
+#### Configuration File
+
+Besides specifying the complete URL on the command line you can use fallbacks for some parts of the URL that apply to multiple operations.
+
+BFSC uses the following precedence for URI parts
+1. Supplied on the command line, or entered interactively in case of the [password](#password-protected-bucket-access)
+2. Elements of your profile
+3. Hard coded default value for host and port
+
+You can define the profile in BFSC's configuration file in your home directory: `~/.bucketfs-client/config`. On Windows the home directory is `%USERPROFILE%`.
+
+The configuration file uses the INI-file syntax. It is devided into sections. Each section contains a number of lines defining a *profile*. The first line of each section specifies the name of the profile in brackets. The default profile's name is `default`. Each of the following lines of the section may assign a value to an *element*.
+
+BFCS uses the following elements of your profile with the specified hard coded default values:
+
+| Parameter                       | Profile Element | Default value |
+|---------------------------------|-----------------|---------------|
+| Host address of BucketFS server | `host`          | `localhost`   |
+| Port                            | `port`          | `2580`        |
+| Name of root bucket             | `bucket`        | (none)        |
+| Write passsword                 | `password`      | (none)        |
+
+Here is an example for the content of a configuration file for BFSC:
+```
+[default]
+host=1.2.3.4
+port=8888
+bucket=simba
+password=abc
+```
+
+Using this configuration file the command line
+```bash
+bfsc cp foo.jar bfs:/drivers
+```
+
+... then is equivalent to the following command line without a configuration file:
+```bash
+bfsc cp foo.jar bfs://1.2.3.4:8888/simba/drivers/foo.jar
+```
+
+#### Name of the Root Bucket
+
+BFSC cannot detect whether the URL on the command line contains a bucket name or directly starts with the path *inside* the bucket. If the profile in your configuration file specifies a bucket name, then BFSC will always prepend that bucket name to the path of the URL.
+
+If you want to provide the name of the root bucket on the command line then please do not set `bucket` in your profile.
 
 ### Bucket Operations
 
