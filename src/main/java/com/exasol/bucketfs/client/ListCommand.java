@@ -38,7 +38,8 @@ public class ListCommand implements Callable<Integer> {
                 .name(url.getBucketName()) //
                 .build();
         bucket.listContents(url.getPathInBucket()).stream() //
-                .forEach(e -> System.out.println(e));
+                .forEach(System.out::println); // NOSONAR
+        // The purpose of the list command is to print the listing on stdout
         return CommandLine.ExitCode.OK;
     }
 

@@ -15,6 +15,10 @@ public class PasswordReader {
 
     static final String PROMPT = "Write password for BucketFS: ";
 
+    private PasswordReader() {
+        // only static usage
+    }
+
     /**
      * @param profile
      * @return password for write operations to bucket
@@ -36,7 +40,8 @@ public class PasswordReader {
      * @return password from {@link System.in}
      */
     private static String readPasswordFromSystemIn() {
-        System.out.print(PROMPT);
+        System.out.print(PROMPT); // NOSONAR
+        // Prompt needs to be shown on stdout, using a logger is inappropriate here
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             return reader.readLine();
         } catch (final IOException exception) {

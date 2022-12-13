@@ -50,9 +50,9 @@ public class ProfileReader implements ProfileProvider {
     }
 
     Ini read(final InputStream stream) throws IOException {
-        final Ini ini = new Ini();
-        ini.load(stream);
-        return ini;
+        final Ini result = new Ini();
+        result.load(stream);
+        return result;
     }
 
     @Override

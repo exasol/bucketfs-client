@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 
 import org.itsallcode.junit.sysextensions.ExitGuard;
 import org.itsallcode.junit.sysextensions.SystemErrGuard;
-import org.junit.Assume;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -37,24 +36,12 @@ class ListCommandIT {
         createFiles();
     }
 
-    /**
-     * <ul>
-     * <li>+ setup files and folders
-     * <li>+ define filter for relevant entries
-     * <li>single tests for
-     * <ul>
-     * <li>+ files in root folder
-     * <li>+ files in sub folder
-     * <li>+ (empty folder -- not possible)
-     * <li>+ (non existing folder -- not possible)
-     * </ul>
-     * </ul>
-     */
-
-    @Test
-    void clean() throws BucketAccessException {
-        // SETUP.cleanBucketFS();
-        SETUP.getDefaultBucket().deleteFileNonBlocking("folder/b.txt");
+    void clean(final boolean cleanAll) throws BucketAccessException {
+        if (cleanAll) {
+            SETUP.cleanBucketFS();
+        } else {
+            SETUP.getDefaultBucket().deleteFileNonBlocking("folder/b.txt");
+        }
     }
 
     private static void createFile(final UnsynchronizedBucket bucket, final String path) {
@@ -75,11 +62,7 @@ class ListCommandIT {
         verifyListCommand("folder/", a -> true, List.of("a1.txt", "b1.txt"));
     }
 
-    @Test
-    void emptFolder() {
-        Assume.assumeTrue(false);
-        // empty folders are not possible in BucketFS
-    }
+    // not test for empty folders as these are not possible in BucketFS
 
     @Test
     void nonExistingFolder() {
