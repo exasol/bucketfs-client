@@ -4,7 +4,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Optional;
 
 import com.exasol.bucketfs.Fallback;
 import com.exasol.errorreporting.ExaError;
@@ -21,7 +20,8 @@ public class ProfileReader implements ProfileProvider {
     static final String CONFIG_FILE = HOME_DIRECTORY + "/.bucketfs-client/config";
 
     private final Path configFile;
-    Optional<Ini> ini;
+    private boolean tryReading = true;
+    private Ini ini;
 
     public ProfileReader() {
         this(Path.of(Fallback.fallback(null, System.getProperty(CONFIG_FILE_PROPERTY), CONFIG_FILE)));
@@ -34,12 +34,12 @@ public class ProfileReader implements ProfileProvider {
         this.configFile = configFile;
     }
 
-    Optional<Ini> read() {
+    Ini read() {
         if (Files.notExists(this.configFile)) {
-            return Optional.empty();
+            return null;
         }
         try (InputStream stream = Files.newInputStream(this.configFile)) {
-            return Optional.of(read(stream));
+            return read(stream);
         } catch (final IOException exception) {
             throw new UncheckedIOException(ExaError.messageBuilder("E-BFSC-7") //
                     .message("Failed to read profile from {{file}}", this.configFile) //
@@ -57,13 +57,14 @@ public class ProfileReader implements ProfileProvider {
 
     @Override
     public Profile getProfile(final String profileName) {
-        if (this.ini == null) {
+        if (this.tryReading) {
             this.ini = read();
+            this.tryReading = false;
         }
-        if (this.ini.isEmpty()) {
+        if (this.ini == null) {
             return Profile.empty();
         }
-        final Map<String, Object> section = this.ini.get().getSection(profileName);
+        final Map<String, Object> section = this.ini.getSection(profileName);
         if (section == null) {
             return Profile.empty();
         }
