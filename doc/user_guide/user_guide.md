@@ -65,10 +65,11 @@ BFSC supports the following sub commands to inspect and manipulate files in the 
 
 | Command                | Description                                        |
 |------------------------|--------------------------------------------------- |
-| `bfsc ls`              | List contents of BucketFS                          |
-| `bfsc cp a.jar bfs:/`  | Upload file from local fie system to BucketFS      |
+| `bfsc ls`              | List the contents of BucketFS                      |
+| `bfsc ls bfs:/folder`  | List the contents of a directory in BucketFS       |
+| `bfsc cp a.jar bfs:/`  | Upload a file from local fie system to BucketFS    |
 | `bfsc cp bfs:/a.jar .` | Download a file from BucketFS to local file system |
-| `bfsc rm /a.jar`       | Remove file from BucketFS                          |
+| `bfsc rm /a.jar`       | Remove a file from BucketFS                        |
 
 The following sections describe the commands in detail.
 
@@ -175,4 +176,27 @@ While the `cp` command can rename the copied file in the target location you can
 ```bash
 bfsc cp foo.jar bfs:/drivers/
 bfsc cp bfs:/drivers/foo.jar .
+```
+
+#### Listing Contents of a Bucket or a Directory in a Bucket
+
+| Command            | Output                        |
+|--------------------|-------------------------------|
+| `bfsc ls`          | Contents of root bucket       |
+| `bfsc ls folder/a` | Contents of folder `folder/a` |
+
+Example output
+```
+a.txt
+b.txt
+folder\
+```
+
+Note that BFSC highlights folders with a trailing slash `/` to separate them from files potentially having the same name.
+
+#### Deleting Files in from a Bucket
+Examples
+```bash
+bfsc rm a.txt
+bfsc rm folder/b.txt
 ```

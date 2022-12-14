@@ -26,6 +26,7 @@ public class BucketFsClient implements Callable<Integer> {
         final CommandLine commandLineClient = new CommandLine(new BucketFsClient()) //
                 .addSubcommand(new CopyCommand(profileProvider)) //
                 .addSubcommand(new ListCommand(profileProvider)) //
+                .addSubcommand(new DeleteCommand(profileProvider)) //
                 .setExecutionExceptionHandler(new PrintExceptionMessageHandler());
         final int exitCode = commandLineClient.execute(arguments);
         System.exit(exitCode);

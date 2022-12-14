@@ -1,13 +1,13 @@
 package com.exasol.bucketfs.client;
 
 import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
 import com.exasol.bucketfs.*;
+import com.exasol.bucketfs.profile.Profile;
 import com.exasol.bucketfs.profile.ProfileProvider;
 import com.exasol.bucketfs.url.BucketFsUrl;
 import com.exasol.bucketfs.url.UriConverter;
@@ -48,8 +48,9 @@ public class CopyCommand implements Callable<Integer> {
     private void upload() {
         final Path sourcePath = convertSpecToPath(this.source);
         try {
-            final BucketFsUrl url = createDestinationBucketFsUrl();
-            final String password = PasswordReader.readPassword(this.profileProvider.getProfile());
+            final Profile profile = this.profileProvider.getProfile();
+            final BucketFsUrl url = BucketFsUrl.from(this.destination, profile);
+            final String password = PasswordReader.readPassword(profile);
             final UnsynchronizedBucket bucket = WriteEnabledBucket.builder() //
                     .ipAddress(url.getHost()) //
                     .port(url.getPort()) //
@@ -72,37 +73,19 @@ public class CopyCommand implements Callable<Integer> {
         return (pathSpec.getScheme() == null) ? Path.of(pathSpec.getPath()) : Path.of(pathSpec);
     }
 
-    private BucketFsUrl createDestinationBucketFsUrl() {
-        try {
-            return BucketFsUrl.from(this.destination, this.profileProvider.getProfile());
-        } catch (final MalformedURLException exception) {
-            throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-3")
-                    .message("Invalid BucketFS destination URL: {{url}}", this.destination).toString());
-        }
-    }
-
     // [impl->dsn~copy-command-copies-file-from-bucket~1]
     private void download() {
         try {
-            final BucketFsUrl sourceUrl = createSourceBucketFsUrl();
+            final BucketFsUrl url = BucketFsUrl.from(this.source, this.profileProvider.getProfile());
             final ReadOnlyBucket bucket = ReadEnabledBucket.builder() //
-                    .ipAddress(sourceUrl.getHost()) //
-                    .port(sourceUrl.getPort()) //
-                    .name(sourceUrl.getBucketName()) //
+                    .ipAddress(url.getHost()) //
+                    .port(url.getPort()) //
+                    .name(url.getBucketName()) //
                     .build();
             final Path destinationPath = convertSpecToPath(this.destination);
-            bucket.downloadFile(sourceUrl.getPathInBucket(), destinationPath);
+            bucket.downloadFile(url.getPathInBucket(), destinationPath);
         } catch (final BucketAccessException exception) {
             throw new BucketFsClientException(exception);
-        }
-    }
-
-    private BucketFsUrl createSourceBucketFsUrl() {
-        try {
-            return BucketFsUrl.from(this.source, this.profileProvider.getProfile());
-        } catch (final MalformedURLException exception) {
-            throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-4")
-                    .message("Invalid BucketFS source URL: {{url}}", this.source).toString());
         }
     }
 }

@@ -70,6 +70,55 @@ Covers:
 
 Needs: impl, itest
 
+## Listing Contents
+
+### Listing Contents of a Bucket
+`dsn~list-contents~1`
+
+The `ListCommand` displays the contents of a directory in a bucket as a sorted list.
+
+Covers:
+* `req~list-contents-of-a-bucket~1`
+
+Needs: impl, itest
+
+### Files and Directories
+`dsn~list-files-and-directories~1`
+
+The output of the `ListCommand` contains files as well as directories if there are such.
+
+Covers:
+* `req~list-contents-of-a-bucket~1`
+
+Needs: impl, itest
+
+### Highlight the Type of Entrys
+`dsn~highlight-type-of-entries~1`
+
+The `ListCommand` displays directories with a trailing slash.
+
+Rationale:
+
+A bucket may contain a file with the same name as a directory. For example `name/child.txt` and `name` can exist at the same time, see the [bucketfs-java](https://github.com/exasol/bucketfs-java/blob/main/doc/design.md#format-of-entries-in-a-bucket). By appending a slash to directories BFSC enables users to distinguish directories from files.
+
+Covers:
+* `req~list-contents-of-a-bucket~1`
+
+Needs: impl, itest
+
+## Deleting Files
+
+### Deleting a File in a Bucket
+`dsn~delete-file~1`
+
+The `DeleteCommand` deletes a file in a bucket.
+
+Covers:
+
+* `req~delete-files~1`
+
+Needs: impl, itest
+
 ## Command Line Interface
 
 ### Sub-command Requires Hidden Write Password

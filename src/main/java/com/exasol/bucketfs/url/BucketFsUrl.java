@@ -5,7 +5,9 @@ import static com.exasol.bucketfs.Fallback.fallback;
 import java.net.*;
 import java.util.Objects;
 
+import com.exasol.bucketfs.client.BucketFsClientException;
 import com.exasol.bucketfs.profile.Profile;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * BucketFS-specific URL.
@@ -38,12 +40,17 @@ public final class BucketFsUrl {
      * @throws MalformedURLException if BucketFS service or bucket are missing in the path or the path is not an
      *                               absolute path
      */
-    public static BucketFsUrl from(final URI uri, final Profile profile) throws MalformedURLException {
-        return new BucketFsUrl( //
-                uri.getScheme(), //
-                fallback(null, uri.getHost(), profile.host(), DEFAULT_HOST), //
-                fallback(UNDEFINED_PORT, uri.getPort(), profile.port(), DEFAULT_PORT), //
-                BucketFsPath.from(uri, profile.bucket()));
+    public static BucketFsUrl from(final URI uri, final Profile profile) {
+        try {
+            return new BucketFsUrl( //
+                    uri.getScheme(), //
+                    fallback(null, uri.getHost(), profile.host(), DEFAULT_HOST), //
+                    fallback(UNDEFINED_PORT, uri.getPort(), profile.port(), DEFAULT_PORT), //
+                    BucketFsPath.from(uri, profile.bucket()));
+        } catch (final MalformedURLException exception) {
+            throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-5") //
+                    .message("Invalid BucketFS URL: {{url}}", uri).toString());
+        }
     }
 
     private final String protocol;

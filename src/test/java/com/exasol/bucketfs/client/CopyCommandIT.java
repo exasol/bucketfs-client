@@ -20,12 +20,19 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.junitpioneer.jupiter.ClearSystemProperty;
+
+import com.exasol.bucketfs.profile.ProfileReader;
 
 @ExtendWith(ExitGuard.class)
 @ExtendWith(SystemErrGuard.class)
 class CopyCommandIT {
 
     private static final IntegrationTestSetup SETUP = new IntegrationTestSetup();
+
+    @ClearSystemProperty(key = ProfileReader.CONFIG_FILE_PROPERTY)
+    static void beforeAll() {
+    }
 
     @AfterAll
     static void after() {

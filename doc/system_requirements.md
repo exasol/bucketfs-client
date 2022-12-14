@@ -61,6 +61,20 @@ This allows uploading UFDs, configuration files and drivers, or checking the con
 
 Needs: req
 
+### Listing Contents
+`feat~listing-contents~1`
+
+BFSC supports listing the contents of a bucket in BucketFS.
+
+Needs: req
+
+### Deleting Files
+`feat~deleting-files~1`
+
+BFSC supports deleting files inside a bucket in BucketFS.
+
+Needs: req
+
 ## Functional Requirements
 
 ### BucketFS URLs
@@ -129,6 +143,28 @@ See also: [Password Protected Bucket Access](#interactive-password-entry)
 Covers:
 
 * [feat~copying-files~1](#copying-files)
+
+Needs: dsn
+
+### Listing Contents
+`req~list-contents-of-a-bucket~1`
+
+Users can list the contents of a bucket in BucketFS.
+
+Covers:
+
+* `feat~listing-contents~1`
+
+Needs: dsn
+
+### Deleting Files
+`req~delete-files~1`
+
+Users can delete files in a bucket in BucketFS.
+
+Covers:
+
+* `feat~deleting-files~1`
 
 Needs: dsn
 

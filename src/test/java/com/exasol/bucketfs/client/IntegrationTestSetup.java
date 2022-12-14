@@ -3,6 +3,7 @@ package com.exasol.bucketfs.client;
 import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKET;
 import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKETFS;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -69,6 +70,20 @@ public class IntegrationTestSetup {
 
     public String getBucketFsUri(final String serviceName, final String bucketName, final String pathInBucket) {
         return "bfs://" + getHost() + ":" + getMappedBucketFsPort() + "/" + bucketName + "/" + pathInBucket;
+    }
+
+    public void createFiles(final String... paths) throws BucketAccessException {
+        final UnsynchronizedBucket bucket = getDefaultBucket();
+        Arrays.stream(paths).forEach(path -> createFile(bucket, path));
+        System.out.println("Actual content: " + bucket.listContents());
+    }
+
+    private static void createFile(final UnsynchronizedBucket bucket, final String path) {
+        try {
+            bucket.uploadStringContentNonBlocking(path, path);
+        } catch (BucketAccessException | TimeoutException exception) {
+            throw new IllegalStateException(exception);
+        }
     }
 
     public void uploadStringContent(final String content, final String pathInBucket)

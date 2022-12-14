@@ -12,7 +12,7 @@ import java.nio.file.Path;
 public class BFSC {
 
     private final String[] parameters;
-    private Path configFile;
+    private Path configFile = Path.of("/non/existing/file");
     private String in = null;
     private String out = null;
 
@@ -62,9 +62,7 @@ public class BFSC {
      * @throws Exception
      */
     public void run() {
-        if (this.configFile != null) {
-            System.setProperty(CONFIG_FILE_PROPERTY, this.configFile.toString());
-        }
+        System.setProperty(CONFIG_FILE_PROPERTY, this.configFile.toString());
         overridingStdIn(catchingStdOut(() -> BucketFsClient.main(this.parameters))).run();
     }
 
