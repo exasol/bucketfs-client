@@ -10,6 +10,13 @@
 
 This section introduces technical system constraints.
 
+## No Confirmation for Delete Operation
+`const~delete-ansynchronous~1`
+
+Deleting a file in BucketFS is an asynchronous operation. Additionally BucketFS service does not provide any confirmation in case of a successfully deleting a file, nor does it signal an error e.g. when trying to delete a non-existing file.
+
+Needs: dsn
+
 # Solution Strategy
 
 The BucketFS Client mimics the popular GNU core utilities in terms of user interface and behavior. It is designed to work independently of the platform so that it can be used on any OS that Java can run on and has a console (Linux, Mac OS X, Windows).
@@ -116,6 +123,16 @@ The `DeleteCommand` deletes a file in a bucket.
 Covers:
 
 * `req~delete-files~1`
+
+Needs: impl, itest
+
+### No Error when Deleting a Non-Existing File
+`dsn~no-error-when-deleting-a-non-existing-file~1`
+
+BFSC does not signal an error in case of trying to delete a non-existing file.
+
+Covers:
+* `const~delete-ansynchronous~1`
 
 Needs: impl, itest
 

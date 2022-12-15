@@ -19,6 +19,7 @@ import picocli.CommandLine.Parameters;
  */
 @Command(name = "rm", description = "Remove file PATH from BucketFS")
 // [impl->dsn~delete-file~1]
+// [impl->dsn~no-error-when-deleting-a-non-existing-file~1]
 public class DeleteCommand implements Callable<Integer> {
 
     private final ProfileProvider profileProvider;

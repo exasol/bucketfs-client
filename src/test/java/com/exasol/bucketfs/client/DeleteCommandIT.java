@@ -39,31 +39,8 @@ class DeleteCommandIT {
         verifyDelete("folder/delete.txt");
     }
 
-    // which results do we expect here?
-    // should BFSC inspect the listing before deleting and report an error if file cannot be found?
-    /**
-     * Unfortunately BucketFS does only support non-blocking delete operation.
-     * <p>
-     * The only option for BFSC to detect whether delete was successful would be to retrieve the listing of the bucket
-     * contents and to check whether it contains the file to be deleted before and after the delete operation.
-     * </p>
-     * <p>
-     * Additionally BFSC does not know how long to wait after deleting the file before it can expect the listing to not
-     * contain the file anymore.
-     * </p>
-     * <p>
-     * In summary inspecting the listing requires additional effort, additional HTTP communication, and results are
-     * unreliable.
-     * </p>
-     * <p>
-     * So In summary inspecting the listing requires additional effort, additional HTTP communication, and results are
-     * unreliable.
-     * </p>
-     *
-     *
-     * @throws BucketAccessException in case of problems during deleting the file
-     */
     @Test
+    // [itest->dsn~no-error-when-deleting-a-non-existing-file~1]
     void deleteNonExistingFile() throws BucketAccessException {
         verifyDelete("non-existing-file.txt");
     }
