@@ -1,10 +1,11 @@
 package com.exasol.bucketfs.client;
 
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.util.concurrent.Callable;
 
-import com.exasol.bucketfs.ReadEnabledBucket;
-import com.exasol.bucketfs.ReadOnlyBucket;
+import com.exasol.bucketfs.ListingProvider;
+import com.exasol.bucketfs.http.HttpClientBuilder;
 import com.exasol.bucketfs.profile.ProfileProvider;
 import com.exasol.bucketfs.url.BucketFsUrl;
 import com.exasol.bucketfs.url.UriConverter;
@@ -33,12 +34,15 @@ public class ListCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         final BucketFsUrl url = BucketFsUrl.from(this.uri, this.profileProvider.getProfile());
-        final ReadOnlyBucket bucket = ReadEnabledBucket.builder() //
-                .ipAddress(url.getHost()) //
+        final HttpClient client = new HttpClientBuilder().build();
+        ListingProvider.builder() //
+                .httpClient(client) //
+                .protocol(url.isTlsEnabled() ? "https" : "http") //
+                .host(url.getHost()) //
                 .port(url.getPort()) //
-                .name(url.getBucketName()) //
-                .build();
-        bucket.listContents(url.getPathInBucket()).stream().forEach(this::print);
+                .bucketName(url.getBucketName()).build() //
+                .listContents(url.getPathInBucket()) //
+                .forEach(this::print);
         return CommandLine.ExitCode.OK;
     }
 

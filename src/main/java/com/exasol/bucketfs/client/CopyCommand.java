@@ -52,7 +52,7 @@ public class CopyCommand implements Callable<Integer> {
             final BucketFsUrl url = BucketFsUrl.from(this.destination, profile);
             final String password = PasswordReader.readPassword(profile);
             final UnsynchronizedBucket bucket = WriteEnabledBucket.builder() //
-                    .ipAddress(url.getHost()) //
+                    .host(url.getHost()) //
                     .port(url.getPort()) //
                     .name(url.getBucketName()) //
                     .writePassword(password) //
@@ -78,7 +78,7 @@ public class CopyCommand implements Callable<Integer> {
         try {
             final BucketFsUrl url = BucketFsUrl.from(this.source, this.profileProvider.getProfile());
             final ReadOnlyBucket bucket = ReadEnabledBucket.builder() //
-                    .ipAddress(url.getHost()) //
+                    .host(url.getHost()) //
                     .port(url.getPort()) //
                     .name(url.getBucketName()) //
                     .build();

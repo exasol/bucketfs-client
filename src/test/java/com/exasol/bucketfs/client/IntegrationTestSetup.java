@@ -56,7 +56,7 @@ public class IntegrationTestSetup {
                 .getBucketFsServiceConfiguration(DEFAULT_BUCKETFS) //
                 .getBucketConfiguration(DEFAULT_BUCKET);
         return WriteEnabledBucket.builder() //
-                .ipAddress(getHost()) //
+                .host(getHost()) //
                 .port(getMappedBucketFsPort()) //
                 .serviceName("bfsdefault") //
                 .name("default") //

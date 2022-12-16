@@ -36,7 +36,7 @@ public class DeleteCommand implements Callable<Integer> {
         final BucketFsUrl url = BucketFsUrl.from(this.uri, profile);
         final String password = PasswordReader.readPassword(profile);
         final UnsynchronizedBucket bucket = WriteEnabledBucket.builder() //
-                .ipAddress(url.getHost()) //
+                .host(url.getHost()) //
                 .port(url.getPort()) //
                 .name(url.getBucketName()) //
                 .writePassword(password) //
