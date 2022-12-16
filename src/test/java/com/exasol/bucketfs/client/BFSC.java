@@ -1,14 +1,20 @@
 package com.exasol.bucketfs.client;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import static com.exasol.bucketfs.profile.ProfileReader.CONFIG_FILE_PROPERTY;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 /**
  * Executes the BucketFsClient (BFSC) in integration tests.
  */
 public class BFSC {
+
     private final String[] parameters;
+    private Path configFile;
     private String in = null;
+    private String out = null;
 
     /**
      * Create the wrapper with the given parameters.
@@ -18,6 +24,10 @@ public class BFSC {
      */
     static BFSC create(final String... parameters) {
         return new BFSC(parameters);
+    }
+
+    private BFSC(final String[] parameters) {
+        this.parameters = parameters;
     }
 
     /**
@@ -31,32 +41,70 @@ public class BFSC {
         return this;
     }
 
-    private BFSC(final String[] parameters) {
-        this.parameters = parameters;
+    /**
+     * Catch STDOUT into string for verification in test
+     *
+     * @return {@code this} for fluent programming
+     */
+    public BFSC catchStdout() {
+        this.out = "";
+        return this;
+    }
+
+    BFSC withConfigFile(final Path path) {
+        this.configFile = path;
+        return this;
     }
 
     /**
      * Run the BucketFS client.
      */
     public void run() {
-        if (isStdInOverridden()) {
-            runWithOverriddenStdIn();
+        if (this.configFile != null) {
+            System.setProperty(CONFIG_FILE_PROPERTY, this.configFile.toString());
+        }
+        overridingStdIn(catchingStdOut(() -> BucketFsClient.main(this.parameters))).run();
+    }
+
+    private Runnable catchingStdOut(final Runnable runnable) {
+        if (this.out != null) {
+            return () -> catchStdOut(runnable);
         } else {
-            BucketFsClient.main(this.parameters);
+            return runnable;
         }
     }
 
-    private boolean isStdInOverridden() {
-        return this.in != null;
+    private Runnable overridingStdIn(final Runnable runnable) {
+        if (this.in != null) {
+            return () -> overrideStdIn(runnable);
+        } else {
+            return runnable;
+        }
     }
 
-    private void runWithOverriddenStdIn() {
+    private void overrideStdIn(final Runnable runnable) {
         final InputStream previousStdIn = System.in;
         try {
             System.setIn(new ByteArrayInputStream(this.in.getBytes()));
-            BucketFsClient.main(this.parameters);
+            runnable.run();
         } finally {
             System.setIn(previousStdIn);
         }
+    }
+
+    private void catchStdOut(final Runnable runnable) {
+        final PrintStream previous = System.out;
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(out));
+            runnable.run();
+        } finally {
+            System.setOut(previous);
+            this.out = out.toString(StandardCharsets.UTF_8);
+        }
+    }
+
+    public String getStdOut() {
+        return this.out;
     }
 }

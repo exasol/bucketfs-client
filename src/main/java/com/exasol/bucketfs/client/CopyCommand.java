@@ -8,25 +8,31 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
 import com.exasol.bucketfs.*;
+import com.exasol.bucketfs.profile.ProfileProvider;
 import com.exasol.bucketfs.url.BucketFsUrl;
 import com.exasol.bucketfs.url.UriConverter;
 import com.exasol.errorreporting.ExaError;
 
 import picocli.CommandLine;
-import picocli.CommandLine.*;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
+/**
+ * This class implements copy operations to and from BucketFS
+ */
 //[impl->dsn~command-line-parsing~1]
 @Command(name = "cp", description = "Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY")
 public class CopyCommand implements Callable<Integer> {
+
+    private final ProfileProvider profileProvider;
     @Parameters(index = "0", paramLabel = "SOURCE", description = "source", converter = UriConverter.class)
     private URI source;
-
     @Parameters(index = "1", paramLabel = "DEST", description = "destination", converter = UriConverter.class)
     private URI destination;
 
-    // [impl->dsn~sub-command-requires-hidden-password~1]
-    @Option(names = { "-p", "--password" }, description = "password", interactive = true)
-    private String password;
+    public CopyCommand(final ProfileProvider profileProvider) {
+        this.profileProvider = profileProvider;
+    }
 
     @Override
     public Integer call() {
@@ -38,20 +44,17 @@ public class CopyCommand implements Callable<Integer> {
         return CommandLine.ExitCode.OK;
     }
 
-    String readPassword() {
-        return new String(System.console().readPassword("Enter your secret password: "));
-    }
-
     // [impl->dsn~copy-command-copies-file-to-bucket~1]
     private void upload() {
         final Path sourcePath = convertSpecToPath(this.source);
         try {
             final BucketFsUrl url = createDestinationBucketFsUrl();
+            final String password = PasswordReader.readPassword(this.profileProvider.getProfile());
             final UnsynchronizedBucket bucket = WriteEnabledBucket.builder() //
                     .ipAddress(url.getHost()) //
                     .port(url.getPort()) //
                     .name(url.getBucketName()) //
-                    .writePassword(this.password) //
+                    .writePassword(password) //
                     .build();
             bucket.uploadFileNonBlocking(sourcePath, url.getPathInBucket());
         } catch (final BucketAccessException exception) {
@@ -71,10 +74,10 @@ public class CopyCommand implements Callable<Integer> {
 
     private BucketFsUrl createDestinationBucketFsUrl() {
         try {
-            return BucketFsUrl.create(this.destination);
+            return BucketFsUrl.from(this.destination, this.profileProvider.getProfile());
         } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-3")
-                    .message("Illegal BucketFS destination URL: {{url}}", this.destination).toString());
+                    .message("Invalid BucketFS destination URL: {{url}}", this.destination).toString());
         }
     }
 
@@ -96,10 +99,10 @@ public class CopyCommand implements Callable<Integer> {
 
     private BucketFsUrl createSourceBucketFsUrl() {
         try {
-            return BucketFsUrl.create(this.source);
+            return BucketFsUrl.from(this.source, this.profileProvider.getProfile());
         } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-4")
-                    .message("Illegal BucketFS source URL: {{url}}", this.source).toString());
+                    .message("Invalid BucketFS source URL: {{url}}", this.source).toString());
         }
     }
 }

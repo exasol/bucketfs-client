@@ -1,9 +1,11 @@
 package com.exasol.bucketfs.url;
 
+import static com.exasol.bucketfs.Fallback.fallback;
+
 import java.net.*;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import com.exasol.bucketfs.profile.Profile;
 
 /**
  * BucketFS-specific URL.
@@ -12,99 +14,68 @@ import java.util.regex.Pattern;
  */
 // [impl->dsn~bucket-fs-url~1]
 public final class BucketFsUrl {
+
+    /**
+     * @param uri URI to check whether it refers to BucketFS or not
+     * @return {@code true} if URI refers to BucketFS
+     */
+    public static boolean isBucketFsUrl(final URI uri) {
+        return (uri != null)
+                && (BUCKETFS_PROTOCOL.equals(uri.getScheme()) || BUCKETFS_PROTOCOL_WITH_TLS.equals(uri.getScheme()));
+    }
+
     public static final String BUCKETFS_PROTOCOL = "bfs";
     public static final String BUCKETFS_PROTOCOL_WITH_TLS = "bfss";
     public static final String PATH_SEPARATOR = "/";
-    private static final Pattern PATH_PATTERN = Pattern.compile("/(\\w{1,128})(/.*)");
-    private static final int DEFAULT_PORT = 2580;
-    private static final int UNDEFINED_PORT = -1;
-    private final URI uri;
-    private String cachedBucketName;
-    private String cachedPathInBucket;
+    public static final String DEFAULT_HOST = "localhost";
+    public static final int DEFAULT_PORT = 2580;
+    public static final int UNDEFINED_PORT = -1;
 
     /**
-     * Create a URL object from the String representation.
-     *
-     * @param spec String to parse as a URL
+     * @param uri     URI to create the URL from
+     * @param profile default values for specific parts of BucketFS URLs
      * @return new BucketFS URL
-     *
-     * @throws MalformedURLException if the port is negative or if either BucketFS service or bucket are missing in the
-     *                               path or the path is not an absolute path
-     */
-    public static BucketFsUrl create(final String spec) throws MalformedURLException {
-        try {
-            final URI uri = new URI(spec);
-            return new BucketFsUrl(uri);
-        } catch (final URISyntaxException exception) {
-            throw new MalformedURLException(exception.getMessage());
-        }
-    }
-
-    /**
-     * Create a URL object from a URI.
-     *
-     * @param uri URI to create the URL from
-     * @return new BucketFS URL
-     *
      * @throws MalformedURLException if BucketFS service or bucket are missing in the path or the path is not an
      *                               absolute path
      */
-    public static BucketFsUrl create(final URI uri) throws MalformedURLException {
-        return new BucketFsUrl(uri);
+    public static BucketFsUrl from(final URI uri, final Profile profile) throws MalformedURLException {
+        return new BucketFsUrl( //
+                uri.getScheme(), //
+                fallback(null, uri.getHost(), profile.host(), DEFAULT_HOST), //
+                fallback(UNDEFINED_PORT, uri.getPort(), profile.port(), DEFAULT_PORT), //
+                BucketFsPath.from(uri, profile.bucket()));
     }
 
-    public static boolean isBucketFsUrl(final URI inputUri) {
-        return (inputUri != null) && (BUCKETFS_PROTOCOL.equals(inputUri.getScheme())
-                || BUCKETFS_PROTOCOL_WITH_TLS.equals(inputUri.getScheme()));
-    }
+    private final String protocol;
+    private final String host;
+    private final int port;
+    private final BucketFsPath bucketFsPath;
+    private final URI uri;
 
     /**
-     * Create a BucketFS URL.
-     *
-     * @param host         host on which the BucketFS service runs
-     * @param port         port on which the BucketFS service listens
-     * @param bucketName   name of the bucket
-     * @param pathInBucket path inside the bucket
-     * @param useTls       set to {@code true} if TLS should be used
-     *
-     * @throws MalformedURLException if the port is negative or if either BucketFS service or bucket are missing in the
-     *                               path or the path is not an absolute path
+     * @param protocol
+     * @param host
+     * @param port
+     * @param bucketName
+     * @param pathInBucket
+     * @throws MalformedURLException
      */
-    public BucketFsUrl(final String host, final int port, final String bucketName, final String pathInBucket,
-            final boolean useTls) throws MalformedURLException {
+    BucketFsUrl(final String protocol, final String host, final int port, final BucketFsPath bucketFsPath)
+            throws MalformedURLException {
+        this.protocol = protocol;
+        this.host = host;
+        this.port = port;
+        this.bucketFsPath = bucketFsPath;
         try {
-            final String path = calculatePath(bucketName, pathInBucket);
-            final String protocol = calculateProtocol(useTls);
-            this.uri = new URI(protocol, null, host, port, path, null, null);
-            this.cachedBucketName = bucketName;
-            this.cachedPathInBucket = pathInBucket;
+            this.uri = makeUri(protocol, host, port, bucketFsPath);
         } catch (final URISyntaxException exception) {
             throw new MalformedURLException(exception.getMessage());
         }
     }
 
-    private String calculatePath(final String bucketName, final String pathInBucket) {
-        return PATH_SEPARATOR + bucketName + PATH_SEPARATOR + pathInBucket;
-    }
-
-    private String calculateProtocol(final boolean useTls) {
-        return useTls ? BUCKETFS_PROTOCOL_WITH_TLS : BUCKETFS_PROTOCOL;
-    }
-
-    private void cacheUriPathElements(final String path) throws MalformedURLException {
-        final Matcher matcher = PATH_PATTERN.matcher(path);
-        if (matcher.matches()) {
-            this.cachedBucketName = matcher.group(1);
-            this.cachedPathInBucket = matcher.group(2);
-        } else {
-            throw new MalformedURLException("Illegal path in bucket: '" + path
-                    + "'. Path must have the following form: '/<bucketfs-service/<bucket>/<path-in-bucket>");
-        }
-    }
-
-    private BucketFsUrl(final URI uri) throws MalformedURLException {
-        this.uri = uri;
-        cacheUriPathElements(uri.getPath());
+    private static URI makeUri(final String protocol, final String host, final int port,
+            final BucketFsPath bucketFsPath) throws URISyntaxException {
+        return new URI(protocol, null, host, port, bucketFsPath.getUriPath(), null, null);
     }
 
     /**
@@ -122,7 +93,7 @@ public final class BucketFsUrl {
      * @return name of the bucket
      */
     public String getBucketName() {
-        return this.cachedBucketName;
+        return this.bucketFsPath.getBucketName();
     }
 
     /**
@@ -131,7 +102,7 @@ public final class BucketFsUrl {
      * @return path inside the bucket.
      */
     public String getPathInBucket() {
-        return this.cachedPathInBucket;
+        return this.bucketFsPath.getPathInBucket();
     }
 
     /**
@@ -140,7 +111,7 @@ public final class BucketFsUrl {
      * @return port number, or -1 if the port is not set
      */
     public int getPort() {
-        return this.uri.getPort();
+        return this.port;
     }
 
     /**
@@ -177,7 +148,7 @@ public final class BucketFsUrl {
      * @return protocol of this URL
      */
     public String getProtocol() {
-        return this.uri.getScheme();
+        return this.protocol;
     }
 
     /**
@@ -186,7 +157,7 @@ public final class BucketFsUrl {
      * @return host name of this URL
      */
     public String getHost() {
-        return this.uri.getHost();
+        return this.host;
     }
 
     @Override
