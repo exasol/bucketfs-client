@@ -116,7 +116,7 @@ BFSC uses the following precedence for URI parts
 2. Elements of your profile
 3. Hard coded default value for host and port
 
-You can define the profile in BFSC's configuration file in your home directory: `~/.bucketfs-client/config`. On Windows the home directory is `%USERPROFILE%`.
+You can define the profile in BFSC's configuration file in your home directory: `~/.bucketfs-client/config.ini`. On Windows the home directory is `%USERPROFILE%`.
 
 The configuration file uses the INI-file syntax. It is devided into sections. Each section contains a number of lines defining a *profile*. The first line of each section specifies the name of the profile in brackets. The default profile's name is `default`. Each of the following lines of the section may assign a value to an *element*.
 

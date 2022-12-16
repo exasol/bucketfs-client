@@ -40,12 +40,17 @@ public class PasswordReader {
      * @return password from {@link System.in}
      */
     private static String readPasswordFromSystemIn() {
-        System.out.print(PROMPT); // NOSONAR
-        // Prompt needs to be shown on stdout, using a logger is inappropriate here
+        showPrompt();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             return reader.readLine();
         } catch (final IOException exception) {
             throw new UncheckedIOException(exception);
         }
+    }
+
+    // Suppress sonar warning S106 since prompt needs to be shown on stdout and using a logger is inappropriate here.
+    @SuppressWarnings("java:S106")
+    private static void showPrompt() {
+        System.out.println(PROMPT);
     }
 }
