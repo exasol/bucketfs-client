@@ -51,6 +51,6 @@ public class PasswordReader {
     // Suppress sonar warning S106 since prompt needs to be shown on stdout and using a logger is inappropriate here.
     @SuppressWarnings("java:S106")
     private static void showPrompt() {
-        System.out.println(PROMPT);
+        System.out.print(PROMPT);
     }
 }
