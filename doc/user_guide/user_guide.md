@@ -26,11 +26,11 @@ Installation depends on your operating system.
 * Any operating system: [Adoptium OpenJDK build](https://adoptium.net/)
 * Linux
     * Ubuntu, Debian:
-      ```bash
+      ```shell
       sudo apt install openjdk-11-jre-headless
       ```
     * RedHat
-      ```bash
+      ```shell
       sudo yum install java-11-openjdk
       ```
     * SuSE: [OpenJDK build of the Leap project](https://software.opensuse.org/download/package?package=java-11-openjdk&project=openSUSE%3ALeap%3A15.1%3AUpdate)
@@ -43,13 +43,13 @@ The client is a Java program.
 
 The purist way of starting that is of course starting the application straight out of the JAR archive.
 
-```bash
+```shell
 java -jar "<path-to-bfsc-jar>" <command> <option> ...
 ```
 
 Since this gets a little bit unwieldy very quickly, you should set an alias:
 
-```bash
+```shell
 alias bfsc='java -jar <path-to-bfsc-jar>'
 ```
 
@@ -57,7 +57,7 @@ alias bfsc='java -jar <path-to-bfsc-jar>'
 
 Sub-commands control the action that BFSC is taking. For each type of action there is a sub-command. The way to use this is:
 
-```bash
+```shell
 bfsc <sub-command> <option> ...
 ```
 
@@ -101,11 +101,7 @@ The password for write operations to the BucketFS is usually stored in file `/ex
 WritePass = <value>
 ```
 
-Additionally the `<value>` is base64 encoded.  For additional convenience BFSC allows you to provide the password in base64 encoded format and let BFSC decode it with commandline flag `--decode-base64-password` or `-d`. This applies to all methods providing the password: via the profile in your configuration file, as well as via interactive prompt.
-
-```bash
-bfsc cp -d a.txt bfs:/
-```
+Additionally the `<value>` is base64 encoded.  For additional convenience BFSC allows you to provide the password in base64 encoded format and let BFSC decode it, see section [Configuration File](#configuration-file). This applies to all methods providing the password: via the profile in your configuration file, as well as via interactive prompt.
 
 #### Configuration File
 
@@ -128,6 +124,7 @@ BFCS uses the following elements of your profile with the specified hard coded d
 | Port                            | `port`          | `2580`        |
 | Name of root bucket             | `bucket`        | (none)        |
 | Write passsword                 | `password`      | (none)        |
+| Decode base64 encoded password  | `decode-base64` | `false`       |
 
 Here is an example for the content of a configuration file for BFSC:
 ```
@@ -136,15 +133,16 @@ host=1.2.3.4
 port=8888
 bucket=simba
 password=abc
+decode-base64=true
 ```
 
 Using this configuration file the command line
-```bash
+```shell
 bfsc cp foo.jar bfs:/drivers
 ```
 
 ... then is equivalent to the following command line without a configuration file:
-```bash
+```shell
 bfsc cp foo.jar bfs://1.2.3.4:8888/simba/drivers/foo.jar
 ```
 
@@ -160,19 +158,19 @@ If you want to provide the name of the root bucket on the command line then plea
 
 In the majority of all cases you will copy files _to_ a bucket. For example if you want to install a library that you plan to use in a Python or Java UDF.
 
-```bash
+```shell
 bfsc cp <from> <to>
 ```
 
 Example:
 
-```bash
+```shell
 bfsc cp foo-driver-1.2.3.jar bfs://192.168.0.1:2580/default/drivers/foo-driver-1.2.3.jar
 ```
 
 While the `cp` command can rename the copied file in the target location you can also omit the filename to tell BFSC to leave the filename unchanged just as the GNU `cp` command does:
 
-```bash
+```shell
 bfsc cp foo.jar bfs:/drivers/
 bfsc cp bfs:/drivers/foo.jar .
 ```
