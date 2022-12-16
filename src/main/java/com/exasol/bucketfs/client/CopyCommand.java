@@ -48,9 +48,8 @@ public class CopyCommand implements Callable<Integer> {
     private void upload() {
         final Path sourcePath = convertSpecToPath(this.source);
         try {
-            final Profile profile = this.profileProvider.getProfile();
-            final BucketFsUrl url = BucketFsUrl.from(this.destination, profile);
-            final String password = PasswordReader.readPassword(profile);
+            final BucketFsUrl url = createDestinationBucketFsUrl();
+            final String password = PasswordReader.readPassword(this.profileProvider.getProfile());
             final UnsynchronizedBucket bucket = WriteEnabledBucket.builder() //
                     .host(url.getHost()) //
                     .port(url.getPort()) //

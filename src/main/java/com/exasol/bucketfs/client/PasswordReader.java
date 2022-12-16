@@ -13,7 +13,7 @@ import com.exasol.bucketfs.profile.Profile;
 // [impl->dsn~sub-command-requires-hidden-password~2]
 public class PasswordReader {
 
-    static final String PROMPT = "Write password for BucketFS: ";
+    static final String PROMPT = "Enter the write-password for BucketFS: ";
 
     private PasswordReader() {
         // only static usage
@@ -51,6 +51,6 @@ public class PasswordReader {
     // Suppress sonar warning S106 since prompt needs to be shown on stdout and using a logger is inappropriate here.
     @SuppressWarnings("java:S106")
     private static void showPrompt() {
-        System.out.println(PROMPT);
+        System.out.print(PROMPT);
     }
 }

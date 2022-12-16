@@ -14,10 +14,10 @@ import com.github.vincentrussell.ini.Ini;
  */
 public class ProfileReader implements ProfileProvider {
 
-    public static final String CONFIG_FILE_PROPERTY = "bfsc.properties.file";
+    public static final String CONFIG_FILE_PROPERTY = "bfsc.config.file";
 
     private static final String HOME_DIRECTORY = System.getProperty("user.home");
-    static final String CONFIG_FILE = HOME_DIRECTORY + "/.bucketfs-client/config";
+    static final String CONFIG_FILE = HOME_DIRECTORY + "/.bucketfs-client/config.ini";
 
     private final Path configFile;
     private boolean tryReading = true;

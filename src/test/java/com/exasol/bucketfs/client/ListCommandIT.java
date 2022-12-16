@@ -54,7 +54,7 @@ class ListCommandIT {
         verifyListCommand("folder/", a -> true, List.of("a1.txt", "b1.txt"));
     }
 
-    // no test for empty folders as these are not possible in BucketFS
+    // There is no test for empty folders as these are not possible in BucketFS.
 
     @Test
     void nonExistingFolder() {
@@ -83,5 +83,4 @@ class ListCommandIT {
                 .filter(filter) //
                 .collect(Collectors.toList());
     }
-
 }
