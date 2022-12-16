@@ -58,8 +58,6 @@ public class BFSC {
 
     /**
      * Run the BucketFS client.
-     *
-     * @throws Exception
      */
     public void run() {
         if (this.configFile != null) {

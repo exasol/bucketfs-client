@@ -13,7 +13,7 @@ import com.exasol.bucketfs.profile.Profile;
 // [impl->dsn~sub-command-requires-hidden-password~2]
 public class PasswordReader {
 
-    static final String PROMPT = "Write password for BucketFS: ";
+    static final String PROMPT = "Enter the write-password for BucketFS: ";
 
     private PasswordReader() {
         // only static usage
