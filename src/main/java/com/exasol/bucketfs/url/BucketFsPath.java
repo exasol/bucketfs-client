@@ -11,13 +11,13 @@ import java.util.regex.Pattern;
 import com.exasol.bucketfs.Fallback;
 import com.exasol.errorreporting.ExaError;
 
-public class BucketFsPath {
+class BucketFsPath {
 
     private static final Pattern PATH_PATTERN = Pattern.compile("/(\\w{1,128})(/.*)");
 
     // java doc for standard java class URI:
     // The path of a hierarchical URI that is either absolute or specifies an authority is always absolute.
-    public static BucketFsPath from(final URI uri, final String defaultBucket) throws MalformedURLException {
+    static BucketFsPath from(final URI uri, final String defaultBucket) throws MalformedURLException {
         final String bucket = Fallback.fallback(null, defaultBucket);
         final String path = Optional.ofNullable(uri.getPath()).orElse("");
         if (bucket != null) {
@@ -31,8 +31,6 @@ public class BucketFsPath {
 
         throw new MalformedURLException(ExaError.messageBuilder("E-BFSC-6") //
                 .message("URI contains illegal path in bucket: {{uri}}.", uri) //
-                .mitigation("Please use URI with the following form: {{form}}",
-                        "bfs://<bucketfs-service/<bucket>/<path-in-bucket>") //
                 .toString());
     }
 
@@ -48,15 +46,15 @@ public class BucketFsPath {
         this.pathInBucket = pathInBucket;
     }
 
-    public String getPathInBucket() {
+    String getPathInBucket() {
         return this.pathInBucket;
     }
 
-    public String getBucketName() {
+    String getBucketName() {
         return this.bucket;
     }
 
-    public String getUriPath() {
+    String getUriPath() {
         return PATH_SEPARATOR + this.bucket + this.pathInBucket;
     }
 }

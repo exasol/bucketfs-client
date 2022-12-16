@@ -49,7 +49,11 @@ public final class BucketFsUrl {
                     BucketFsPath.from(uri, profile.bucket()));
         } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-5") //
-                    .message("Invalid BucketFS URL: {{url}}", uri).toString());
+                    .message("Invalid BucketFS URL: {{url}}", uri) //
+                    .message("Cause: {{cause}}.", exception.getMessage()) //
+                    .mitigation("Please use URL with the following form: {{form}}.",
+                            "bfs://<bucketfs-service/<bucket>/<path-in-bucket>") //
+                    .toString());
         }
     }
 
