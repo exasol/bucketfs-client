@@ -4,8 +4,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.util.concurrent.Callable;
 
-import com.exasol.bucketfs.ListingProvider;
 import com.exasol.bucketfs.http.HttpClientBuilder;
+import com.exasol.bucketfs.list.BucketContentListing;
+import com.exasol.bucketfs.list.BucketListing;
 import com.exasol.bucketfs.profile.ProfileProvider;
 import com.exasol.bucketfs.url.BucketFsUrl;
 import com.exasol.bucketfs.url.UriConverter;
@@ -35,14 +36,15 @@ public class ListCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         final BucketFsUrl url = BucketFsUrl.from(this.uri, this.profileProvider.getProfile());
         final HttpClient client = new HttpClientBuilder().build();
-        ListingProvider.builder() //
-                .httpClient(client) //
-                .protocol(url.isTlsEnabled() ? "https" : "http") //
-                .host(url.getHost()) //
-                .port(url.getPort()) //
-                .bucketName(url.getBucketName()).build() //
-                .listContents(url.getPathInBucket()) //
-                .forEach(this::print);
+
+        final String bucketName = url.getBucketName();
+        final String protocol = url.isTlsEnabled() ? "https" : "http";
+        if (bucketName == null) {
+            new BucketListing(client, protocol, url.getHost(), url.getPort()).retrieve().forEach(this::print);
+        } else {
+            new BucketContentListing(client, protocol, url.getHost(), url.getPort(), bucketName).retrieve(url.getPathInBucket())
+                    .forEach(this::print);
+        }
         return CommandLine.ExitCode.OK;
     }
 
