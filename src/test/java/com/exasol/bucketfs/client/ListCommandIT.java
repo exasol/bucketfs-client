@@ -62,7 +62,7 @@ class ListCommandIT {
         verifyListCommand("folder/", a -> true, List.of("a1.txt", "b1.txt"));
     }
 
-    // not test for empty folders as these are not possible in BucketFS
+    // There is no test for empty folders as these are not possible in BucketFS.
 
     @Test
     void nonExistingFolder() {
@@ -75,7 +75,6 @@ class ListCommandIT {
         final UnsynchronizedBucket bucket = SETUP.getDefaultBucket();
         Stream.of("b.txt", "a.txt", "folder/b1.txt", "folder/a1.txt") //
                 .forEach(path -> createFile(bucket, path));
-        System.out.println("Actual content: " + bucket.listContents());
     }
 
     private void verifyListCommand(final String folder, final List<String> expected) {
