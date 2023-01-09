@@ -20,7 +20,7 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 
 class BucketFsUrlTest {
 
-    Profile profile = Profile.empty();
+    Profile profile = Profile.empty(false);
 
     @CsvSource({ //
             "localhost, 8888, the_bucket, file.txt, false, bfs://localhost:8888/the_bucket/file.txt", //
@@ -71,7 +71,8 @@ class BucketFsUrlTest {
 
     @CsvSource({ //
             "bfs://localhost:8888/the_bucket/file.txt, /file.txt", //
-            "bfs://127.0.0.1:123/b/foo/bar/baz, /foo/bar/baz" //
+            "bfs://127.0.0.1:123/b/foo/bar/baz,        /foo/bar/baz", //
+            "bfs://127.0.0.1:123/b/foo/bar/baz/,       /foo/bar/baz/" //
     })
     @ParameterizedTest
     void testGetPathInBucket(final String inputUri, final String expectedPath) throws Exception {
@@ -172,7 +173,7 @@ class BucketFsUrlTest {
             "bfs:/bucket/file,          bfs://host-from-profile:2580/bucket/file",
             "bfs://1.2.3.4/bucket/file, bfs://1.2.3.4:2580/bucket/file", })
     void hostFromProfile(final String spec, final String expected) throws Exception {
-        final Profile profile = new Profile("host-from-profile", null, null, null);
+        final Profile profile = new Profile("host-from-profile", null, null, null, null, false);
         verifyWithEnv(spec, profile, expected);
     }
 
@@ -181,14 +182,14 @@ class BucketFsUrlTest {
             "bfs:/bucket/file,               bfs://localhost:9999/bucket/file",
             "bfs://1.2.3.4:1234/bucket/file, bfs://1.2.3.4:1234/bucket/file", })
     void portFromProfile(final String spec, final String expected) throws Exception {
-        final Profile profile = new Profile(null, "9999", null, null);
+        final Profile profile = new Profile(null, "9999", null, null, null, false);
         verifyWithEnv(spec, profile, expected);
     }
 
     @ParameterizedTest
     @CsvSource(value = { "bfs:/a/b.txt, bfs://localhost:2580/bucket-from-environment/a/b.txt" })
     void bucketFromProfile(final String spec, final String expected) throws Exception {
-        final Profile profile = new Profile(null, null, "bucket-from-environment", null);
+        final Profile profile = new Profile(null, null, "bucket-from-environment", null, null, false);
         verifyWithEnv(spec, profile, expected);
     }
 
@@ -197,8 +198,6 @@ class BucketFsUrlTest {
     void relative(final String spec) throws Exception {
         verifyWithEnv(spec, this.profile, "bfs://localhost:2580/bucket/drivers/a.txt");
     }
-
-    // ------------------------------------------------
 
     private void verifyWithEnv(final String spec, final Profile profile, final String expected)
             throws MalformedURLException, URISyntaxException {

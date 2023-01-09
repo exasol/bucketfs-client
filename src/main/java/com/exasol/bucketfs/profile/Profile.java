@@ -1,5 +1,6 @@
 package com.exasol.bucketfs.profile;
 
+import java.util.Base64;
 import java.util.Objects;
 
 import com.exasol.bucketfs.url.BucketFsUrl;
@@ -9,28 +10,35 @@ import com.exasol.bucketfs.url.BucketFsUrl;
  */
 public class Profile {
 
-    public static Profile empty() {
-        return new Profile(null, null, null, null);
+    public static Profile empty(final boolean decodePasswords) {
+        return new Profile(null, null, null, null, null, decodePasswords);
     }
 
     private final String host;
     private final String port;
     private final String bucket;
-    private final String password;
+    private final String readPassword;
+    private final String writePassword;
+    private final boolean decodePasswords;
 
     /**
      * Constructor for productive usage
      *
      * @param host
-     * @param object
+     * @param port
      * @param bucket
-     * @param password
+     * @param readPassword
+     * @param writePassword
+     * @param decodePasswords TODO
      */
-    public Profile(final String host, final String object, final String bucket, final String password) {
+    public Profile(final String host, final String port, final String bucket, final String readPassword,
+            final String writePassword, final boolean decodePasswords) {
         this.host = host;
-        this.port = object;
+        this.port = port;
         this.bucket = bucket;
-        this.password = password;
+        this.readPassword = readPassword;
+        this.writePassword = writePassword;
+        this.decodePasswords = decodePasswords;
     }
 
     /**
@@ -55,15 +63,40 @@ public class Profile {
     }
 
     /**
-     * @return password
+     * @return password for read operations
      */
-    public String password() {
-        return this.password;
+    public String readPassword() {
+        return decodePassword(this.readPassword);
+    }
+
+    /**
+     * @return password for write operations
+     */
+    public String writePassword() {
+        return decodePassword(this.writePassword);
+    }
+
+    public boolean decodePasswords() {
+        return this.decodePasswords;
+    }
+
+    /**
+     * if {@link #decodePasswords()} is {@code true} then return the Base64-decoded value of the argument otherwise
+     * return the input string.
+     *
+     * @param raw raw argument, potentially Base64 encoded
+     * @return decoded argument
+     */
+    public String decodePassword(final String raw) {
+        return (this.decodePasswords && (raw != null))//
+                ? new String(Base64.getDecoder().decode(raw))
+                : raw;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.bucket, this.host, this.password, this.port);
+        return Objects.hash(this.bucket, this.decodePasswords, this.host, this.port, this.readPassword,
+                this.writePassword);
     }
 
     @Override
@@ -78,7 +111,9 @@ public class Profile {
             return false;
         }
         final Profile other = (Profile) obj;
-        return Objects.equals(this.bucket, other.bucket) && Objects.equals(this.host, other.host)
-                && Objects.equals(this.password, other.password) && Objects.equals(this.port, other.port);
+        return Objects.equals(this.bucket, other.bucket) && (this.decodePasswords == other.decodePasswords)
+                && Objects.equals(this.host, other.host) && Objects.equals(this.port, other.port)
+                && Objects.equals(this.readPassword, other.readPassword)
+                && Objects.equals(this.writePassword, other.writePassword);
     }
 }

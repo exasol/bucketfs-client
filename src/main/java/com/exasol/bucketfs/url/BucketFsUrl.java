@@ -1,10 +1,9 @@
 package com.exasol.bucketfs.url;
 
-import static com.exasol.bucketfs.Fallback.fallback;
-
 import java.net.*;
 import java.util.Objects;
 
+import com.exasol.bucketfs.Fallback;
 import com.exasol.bucketfs.client.BucketFsClientException;
 import com.exasol.bucketfs.profile.Profile;
 import com.exasol.errorreporting.ExaError;
@@ -44,8 +43,8 @@ public final class BucketFsUrl {
         try {
             return new BucketFsUrl( //
                     uri.getScheme(), //
-                    fallback(null, uri.getHost(), profile.host(), DEFAULT_HOST), //
-                    fallback(UNDEFINED_PORT, uri.getPort(), profile.port(), DEFAULT_PORT), //
+                    Fallback.of(null, uri.getHost(), profile.host(), DEFAULT_HOST), //
+                    Fallback.of(UNDEFINED_PORT, uri.getPort(), profile.port(), DEFAULT_PORT), //
                     BucketFsPath.from(uri, profile.bucket()));
         } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-5") //

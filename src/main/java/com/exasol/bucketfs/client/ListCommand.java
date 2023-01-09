@@ -5,15 +5,13 @@ import java.net.http.HttpClient;
 import java.util.concurrent.Callable;
 
 import com.exasol.bucketfs.http.HttpClientBuilder;
-import com.exasol.bucketfs.list.BucketContentListing;
-import com.exasol.bucketfs.list.BucketListing;
-import com.exasol.bucketfs.profile.ProfileProvider;
+import com.exasol.bucketfs.list.*;
+import com.exasol.bucketfs.profile.Profile;
 import com.exasol.bucketfs.url.BucketFsUrl;
 import com.exasol.bucketfs.url.UriConverter;
 
 import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
+import picocli.CommandLine.*;
 
 /**
  * This class implements listing the contents of BucketFS
@@ -24,33 +22,38 @@ import picocli.CommandLine.Parameters;
 // [impl->dsn~highlight-type-of-entries~1]
 public class ListCommand implements Callable<Integer> {
 
-    private final ProfileProvider profileProvider;
+    @ParentCommand
+    BucketFsClient parent;
+
     @Parameters(index = "0", paramLabel = "PATH", description = "path", converter = UriConverter.class)
     private URI uri;
 
-    public ListCommand(final ProfileProvider profileProvider) {
-        this.profileProvider = profileProvider;
-    }
-
     @Override
     public Integer call() throws Exception {
-        final BucketFsUrl url = BucketFsUrl.from(this.uri, this.profileProvider.getProfile());
+        final Profile profile = this.parent.getProfile();
+        final BucketFsUrl bucketFsurl = BucketFsUrl.from(this.uri, profile);
         final HttpClient client = new HttpClientBuilder().build();
+        final String protocol = bucketFsurl.isTlsEnabled() ? "https" : "http";
+        final String bucketName = bucketFsurl.getBucketName();
+        final ListingRetriever contentLister = new ListingRetriever(client);
 
-        final String bucketName = url.getBucketName();
-        final String protocol = url.isTlsEnabled() ? "https" : "http";
         if (bucketName == null) {
-            new BucketListing(client, protocol, url.getHost(), url.getPort()).retrieve().forEach(this::print);
+            new BucketService(publicReadUri(protocol, bucketFsurl, ""), contentLister) //
+                    .retrieve() //
+                    .forEach(this.parent::print);
         } else {
-            new BucketContentListing(client, protocol, url.getHost(), url.getPort(), bucketName).retrieve(url.getPathInBucket())
-                    .forEach(this::print);
+            final String path = bucketFsurl.getPathInBucket();
+            // final String password =
+            // PasswordReader.forReading(this.parent.requireReadPassword()).readPassword(profile);
+            final String password = this.parent.readPassword();
+            new BucketContentLister(publicReadUri(protocol, bucketFsurl, bucketName), contentLister, password) //
+                    .retrieve(path, this.parent.isRecursive()) //
+                    .forEach(this.parent::print);
         }
         return CommandLine.ExitCode.OK;
     }
 
-    // Suppress sonar warning S106 since the purpose of the list command is to print the listing on stdout.
-    @SuppressWarnings("java:S106")
-    private void print(final String string) {
-        System.out.println(string);
+    private URI publicReadUri(final String protocol, final BucketFsUrl url, final String suffix) {
+        return ListingRetriever.publicReadUri(protocol, url.getHost(), url.getPort(), suffix);
     }
 }

@@ -1,11 +1,11 @@
 package com.exasol.bucketfs.client;
 
-import java.io.*;
+import java.util.function.Function;
 
 import com.exasol.bucketfs.profile.Profile;
 
 /**
- * This class asks user for password while hiding the typed characters.
+ * This class asks user for a password while hiding the typed characters.
  * <p>
  * In tests the password is read from stdin.
  * </p>
@@ -13,44 +13,72 @@ import com.exasol.bucketfs.profile.Profile;
 // [impl->dsn~sub-command-requires-hidden-password~2]
 public class PasswordReader {
 
-    static final String PROMPT = "Enter the write-password for BucketFS: ";
+    interface ConsoleReader {
+        String readPassword(final String prompt);
+    }
 
-    private PasswordReader() {
-        // only static usage
+    static ConsoleReader defaultConsoleReader() {
+        return new ConsoleReaderWithFallbackToStdIn();
+//                return (final String prompt) -> {
+//            final Console console = System.console();
+//            return console != null //
+//                    ? new String(console.readPassword(prompt))
+//                    : null;
+//        };
     }
 
     /**
-     * @param profile
-     * @return password for write operations to bucket
+     * @param isRequired    {@code true} if the read password is required
+     * @param consoleReader used to read password from interactive console, can be mocked in tests
+     * @return a new instance of {@see PasswordReader} for read operations
      */
-    public static String readPassword(final Profile profile) {
-        if (profile.password() != null) {
-            return profile.password();
-        }
-        final Console console = System.console();
-        if (console != null) {
-            return new String(console.readPassword(PROMPT));
-        }
-        return readPasswordFromSystemIn();
+    public static PasswordReader forReading(final boolean isRequired, final ConsoleReader consoleReader) {
+        return new PasswordReader("reading from", Profile::readPassword, isRequired, consoleReader);
     }
 
     /**
-     * Note: interactive usage on command line will print characters typed by user
+     * @param consoleReader used to read password from interactive console, can be mocked in tests
+     * @return a new instance of {@see PasswordReader} for write operations
+     */
+    public static PasswordReader forWriting(final ConsoleReader consoleReader) {
+        return new PasswordReader("writing to", Profile::writePassword, true, consoleReader);
+    }
+
+    private final String qualifier;
+    private final Function<Profile, String> getter;
+    private final boolean readInteractively;
+    private final ConsoleReader consoleReader;
+
+    PasswordReader(final String qualifier, final Function<Profile, String> getter, final boolean readInteractively) {
+        this(qualifier, getter, readInteractively, defaultConsoleReader());
+    }
+
+    PasswordReader(final String qualifier, final Function<Profile, String> getter, final boolean readInteractively,
+            final ConsoleReader consoleReader) {
+        this.qualifier = qualifier;
+        this.getter = getter;
+        this.readInteractively = readInteractively;
+        this.consoleReader = consoleReader;
+    }
+
+    /**
+     * Get the password for read or write operations either from profile or read it interactively hiding the typed
+     * characters.
      *
-     * @return password from {@link System.in}
+     * @param profile
+     * @return password for read or write operations to bucket
      */
-    private static String readPasswordFromSystemIn() {
-        showPrompt();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-            return reader.readLine();
-        } catch (final IOException exception) {
-            throw new UncheckedIOException(exception);
+    public String readPassword(final Profile profile) {
+        final String passwordFromProfile = this.getter.apply(profile);
+        if (passwordFromProfile != null) {
+            return passwordFromProfile;
         }
+        return this.readInteractively //
+                ? profile.decodePassword(this.consoleReader.readPassword(prompt(this.qualifier)))
+                : "";
     }
 
-    // Suppress sonar warning S106 since prompt needs to be shown on stdout and using a logger is inappropriate here.
-    @SuppressWarnings("java:S106")
-    private static void showPrompt() {
-        System.out.print(PROMPT);
+    static String prompt(final String qualifier) {
+        return "Password for " + qualifier + " BucketFS: ";
     }
 }

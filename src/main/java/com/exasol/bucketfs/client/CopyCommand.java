@@ -1,21 +1,19 @@
 package com.exasol.bucketfs.client;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeoutException;
 
 import com.exasol.bucketfs.*;
 import com.exasol.bucketfs.profile.Profile;
-import com.exasol.bucketfs.profile.ProfileProvider;
 import com.exasol.bucketfs.url.BucketFsUrl;
 import com.exasol.bucketfs.url.UriConverter;
 import com.exasol.errorreporting.ExaError;
 
 import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
+import picocli.CommandLine.*;
 
 /**
  * This class implements copy operations to and from BucketFS
@@ -24,15 +22,13 @@ import picocli.CommandLine.Parameters;
 @Command(name = "cp", description = "Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY")
 public class CopyCommand implements Callable<Integer> {
 
-    private final ProfileProvider profileProvider;
+    @ParentCommand
+    BucketFsClient parent;
+
     @Parameters(index = "0", paramLabel = "SOURCE", description = "source", converter = UriConverter.class)
     private URI source;
     @Parameters(index = "1", paramLabel = "DEST", description = "destination", converter = UriConverter.class)
     private URI destination;
-
-    public CopyCommand(final ProfileProvider profileProvider) {
-        this.profileProvider = profileProvider;
-    }
 
     @Override
     public Integer call() {
@@ -47,24 +43,32 @@ public class CopyCommand implements Callable<Integer> {
     // [impl->dsn~copy-command-copies-file-to-bucket~1]
     private void upload() {
         final Path sourcePath = convertSpecToPath(this.source);
+        if (Files.isDirectory(sourcePath) && !this.parent.isRecursive()) {
+            throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-8") //
+                    .message("Cannot upload directory {{source}}.", this.source) //
+                    .mitigation("Specify option {{option|uq}} to upload directories.", //
+                            this.parent.recursiveOption()) //
+                    .toString());
+        }
         try {
-            final BucketFsUrl url = createDestinationBucketFsUrl();
-            final String password = PasswordReader.readPassword(this.profileProvider.getProfile());
+            final Profile profile = this.parent.getProfile();
+            final BucketFsUrl url = BucketFsUrl.from(this.destination, profile);
             final UnsynchronizedBucket bucket = WriteEnabledBucket.builder() //
                     .host(url.getHost()) //
                     .port(url.getPort()) //
                     .name(url.getBucketName()) //
-                    .writePassword(password) //
+                    .readPassword(this.parent.readPassword())//
+                    .writePassword(this.parent.writePassword()) //
                     .build();
-            bucket.uploadFileNonBlocking(sourcePath, url.getPathInBucket());
-        } catch (final BucketAccessException exception) {
-            throw new BucketFsClientException(exception);
-        } catch (final TimeoutException exception) {
-            throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-1")
-                    .message("Upload to {{destination}} timed out.", this.destination).toString());
-        } catch (final FileNotFoundException exception) {
-            throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-2")
-                    .message("Unable to upload. No such file or directory: {{source-path}}", sourcePath).toString());
+            if (!Files.exists(sourcePath)) {
+                throw Uploader.createExceptionForFileNotFound(sourcePath);
+            }
+            Files.walkFileTree(sourcePath, Uploader.from(sourcePath.getParent(), bucket, url));
+        } catch (final IOException exception) {
+            throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-9") //
+                    .message("Failed to upload {{file}}", sourcePath)
+                    .message("Cause: {{cause}}", exception.getMessage()) //
+                    .toString());
         }
     }
 
@@ -75,14 +79,16 @@ public class CopyCommand implements Callable<Integer> {
     // [impl->dsn~copy-command-copies-file-from-bucket~1]
     private void download() {
         try {
-            final BucketFsUrl url = BucketFsUrl.from(this.source, this.profileProvider.getProfile());
+            final Profile profile = this.parent.getProfile();
+            final BucketFsUrl url = BucketFsUrl.from(this.source, profile);
             final ReadOnlyBucket bucket = ReadEnabledBucket.builder() //
                     .host(url.getHost()) //
                     .port(url.getPort()) //
                     .name(url.getBucketName()) //
+                    .readPassword(this.parent.readPassword()) //
                     .build();
             final Path destinationPath = convertSpecToPath(this.destination);
-            bucket.downloadFile(url.getPathInBucket(), destinationPath);
+            new DownLoader(this.parent, bucket, url, destinationPath).download();
         } catch (final BucketAccessException exception) {
             throw new BucketFsClientException(exception);
         }

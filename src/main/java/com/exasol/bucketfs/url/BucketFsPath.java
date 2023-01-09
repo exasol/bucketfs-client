@@ -18,10 +18,10 @@ class BucketFsPath {
     // java doc for standard java class URI:
     // The path of a hierarchical URI that is either absolute or specifies an authority is always absolute.
     static BucketFsPath from(final URI uri, final String defaultBucket) throws MalformedURLException {
-        final String bucket = Fallback.fallback(null, defaultBucket);
+        final String bucketName = Fallback.of(null, defaultBucket);
         final String path = Optional.ofNullable(uri.getPath()).orElse("");
-        if (bucket != null) {
-            return new BucketFsPath(bucket, path);
+        if (bucketName != null) {
+            return new BucketFsPath(bucketName, path);
         }
 
         final Matcher matcher = PATH_PATTERN.matcher(path);
@@ -34,15 +34,15 @@ class BucketFsPath {
                 .toString());
     }
 
-    private final String bucket;
+    private final String bucketName;
     private final String pathInBucket;
 
     /**
-     * @param bucket       name of the bucket
+     * @param bucketName   name of the bucket
      * @param pathInBucket remaining path inside the bucket
      */
-    BucketFsPath(final String bucket, final String pathInBucket) {
-        this.bucket = bucket;
+    BucketFsPath(final String bucketName, final String pathInBucket) {
+        this.bucketName = bucketName;
         this.pathInBucket = pathInBucket;
     }
 
@@ -51,10 +51,10 @@ class BucketFsPath {
     }
 
     String getBucketName() {
-        return this.bucket;
+        return this.bucketName;
     }
 
     String getUriPath() {
-        return PATH_SEPARATOR + this.bucket + this.pathInBucket;
+        return PATH_SEPARATOR + this.bucketName + this.pathInBucket;
     }
 }

@@ -1,7 +1,9 @@
 package com.exasol.bucketfs.client;
 
+import static com.exasol.bucketfs.url.BucketFsUrl.PATH_SEPARATOR;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
 import static org.itsallcode.junit.sysextensions.AssertExit.assertExitWithStatus;
 import static picocli.CommandLine.ExitCode.OK;
 
@@ -28,36 +30,77 @@ class DeleteCommandIT {
     }
 
     @Test
-    void fileInRoot() throws BucketAccessException {
-        SETUP.createFiles("delete.txt");
+    void testFileInRoot() throws BucketAccessException {
+        SETUP.createRemoteFiles("delete.txt");
         verifyDelete("delete.txt");
     }
 
     @Test
-    void fileInFolder() throws BucketAccessException {
-        SETUP.createFiles("folder/delete.txt");
+    void testFileInDirectory() throws BucketAccessException {
+        SETUP.createRemoteFiles("folder/delete.txt");
         verifyDelete("folder/delete.txt");
     }
 
     @Test
+    void testNonRecursiveSkipsDirectory() throws BucketAccessException {
+        SETUP.createRemoteFiles("folder2/any.txt");
+        assertExitWithStatus(OK, () -> createClient("rm", "folder2").run());
+        final List<String> actual = SETUP.getDefaultBucket().listContents("");
+        assertThat(actual, hasItem("folder2/"));
+    }
+
+    // [itest->dsn~delete-ambigue-entry-non-recursively~1]
+    @Test
+    void testNonRecursiveAmbigue() throws BucketAccessException {
+        SETUP.createRemoteFiles("ambigue/any.txt", "ambigue");
+        assertExitWithStatus(OK, () -> createClient("rm", "ambigue").run());
+        final List<String> actual = SETUP.getDefaultBucket().listContents("");
+        assertThat(actual, hasItem("ambigue/"));
+        assertThat(actual, not(hasItem("ambigue")));
+    }
+
+    @Test
+    void testRecursive() throws BucketAccessException {
+        SETUP.createRemoteFiles("delete/d1.txt", "delete/d2.txt");
+        verifyDelete(createClient("rm", "-r", "delete"), "", "delete/");
+    }
+
+    // [itest->dsn~delete-ambigue-entry-recursively~1]
+    @Test
+    void testRecursiveAmbigue() throws BucketAccessException {
+        SETUP.createRemoteFiles("ambigue-delete/ad.txt", "ambigue-delete");
+        assertExitWithStatus(OK, () -> createClient("rm", "-r", "ambigue-delete").run());
+        final List<String> actual = SETUP.getDefaultBucket().listContents("");
+        assertThat(actual, not(hasItem("ambigue-delete/")));
+        assertThat(actual, not(hasItem("ambigue-delete")));
+    }
+
+    @Test
     // [itest->dsn~no-error-when-deleting-a-non-existing-file~1]
-    void deleteNonExistingFile() throws BucketAccessException {
+    void testDeleteNonExistingFile() throws BucketAccessException {
         verifyDelete("non-existing-file.txt");
     }
 
     private void verifyDelete(final String pathInBucket) throws BucketAccessException {
-        final String path = SETUP.getDefaultBucketUriToFile(pathInBucket);
-        final String password = SETUP.getDefaultBucket().getWritePassword();
-        final BFSC client = BFSC.create("rm", path).feedStdIn(password).catchStdout();
-        assertExitWithStatus(OK, () -> client.run());
-        final int i = pathInBucket.lastIndexOf("/");
         String folder = "";
         String filename = pathInBucket;
+        final int i = pathInBucket.lastIndexOf(PATH_SEPARATOR);
         if (i >= 0) {
             filename = pathInBucket.substring(i + 1);
             folder = pathInBucket.substring(0, i);
         }
-        final List<String> actual = SETUP.getDefaultBucket().listContents(folder);
-        assertThat(actual.contains(filename), is(false));
+        verifyDelete(createClient("rm", pathInBucket), folder, filename);
+    }
+
+    private void verifyDelete(final BFSC client, final String list, final String missing) throws BucketAccessException {
+        assertExitWithStatus(OK, () -> client.run());
+        final List<String> actual = SETUP.getDefaultBucket().listContents(list);
+        assertThat(actual, not(hasItem(missing)));
+    }
+
+    private BFSC createClient(final String... args) {
+        final String path = args[args.length - 1];
+        args[args.length - 1] = SETUP.getDefaultBucketUriToFile(path);
+        return BFSC.create(args).feedStdIn(SETUP.getDefaultBucket().getWritePassword());
     }
 }

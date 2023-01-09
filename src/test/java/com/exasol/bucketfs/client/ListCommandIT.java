@@ -10,15 +10,16 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.itsallcode.io.Capturable;
 import org.itsallcode.junit.sysextensions.ExitGuard;
-import org.itsallcode.junit.sysextensions.SystemErrGuard;
+import org.itsallcode.junit.sysextensions.SystemOutGuard;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.exasol.bucketfs.BucketAccessException;
 
 @ExtendWith(ExitGuard.class)
-@ExtendWith(SystemErrGuard.class)
+@ExtendWith(SystemOutGuard.class)
 // [itest->dsn~list-contents~1]
 // [itest->dsn~list-files-and-directories~1]
 // [itest->dsn~highlight-type-of-entries~1]
@@ -33,7 +34,7 @@ class ListCommandIT {
 
     @BeforeAll
     static void beforeAll() throws BucketAccessException {
-        SETUP.createFiles("b.txt", "a.txt", "folder/b1.txt", "folder/a1.txt");
+        SETUP.createRemoteFiles("b.txt", "a.txt", "folder/bb.txt", "folder/aa.txt");
     }
 
     void clean(final boolean cleanAll) throws BucketAccessException {
@@ -45,41 +46,54 @@ class ListCommandIT {
     }
 
     @Test
-    void root() {
-        verifyListCommand("", List.of("a.txt", "b.txt", "folder/"));
+    void testRoot(final Capturable stream) {
+        verifyListCommand(stream, createClient("ls", ""), List.of("a.txt", "b.txt", "folder/"));
     }
 
     @Test
-    void subfolder() {
-        verifyListCommand("folder/", a -> true, List.of("a1.txt", "b1.txt"));
+    void testRecursive(final Capturable stream) {
+        verifyListCommand(stream, createClient("ls", "-r", ""),
+                List.of("a.txt", "b.txt", "folder/aa.txt", "folder/bb.txt"));
+    }
+
+    @Test
+    void testSubdirectory(final Capturable stream) {
+        verifyListCommand(stream, createClient("ls", "folder/"), a -> true, List.of("aa.txt", "bb.txt"));
     }
 
     // There is no test for empty folders as these are not possible in BucketFS.
 
     @Test
     void nonExistingFolder() {
-        final String path = SETUP.getDefaultBucketUriToFile("non-existing-folder/");
-        final BFSC client = BFSC.create("ls", path).catchStdout();
+        final BFSC client = createClient("ls", "non-existing-folder/");
         assertExitWithStatus(1, () -> client.run());
     }
 
-    private void verifyListCommand(final String folder, final List<String> expected) {
+    private void verifyListCommand(final Capturable stream, final BFSC client, final List<String> expected) {
         final String pattern = expected.stream().collect(Collectors.joining("|"));
-        verifyListCommand(folder, s -> s.matches(pattern), expected);
+        verifyListCommand(stream, client, s -> s.matches(pattern), expected);
     }
 
-    private void verifyListCommand(final String folder, final Predicate<String> listingFilter,
+    private void verifyListCommand(final Capturable stream, final BFSC client, final Predicate<String> listingFilter,
             final List<String> expected) {
-        final String path = SETUP.getDefaultBucketUriToFile(folder);
-        final BFSC client = BFSC.create("ls", path).catchStdout();
+        stream.capture();
         assertExitWithStatus(OK, () -> client.run());
-        final List<String> actual = listing(client.getStdOut(), listingFilter);
+        final String stdout = stream.getCapturedData().trim();
+        final List<String> actual = listing(stdout, listingFilter);
         System.out.println(actual);
         assertThat(actual, equalTo(expected));
     }
 
+    private BFSC createClient(final String... args) {
+        final String path = args[args.length - 1];
+        args[args.length - 1] = SETUP.getDefaultBucketUriToFile(path);
+        return BFSC.create(args).feedStdIn(SETUP.getDefaultBucket().getReadPassword());
+    }
+
     private List<String> listing(final String stdout, final Predicate<String> filter) {
-        return Arrays.stream(stdout.split(System.lineSeparator())) //
+        final String prompt = PasswordReader.prompt("reading from");
+        final String raw = stdout.startsWith(prompt) ? stdout.substring(prompt.length()) : stdout;
+        return Arrays.stream(raw.split(System.lineSeparator())) //
                 .filter(filter) //
                 .collect(Collectors.toList());
     }
