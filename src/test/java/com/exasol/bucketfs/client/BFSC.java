@@ -47,8 +47,6 @@ public class BFSC {
     }
 
     private String simulateConsoleInput(final String prompt) {
-        System.out.print(prompt);
-        System.out.flush();
         return this.index < this.consoleInput.size() //
                 ? this.consoleInput.get(this.index++)
                 : "";

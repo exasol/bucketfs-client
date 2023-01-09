@@ -33,7 +33,7 @@ class ListCommandIT {
     }
 
     @BeforeAll
-    static void beforeAll() throws BucketAccessException {
+    static void beforeAll() throws BucketAccessException, InterruptedException {
         SETUP.createRemoteFiles("b.txt", "a.txt", "folder/bb.txt", "folder/aa.txt");
     }
 
@@ -80,7 +80,6 @@ class ListCommandIT {
         assertExitWithStatus(OK, () -> client.run());
         final String stdout = stream.getCapturedData().trim();
         final List<String> actual = listing(stdout, listingFilter);
-        System.out.println(actual);
         assertThat(actual, equalTo(expected));
     }
 

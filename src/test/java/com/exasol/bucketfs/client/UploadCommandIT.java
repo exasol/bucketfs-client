@@ -79,7 +79,6 @@ class UploadCommandIT {
         final BFSC client = BFSC.create("cp", "-r", folder.toString(), bfsUri("")).feedStdIn(writePassword());
         assertExitWithStatus(OK, () -> client.run());
         SETUP.waitUntilObjectSynchronized();
-        System.out.println(SETUP.listAll(SETUP.getDefaultBucket()));
         for (final Path file : files) {
             verifyFile("upload/" + file.getFileName(), file);
         }

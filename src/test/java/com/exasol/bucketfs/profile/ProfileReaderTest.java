@@ -47,7 +47,6 @@ class ProfileReaderTest {
 
     @Test
     void testInvalidPort(@TempDir final Path tempDir) throws IOException {
-        System.out.println("FALSE".matches("(?i)true|false"));
         final Path file = tempDir.resolve("file");
         Files.writeString(file, lines("[default]", "port=abc"));
         final Exception e = assertThrows(IllegalStateException.class, () -> testee(file).getProfile());

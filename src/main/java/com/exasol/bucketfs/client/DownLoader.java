@@ -41,7 +41,7 @@ public class DownLoader {
         final UseCase usecase = new UseCaseDetector(this.source, this.destination, recurseOption).detect(location);
         final Path dest = destinationWithFilename(location);
         if (usecase == UseCase.DIRECTORY) {
-            final String prefix = asDirectory(location.getLastComponent());
+            final String prefix = asDirectory(this.source.getPathInBucket());
             for (final String spec : getFilesForDownload()) {
                 final Path file = dest.resolve(spec);
                 createDirectory(file.getParent());

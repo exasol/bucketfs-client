@@ -30,19 +30,19 @@ class DeleteCommandIT {
     }
 
     @Test
-    void testFileInRoot() throws BucketAccessException {
+    void testFileInRoot() throws Exception {
         SETUP.createRemoteFiles("delete.txt");
         verifyDelete("delete.txt");
     }
 
     @Test
-    void testFileInDirectory() throws BucketAccessException {
+    void testFileInDirectory() throws Exception {
         SETUP.createRemoteFiles("folder/delete.txt");
         verifyDelete("folder/delete.txt");
     }
 
     @Test
-    void testNonRecursiveSkipsDirectory() throws BucketAccessException {
+    void testNonRecursiveSkipsDirectory() throws Exception {
         SETUP.createRemoteFiles("folder2/any.txt");
         assertExitWithStatus(OK, () -> createClient("rm", "folder2").run());
         final List<String> actual = SETUP.getDefaultBucket().listContents("");
@@ -51,7 +51,7 @@ class DeleteCommandIT {
 
     // [itest->dsn~delete-ambigue-entry-non-recursively~1]
     @Test
-    void testNonRecursiveAmbigue() throws BucketAccessException {
+    void testNonRecursiveAmbigue() throws Exception {
         SETUP.createRemoteFiles("ambigue/any.txt", "ambigue");
         assertExitWithStatus(OK, () -> createClient("rm", "ambigue").run());
         final List<String> actual = SETUP.getDefaultBucket().listContents("");
@@ -60,14 +60,14 @@ class DeleteCommandIT {
     }
 
     @Test
-    void testRecursive() throws BucketAccessException {
+    void testRecursive() throws Exception {
         SETUP.createRemoteFiles("delete/d1.txt", "delete/d2.txt");
         verifyDelete(createClient("rm", "-r", "delete"), "", "delete/");
     }
 
     // [itest->dsn~delete-ambigue-entry-recursively~1]
     @Test
-    void testRecursiveAmbigue() throws BucketAccessException {
+    void testRecursiveAmbigue() throws Exception {
         SETUP.createRemoteFiles("ambigue-delete/ad.txt", "ambigue-delete");
         assertExitWithStatus(OK, () -> createClient("rm", "-r", "ambigue-delete").run());
         final List<String> actual = SETUP.getDefaultBucket().listContents("");

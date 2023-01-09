@@ -27,9 +27,9 @@ class DownloadCommandIT {
     private static final IntegrationTestSetup SETUP = new IntegrationTestSetup();
 
     @BeforeAll
-    static void beforeAll() throws BucketAccessException {
+    static void beforeAll() throws BucketAccessException, InterruptedException {
         // parent needs to be created *after* child, otherwise HTTP client method send() blocks.
-        SETUP.createRemoteFiles("problem/ambigue/any.txt", "problem/ambigue", "a.txt", "folder/aa.txt");
+        SETUP.createRemoteFiles("a.txt", "folder/aa.txt", "problem/ambigue/any.txt", "problem/ambigue");
     }
 
     @AfterAll
@@ -138,8 +138,7 @@ class DownloadCommandIT {
     void testSuccessDownloadAmbigueDirectory(@TempDir final Path tempDir) throws IOException {
         final String remote = "problem/ambigue/";
         assertExitWithStatus(OK, () -> BFSC.create("cp", "-r", bfsUri(remote), tempDir.toString()).run());
-        final String file = "ambigue/any.txt";
-        assertThat(Files.readString(tempDir.resolve(file)), equalTo(content(file)));
+        assertThat(Files.readString(tempDir.resolve("ambigue/any.txt")), equalTo(content("problem/ambigue/any.txt")));
     }
 
     @Test

@@ -98,12 +98,13 @@ public class IntegrationTestSetup {
         }
     }
 
-    public void createRemoteFiles(final String... paths) throws BucketAccessException {
+    public void createRemoteFiles(final String... paths) throws BucketAccessException, InterruptedException {
         final UnsynchronizedBucket bucket = getDefaultBucket();
         final List<String> list = listAll(bucket);
         for (final String path : paths) {
             if (!list.contains(path)) {
                 createRemoteFile(bucket, path);
+                waitUntilObjectSynchronized();
             }
         }
         LOGGER.fine("IntegrationTestSetup.createFiles(): Actual content: " + listAll(bucket));
