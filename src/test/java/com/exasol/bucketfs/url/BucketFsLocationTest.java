@@ -2,7 +2,6 @@ package com.exasol.bucketfs.url;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -43,8 +42,8 @@ class BucketFsLocationTest {
     @BeforeAll
     static void beforeAll() throws BucketAccessException {
         BUCKET = mock(ReadOnlyBucket.class);
-        doReturn(List.of("both", "both/", "folder/", "a.txt")).when(BUCKET).listContents(eq(""));
-        doReturn(List.of("aa.txt", "sub/", "fboth", "fboth/")).when(BUCKET).listContents(eq("folder"));
+        doReturn(List.of("both", "both/", "folder/", "a.txt")).when(BUCKET).listContents("");
+        doReturn(List.of("aa.txt", "sub/", "fboth", "fboth/")).when(BUCKET).listContents("folder");
     }
 
     @ParameterizedTest

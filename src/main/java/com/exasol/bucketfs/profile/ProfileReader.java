@@ -96,7 +96,7 @@ public class ProfileReader implements ProfileProvider {
 
     private boolean decodePasswords(final Map<String, Object> section, final String key) {
         final String value = validate("boolean", this::validateBoolean, section, key);
-        return value != null ? Boolean.valueOf(value) : false;
+        return (value != null) && Boolean.valueOf(value);
     }
 
     private <T> String validate(final String datatype, final Function<String, T> validator,

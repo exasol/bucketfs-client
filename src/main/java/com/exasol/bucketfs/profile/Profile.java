@@ -24,12 +24,13 @@ public class Profile {
     /**
      * Constructor for productive usage
      *
-     * @param host
-     * @param port
-     * @param bucket
-     * @param readPassword
-     * @param writePassword
-     * @param decodePasswords TODO
+     * @param host            host name or IP address of BucketFS service
+     * @param port            port HTTP or HTTPS port the BucketFS service listens on
+     * @param bucket          name of the root bucket
+     * @param readPassword    password for reading, required for private buckets
+     * @param writePassword   password for writing to the bucket
+     * @param decodePasswords {@code true} if BFSC should apply base-64 decoding to passwords from profile or from
+     *                        interactive prompt
      */
     public Profile(final String host, final String port, final String bucket, final String readPassword,
             final String writePassword, final boolean decodePasswords) {
@@ -42,35 +43,35 @@ public class Profile {
     }
 
     /**
-     * @return host
+     * @return host name or IP address of BucketFS service
      */
     public String host() {
         return this.host;
     }
 
     /**
-     * @return port
+     * @return HTTP or HTTPS port the BucketFS service listens on
      */
     public int port() {
         return this.port != null ? Integer.parseInt(this.port) : BucketFsUrl.UNDEFINED_PORT;
     }
 
     /**
-     * @return bucket
+     * @return name of the root bucket
      */
     public String bucket() {
         return this.bucket;
     }
 
     /**
-     * @return password for read operations
+     * @return password for reading, required for private buckets
      */
     public String readPassword() {
         return decodePassword(this.readPassword);
     }
 
     /**
-     * @return password for write operations
+     * @return password for writing to the bucket
      */
     public String writePassword() {
         return decodePassword(this.writePassword);

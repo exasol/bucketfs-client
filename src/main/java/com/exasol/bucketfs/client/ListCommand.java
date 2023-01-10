@@ -43,8 +43,6 @@ public class ListCommand implements Callable<Integer> {
                     .forEach(this.parent::print);
         } else {
             final String path = bucketFsurl.getPathInBucket();
-            // final String password =
-            // PasswordReader.forReading(this.parent.requireReadPassword()).readPassword(profile);
             final String password = this.parent.readPassword();
             new BucketContentLister(publicReadUri(protocol, bucketFsurl, bucketName), contentLister, password) //
                     .retrieve(path, this.parent.isRecursive()) //

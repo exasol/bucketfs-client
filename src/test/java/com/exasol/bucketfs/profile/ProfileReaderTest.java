@@ -49,8 +49,9 @@ class ProfileReaderTest {
     void testInvalidPort(@TempDir final Path tempDir) throws IOException {
         final Path file = tempDir.resolve("file");
         Files.writeString(file, lines("[default]", "port=abc"));
-        final Exception e = assertThrows(IllegalStateException.class, () -> testee(file).getProfile());
-        assertThat(e.getMessage(), matchesRegex("E-BFSC-7: Failed to read profile from '.*'"
+        final ProfileReader testee = testee(file);
+        final Exception exception = assertThrows(IllegalStateException.class, () -> testee.getProfile());
+        assertThat(exception.getMessage(), matchesRegex("E-BFSC-7: Failed to read profile from '.*'"
                 + " caused by invalid integer value in entry 'port=abc'."));
     }
 
@@ -58,8 +59,9 @@ class ProfileReaderTest {
     void testInvalidDecodeOption(@TempDir final Path tempDir) throws IOException {
         final Path file = tempDir.resolve("file");
         Files.writeString(file, lines("[default]", "decode-base64=abc"));
-        final Exception e = assertThrows(IllegalStateException.class, () -> testee(file).getProfile());
-        assertThat(e.getMessage(), matchesRegex("E-BFSC-7: Failed to read profile from '.*'"
+        final ProfileReader testee = testee(file);
+        final Exception exception = assertThrows(IllegalStateException.class, () -> testee.getProfile());
+        assertThat(exception.getMessage(), matchesRegex("E-BFSC-7: Failed to read profile from '.*'"
                 + " caused by invalid boolean value in entry 'decode-base64=abc'."));
     }
 
