@@ -55,7 +55,6 @@ public class BucketFsClient implements Callable<Integer> {
     }
 
     void printWarning(final String message) {
-        // picocli.CommandLine.Help.Ansi.Style.fg_yellow
         final CommandLine cl = this.spec.commandLine();
         cl.getErr().println(cl.getColorScheme().errorText(message));
     }

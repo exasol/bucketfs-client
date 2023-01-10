@@ -39,7 +39,7 @@ public class Uploader extends SimpleFileVisitor<Path> {
             throw new BucketFsClientException(exception);
         } catch (final TimeoutException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-1")
-                    .message("Upload to {{destination}} timed out.", pathInBucket).toString());
+                    .message("Upload to {{destination}} timed out.", pathInBucket).toString(), exception);
         } catch (final FileNotFoundException exception) {
             throw createExceptionForFileNotFound(file);
         }

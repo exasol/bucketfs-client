@@ -93,8 +93,8 @@ public class IntegrationTestSetup {
     public static Path createLocalFile(final Path file, final String content) {
         try {
             return Files.writeString(file, content);
-        } catch (final IOException e) {
-            throw new UncheckedIOException(e);
+        } catch (final IOException exception) {
+            throw new UncheckedIOException(exception);
         }
     }
 

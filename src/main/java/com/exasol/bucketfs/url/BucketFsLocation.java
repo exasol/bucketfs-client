@@ -15,12 +15,12 @@ public class BucketFsLocation {
     }
 
     public static String asDirectory(final String path) {
-        return path.endsWith(PATH_SEPARATOR) ? path : path + PATH_SEPARATOR;
+        return isDirectorySyntax(path) ? path : path + PATH_SEPARATOR;
     }
 
     public static BucketFsLocation from(final ReadOnlyBucket bucket, final String pathInBucket) {
         final String p = ListingRetriever.removeLeadingSeparator(pathInBucket);
-        final int n = p.length() - (p.endsWith(PATH_SEPARATOR) ? 2 : 1);
+        final int n = p.length() - (isDirectorySyntax(p) ? 2 : 1);
         final int i = p.lastIndexOf(PATH_SEPARATOR, n);
         return (i >= 0) //
                 ? new BucketFsLocation(bucket, p.substring(0, i), p.substring(i + 1))
@@ -55,7 +55,7 @@ public class BucketFsLocation {
     }
 
     public boolean hasDirectorySyntax() {
-        return this.last.endsWith(PATH_SEPARATOR);
+        return isDirectorySyntax(this.last);
     }
 
     private Status getStatus() throws BucketAccessException {

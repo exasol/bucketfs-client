@@ -82,7 +82,7 @@ public class Profile {
     }
 
     /**
-     * if {@link #decodePasswords()} is {@code true} then return the Base64-decoded value of the argument otherwise
+     * If {@link #decodePasswords()} is {@code true} then return the Base64-decoded value of the argument otherwise
      * return the input string.
      *
      * @param raw raw argument, potentially Base64 encoded

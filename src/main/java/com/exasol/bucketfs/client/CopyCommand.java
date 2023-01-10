@@ -68,7 +68,7 @@ public class CopyCommand implements Callable<Integer> {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-9") //
                     .message("Failed to upload {{file}}", sourcePath)
                     .message("Cause: {{cause}}", exception.getMessage()) //
-                    .toString());
+                    .toString(), exception);
         }
     }
 

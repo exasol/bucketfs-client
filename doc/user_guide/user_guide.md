@@ -65,7 +65,7 @@ BFSC supports the following sub commands to inspect and manipulate files in the 
 
 | Command                | Description                                        |
 |------------------------|--------------------------------------------------- |
-| `bfsc ls`              | List #the contents of BucketFS                      |
+| `bfsc ls`              | List the contents of BucketFS                      |
 | `bfsc ls bfs:/folder`  | List the contents of a directory in BucketFS       |
 | `bfsc cp a.jar bfs:/`  | Upload a file from local fie system to BucketFS    |
 | `bfsc cp bfs:/a.jar .` | Download a file from BucketFS to local file system |
@@ -128,7 +128,7 @@ BFSC uses the following precedence for URI parts
 
 You can define the profile in BFSC's configuration file in your home directory: `~/.bucketfs-client/config.ini`. On Windows the home directory is `%USERPROFILE%`.
 
-The configuration file uses the INI-file syntax. An INI file is devided into sections. Each section contains a number of lines defining a *profile*. The first line of each section specifies the name of the profile in brackets. The default profile's name is `default`. Each of the following lines of the section may assign a value to a variable.
+The configuration file uses the INI-file syntax. An INI file is divided into sections. Each section contains a number of lines defining a *profile*. The first line of each section specifies the name of the profile in brackets. The default profile's name is `default`. Each of the following lines of the section may assign a value to a variable.
 
 BFCS uses the following elements of your profile with the specified hard coded default values:
 
@@ -170,7 +170,7 @@ If you want to provide the name of the root bucket on the command line then plea
 
 ### Bucket Operations
 
-#### Listing Contents Of a Bucket Or a Directory In a Bucket
+#### Listing Contents of a Bucket or a Directory in a Bucket
 
 With `bfsc ls` you can list the contents of a directory in the bucket. If you do not specify a directory then the `ls` command will list all files and directories in the bucket on top level.
 
@@ -183,7 +183,7 @@ Example output
 ```
 a.txt
 b.txt
-folder\
+folder/
 ```
 
 BFSC highlights folders with a trailing slash `/` to separate them from files potentially having the same name.
@@ -192,8 +192,8 @@ If you want to list all root buckets rather than the contents of a specific buck
 
 Example output for listing root buckets
 ```
-default\
-simba\
+default/
+simba/
 ```
 
 With option `-r` or `--recursive` you can obtain a recursive listing of all contents inside a directory of a bucket. However when listing root *buckets* then BFSC will ignore option `-r`.
@@ -213,7 +213,7 @@ With `bfsc cp` you can copy files between BucketFS and the local file system.
 bfsc cp <from> <to>
 ```
 
-In the majority of all cases you will copy files _to_ a bucket. For example if you want to install a library that you plan to use in a Python or Java UDF (Uder Defined Function):
+In the majority of all cases you will copy files _to_ a bucket. For example if you want to install a library that you plan to use in a Python or Java UDF (User Defined Function):
 
 ```shell
 bfsc cp foo-driver-1.2.3.jar bfs://192.168.0.1:2580/default/drivers/foo-driver-1.2.3.jar
@@ -236,7 +236,7 @@ However there are some special cases explained in the following sections.
 
 ##### Ambigue Entries in BucketFS
 
-BucketFS differes from the local file system as it may contain *ambigue* entries. An ambigue entry represents a regular file and a directory at the same time. Obviously you cannot download both flavors of such an entry to the local file system and BFSC will abort with an error message.
+BucketFS differs from the local file system as it may contain *ambigue* entries. An ambigue entry represents a regular file and a directory at the same time. Obviously you cannot download both flavors of such an entry to the local file system and BFSC will abort with an error message.
 
 You can however tell BFSC to download *one* of the flavors of such an ambigue entry.
 * For recursively downloading the directory please specify option `-r` *and* append a slash `/` to the name of the ambigue entry.
@@ -268,7 +268,7 @@ The following table shows all cases assuming the local file system contains a re
 
 When downloading a directory from BucketFS you can rename the directory by specifying a local name that does not exist, yet.
 
-#### Deleting Files from a Bucket
+#### Deleting Files From a Bucket
 
 With `bfsc rm` you can delete files in BucketFS.
 

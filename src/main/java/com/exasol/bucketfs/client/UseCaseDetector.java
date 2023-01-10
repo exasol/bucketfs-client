@@ -19,16 +19,16 @@ class UseCaseDetector {
     }
 
     interface RecurseOption {
-        static RecurseOption from(final Supplier<String> namegetter, final BooleanSupplier vgetter) {
+        static RecurseOption from(final Supplier<String> nameGetter, final BooleanSupplier valueGetter) {
             return new RecurseOption() {
                 @Override
                 public String name() {
-                    return namegetter.get();
+                    return nameGetter.get();
                 }
 
                 @Override
                 public boolean value() {
-                    return vgetter.getAsBoolean();
+                    return valueGetter.getAsBoolean();
                 }
             };
         }
