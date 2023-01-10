@@ -30,7 +30,7 @@ public class ConsoleReaderWithFallbackToStdIn implements ConsoleReader {
 
     // Suppress sonar warning S106 since prompt needs to be shown on stdout and using a logger is inappropriate here.
     @SuppressWarnings("java:S106")
-    private void showPrompt(final String prompt) {
+    static void showPrompt(final String prompt) {
         System.out.print(prompt);
     }
 }

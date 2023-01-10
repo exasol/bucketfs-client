@@ -47,6 +47,7 @@ public class BFSC {
     }
 
     private String simulateConsoleInput(final String prompt) {
+        ConsoleReaderWithFallbackToStdIn.showPrompt(prompt);
         return this.index < this.consoleInput.size() //
                 ? this.consoleInput.get(this.index++)
                 : "";

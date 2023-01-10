@@ -19,12 +19,6 @@ public class PasswordReader {
 
     static ConsoleReader defaultConsoleReader() {
         return new ConsoleReaderWithFallbackToStdIn();
-//                return (final String prompt) -> {
-//            final Console console = System.console();
-//            return console != null //
-//                    ? new String(console.readPassword(prompt))
-//                    : null;
-//        };
     }
 
     /**
