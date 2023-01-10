@@ -27,7 +27,7 @@ public class PasswordReader {
      * @return a new instance of {@see PasswordReader} for read operations
      */
     public static PasswordReader forReading(final boolean isRequired, final ConsoleReader consoleReader) {
-        return new PasswordReader("reading from", Profile::readPassword, isRequired, consoleReader);
+        return new PasswordReader("reading from", Profile::getReadPassword, isRequired, consoleReader);
     }
 
     /**
@@ -35,7 +35,7 @@ public class PasswordReader {
      * @return a new instance of {@see PasswordReader} for write operations
      */
     public static PasswordReader forWriting(final ConsoleReader consoleReader) {
-        return new PasswordReader("writing to", Profile::writePassword, true, consoleReader);
+        return new PasswordReader("writing to", Profile::getWritePassword, true, consoleReader);
     }
 
     private final String qualifier;

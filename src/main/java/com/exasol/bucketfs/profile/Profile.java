@@ -66,23 +66,23 @@ public class Profile {
     /**
      * @return password for reading, required for private buckets
      */
-    public String readPassword() {
+    public String getReadPassword() {
         return decodePassword(this.readPassword);
     }
 
     /**
      * @return password for writing to the bucket
      */
-    public String writePassword() {
+    public String getWritePassword() {
         return decodePassword(this.writePassword);
     }
 
-    public boolean decodePasswords() {
+    public boolean isDecodingPasswords() {
         return this.decodePasswords;
     }
 
     /**
-     * If {@link #decodePasswords()} is {@code true} then return the Base64-decoded value of the argument otherwise
+     * If {@link #isDecodingPasswords()} is {@code true} then return the Base64-decoded value of the argument otherwise
      * return the input string.
      *
      * @param raw raw argument, potentially Base64 encoded

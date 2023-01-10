@@ -34,6 +34,9 @@ class UploadCommandIT {
     private static final IntegrationTestSetup SETUP = new IntegrationTestSetup();
     private static final String FILENAME = "upload.txt";
 
+    @TempDir
+    private Path tempDir;
+
     @ClearSystemProperty(key = ProfileReader.CONFIG_FILE_PROPERTY)
     @BeforeAll
     static void beforeAll() throws BucketAccessException {
@@ -54,9 +57,8 @@ class UploadCommandIT {
     }
 
     @Test
-    void testFailureUploadDirectoryWithoutRecursiveFlag(@TempDir final Path tempDir, @SysErr final Capturable stream)
-            throws IOException {
-        final BFSC bfsc = BFSC.create("cp", tempDir.toString(), bfsUri(""));
+    void testFailureUploadDirectoryWithoutRecursiveFlag(@SysErr final Capturable stream) throws IOException {
+        final BFSC bfsc = BFSC.create("cp", this.tempDir.toString(), bfsUri(""));
         stream.capture();
         assertExitWithStatus(SOFTWARE, () -> bfsc.run());
         assertThat(stream.getCapturedData().trim(), matchesRegex("E-BFSC-8: Cannot upload directory '.*'."
@@ -64,16 +66,19 @@ class UploadCommandIT {
     }
 
     @Test
-    void testFailureUploadNonExistingFile() throws Exception {
+    void testFailureUploadNonExistingFile(@SysErr final Capturable stream) throws Exception {
         final String filename = "non-existing-local-file";
         final Path sourceFile = Path.of(filename);
+        stream.capture();
         final BFSC client = BFSC.create("cp", sourceFile.toString(), bfsUri(filename)).feedStdIn(writePassword());
         assertExitWithStatus(SOFTWARE, () -> client.run());
+        assertThat(stream.getCapturedData().trim(),
+                equalTo("E-BFSC-2: Unable to upload. No such file or directory: 'non-existing-local-file'."));
     }
 
     @Test
-    void testUploadDirectoryRecursively(@TempDir final Path tempDir) throws Exception {
-        final Path folder = tempDir.resolve("upload");
+    void testUploadDirectoryRecursively() throws Exception {
+        final Path folder = this.tempDir.resolve("upload");
         Files.createDirectory(folder);
         final List<Path> files = createLocalFiles(folder, "aa.txt", "bb.txt");
         final BFSC client = BFSC.create("cp", "-r", folder.toString(), bfsUri("")).feedStdIn(writePassword());
@@ -87,54 +92,53 @@ class UploadCommandIT {
     // [itest->dsn~copy-command-copies-file-to-bucket~1]
     // [itest->dsn~sub-command-requires-hidden-password~2]
     @Test
-    void testSuccessUpload(@TempDir final Path tempDir) throws Exception {
-        final BFSC client = createClient(tempDir, "cp").feedStdIn(writePassword());
-        verifyUpload(client, tempDir);
+    void testSuccessUpload() throws Exception {
+        final BFSC client = createClient("cp").feedStdIn(writePassword());
+        verifyUpload(client);
     }
 
     @Test
-    void testUploadWithReadPasswordRequired(@TempDir final Path tempDir, @SysOut final Capturable stream)
-            throws Exception {
-        final BFSC client = createClient(tempDir, "cp", "-pw") //
+    void testUploadWithReadPasswordRequired(@SysOut final Capturable stream) throws Exception {
+        final BFSC client = createClient("cp", "-pw") //
                 .feedStdIn(SETUP.getDefaultBucket().getReadPassword()) //
                 .feedStdIn(writePassword());
         stream.capture();
-        verifyUpload(client, tempDir);
+        verifyUpload(client);
         final String stdout = stream.getCapturedData();
         assertThat(stdout, containsString(PasswordReader.prompt("reading from")));
         assertThat(stdout, containsString(PasswordReader.prompt("writing to")));
     }
 
     @Test
-    void testUploadWithBase64EncodedPassword(@TempDir final Path tempDir) throws Exception {
-        final BFSC client = createClient(tempDir, "cp", "-d") //
+    void testUploadWithBase64EncodedPassword() throws Exception {
+        final BFSC client = createClient("cp", "-d") //
                 .feedStdIn(new String(Base64.getEncoder().encode(writePassword().getBytes())));
-        verifyUpload(client, tempDir);
+        verifyUpload(client);
     }
 
     @Test
-    void testSuccessUploadWithPassswordFromProfile(@TempDir final Path tempDir) throws Exception {
-        final Path configFile = tempDir.resolve(".bucketfs-client-config");
+    void testSuccessUploadWithPassswordFromProfile() throws Exception {
+        final Path configFile = this.tempDir.resolve(".bucketfs-client-config");
         Files.writeString(configFile, lines("[other-profile]", "password.write=" + writePassword()));
-        final BFSC client = createClient(tempDir, "cp", "--profile", "other-profile").withConfigFile(configFile);
-        verifyUpload(client, tempDir);
+        final BFSC client = createClient("cp", "--profile", "other-profile").withConfigFile(configFile);
+        verifyUpload(client);
     }
 
-    private void verifyUpload(final BFSC client, final Path tempDir) throws Exception {
-        verifyUpload(client, createRandomFile(tempDir), FILENAME);
+    private void verifyUpload(final BFSC client) throws Exception {
+        verifyUpload(client, createRandomFile(), FILENAME);
     }
 
     @Test
-    void testSuccessUploadWithRenaming(@TempDir final Path tempDir) throws Exception {
-        final Path local = createRandomFile(tempDir);
+    void testSuccessUploadWithRenaming() throws Exception {
+        final Path local = createRandomFile();
         final String remote = "renamed";
         final BFSC client = BFSC.create("cp", local.toString(), bfsUri(remote)).feedStdIn(writePassword());
         verifyUpload(client, local, remote);
     }
 
     @Test
-    void testSuccessUploadToDirectory(@TempDir final Path tempDir) throws Exception {
-        final Path local = createRandomFile(tempDir);
+    void testSuccessUploadToDirectory() throws Exception {
+        final Path local = createRandomFile();
         final String remote = "dir/";
         final BFSC client = BFSC.create("cp", local.toString(), bfsUri(remote)).feedStdIn(writePassword());
         verifyUpload(client, local, remote + FILENAME);
@@ -152,14 +156,14 @@ class UploadCommandIT {
         assertThat(actual, equalTo(Files.readString(localFile)));
     }
 
-    private Path createRandomFile(final Path tempDir) {
-        return createLocalFile(tempDir.resolve(FILENAME), tempDir.getFileName().toString());
+    private Path createRandomFile() {
+        return createLocalFile(this.tempDir.resolve(FILENAME), String.valueOf(System.currentTimeMillis()));
     }
 
-    private BFSC createClient(final Path tempDir, final String... initialArgs) {
+    private BFSC createClient(final String... initialArgs) {
         final int n = initialArgs.length;
         final String[] args = Arrays.copyOf(initialArgs, n + 2);
-        args[n] = tempDir.resolve(FILENAME).toString();
+        args[n] = this.tempDir.resolve(FILENAME).toString();
         args[n + 1] = bfsUri(FILENAME);
         return BFSC.create(args);
     }

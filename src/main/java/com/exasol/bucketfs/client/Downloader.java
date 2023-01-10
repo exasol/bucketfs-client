@@ -18,16 +18,16 @@ import com.exasol.bucketfs.url.BucketFsLocation;
 import com.exasol.bucketfs.url.BucketFsUrl;
 import com.exasol.errorreporting.ExaError;
 
-public class DownLoader {
+public class Downloader {
 
-    private static final Logger LOGGER = Logger.getLogger(DownLoader.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Downloader.class.getName());
 
     private final BucketFsClient parent;
     private final ReadOnlyBucket bucket;
     private final BucketFsUrl source;
     private final Path destination;
 
-    public DownLoader(final BucketFsClient parent, final ReadOnlyBucket bucket, final BucketFsUrl source,
+    public Downloader(final BucketFsClient parent, final ReadOnlyBucket bucket, final BucketFsUrl source,
             final Path destination) {
         this.parent = parent;
         this.bucket = bucket;

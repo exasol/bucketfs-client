@@ -88,7 +88,7 @@ public class CopyCommand implements Callable<Integer> {
                     .readPassword(this.parent.readPassword()) //
                     .build();
             final Path destinationPath = convertSpecToPath(this.destination);
-            new DownLoader(this.parent, bucket, url, destinationPath).download();
+            new Downloader(this.parent, bucket, url, destinationPath).download();
         } catch (final BucketAccessException exception) {
             throw new BucketFsClientException(exception);
         }

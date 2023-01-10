@@ -79,7 +79,7 @@ class BucketFsClientExecutableJarIT {
         final Process process = run("cp", sourceFile.toString(), destination);
         writeToStdIn(process, password);
         assertProcessFails(process, ExitCode.SOFTWARE, equalTo(PasswordReader.prompt("writing to")),
-                equalTo(lines("E-BFSC-2: Unable to upload. No such file or directory: 'non-existing-file'", "")));
+                equalTo(lines("E-BFSC-2: Unable to upload. No such file or directory: 'non-existing-file'.", "")));
     }
 
     private void writeToStdIn(final Process process, final String value) throws IOException {

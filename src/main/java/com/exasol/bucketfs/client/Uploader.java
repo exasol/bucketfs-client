@@ -47,7 +47,7 @@ public class Uploader extends SimpleFileVisitor<Path> {
 
     public static BucketFsClientException createExceptionForFileNotFound(final Path file) {
         return new BucketFsClientException(ExaError.messageBuilder("E-BFSC-2") //
-                .message("Unable to upload. No such file or directory: {{source-path}}", file) //
+                .message("Unable to upload. No such file or directory: {{source-path}}.", file) //
                 .toString());
     }
 }

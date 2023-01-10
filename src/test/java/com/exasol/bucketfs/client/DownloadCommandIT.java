@@ -26,6 +26,9 @@ class DownloadCommandIT {
 
     private static final IntegrationTestSetup SETUP = new IntegrationTestSetup();
 
+    @TempDir
+    private Path tempDir;
+
     @BeforeAll
     static void beforeAll() throws BucketAccessException, InterruptedException {
         // parent needs to be created *after* child, otherwise HTTP client method send() blocks.
@@ -70,18 +73,18 @@ class DownloadCommandIT {
     }
 
     @Test
-    void testFailureDownloadDirectoryWithoutRecursiveFlag(@TempDir final Path tempDir, final Capturable stream) {
+    void testFailureDownloadDirectoryWithoutRecursiveFlag(final Capturable stream) {
         final String remote = "folder/";
         stream.capture();
-        assertExitWithStatus(SOFTWARE, () -> BFSC.create("cp", bfsUri(remote), tempDir.toString()).run());
+        assertExitWithStatus(SOFTWARE, () -> BFSC.create("cp", bfsUri(remote), this.tempDir.toString()).run());
         assertThat(stream.getCapturedData().trim(), matchesRegex("E-BFSC-12: Cannot download directory '.*/" + remote
                 + "'." + " Specify option -r or --recursive to download directories."));
     }
 
     @Test
-    void testFailureDownloadDirectoryToFile(@TempDir final Path tempDir, final Capturable stream) throws IOException {
+    void testFailureDownloadDirectoryToFile(final Capturable stream) throws IOException {
         final String remote = "folder/";
-        final Path local = Files.createFile(tempDir.resolve("existing.txt"));
+        final Path local = Files.createFile(this.tempDir.resolve("existing.txt"));
         stream.capture();
         assertExitWithStatus(SOFTWARE, () -> BFSC.create("cp", "-r", bfsUri(remote), local.toString()).run());
         assertThat(stream.getCapturedData().trim(), matchesRegex("E-BFSC-13: Cannot overwrite local non-directory '.*"
@@ -90,10 +93,10 @@ class DownloadCommandIT {
 
     // [itest->dsn~download-ambigue-entry-recursively~1]
     @Test
-    void testFailureDownloadAmbigueRecursively(@TempDir final Path tempDir, final Capturable stream) {
+    void testFailureDownloadAmbigueRecursively(final Capturable stream) {
         final String remote = "problem/ambigue";
         stream.capture();
-        assertExitWithStatus(SOFTWARE, () -> BFSC.create("cp", "-r", bfsUri(remote), tempDir.toString()).run());
+        assertExitWithStatus(SOFTWARE, () -> BFSC.create("cp", "-r", bfsUri(remote), this.tempDir.toString()).run());
         assertThat(stream.getCapturedData().trim(),
                 matchesRegex("E-BFSC-11: Cannot download regular file and directory with identical name." //
                         + " Known mitigations:\n" //
@@ -104,47 +107,47 @@ class DownloadCommandIT {
 
     // [itest->dsn~copy-command-copies-file-from-bucket~1]
     @Test
-    void testSuccessDownloadWithoutProtocol(@TempDir final Path tempDir) throws Exception {
+    void testSuccessDownloadWithoutProtocol() throws Exception {
         final String remote = "a.txt";
-        final Path local = tempDir.resolve(remote);
+        final Path local = this.tempDir.resolve(remote);
         assertExitWithStatus(OK, () -> BFSC.create("cp", bfsUri(remote), local.toString()).run());
         assertThat(Files.readString(local), equalTo(content(remote)));
     }
 
     // [itest->dsn~copy-ambigue-entrie-on-lower-level~1]
     @Test
-    void testWarningDownloadSkipsAmbigueChildren(@TempDir final Path tempDir, final Capturable stream)
-            throws IOException {
+    void testWarningDownloadSkipsAmbigueChildren(final Capturable stream) throws IOException {
         stream.capture();
-        assertExitWithStatus(OK, () -> BFSC.create("cp", "-r", bfsUri("problem"), tempDir.toString()).run());
+        assertExitWithStatus(OK, () -> BFSC.create("cp", "-r", bfsUri("problem"), this.tempDir.toString()).run());
         assertThat(stream.getCapturedData().trim(), matchesRegex("W-BFSC-14: " //
                 + "Skipping ambigue file '.*/problem/ambigue'" //
                 + " as BucketFS contains directory with identical name."));
         final String remote = "problem/ambigue/any.txt";
-        assertThat(Files.readString(tempDir.resolve(remote)), equalTo(content(remote)));
+        assertThat(Files.readString(this.tempDir.resolve(remote)), equalTo(content(remote)));
     }
 
     // [itest->dsn~download-ambigue-file~1]
     @Test
-    void testSuccessDownloadAmbigueFile(@TempDir final Path tempDir) throws IOException {
+    void testSuccessDownloadAmbigueFile() throws IOException {
         final String remote = "problem/ambigue";
-        final Path local = tempDir.resolve("new.txt");
+        final Path local = this.tempDir.resolve("new.txt");
         assertExitWithStatus(OK, () -> BFSC.create("cp", bfsUri(remote), local.toString()).run());
         assertThat(Files.readString(local), equalTo(content(remote)));
     }
 
     // [itest->dsn~download-ambigue-directory-recursively~1]
     @Test
-    void testSuccessDownloadAmbigueDirectory(@TempDir final Path tempDir) throws IOException {
+    void testSuccessDownloadAmbigueDirectory() throws IOException {
         final String remote = "problem/ambigue/";
-        assertExitWithStatus(OK, () -> BFSC.create("cp", "-r", bfsUri(remote), tempDir.toString()).run());
-        assertThat(Files.readString(tempDir.resolve("ambigue/any.txt")), equalTo(content("problem/ambigue/any.txt")));
+        assertExitWithStatus(OK, () -> BFSC.create("cp", "-r", bfsUri(remote), this.tempDir.toString()).run());
+        assertThat(Files.readString(this.tempDir.resolve("ambigue/any.txt")),
+                equalTo(content("problem/ambigue/any.txt")));
     }
 
     @Test
-    void testSuccessDownloadDirectoryIntoExistingDirectory(@TempDir final Path tempDir) throws IOException {
+    void testSuccessDownloadDirectoryIntoExistingDirectory() throws IOException {
         final String remote = "folder/";
-        final Path local = Files.createDirectory(tempDir.resolve("local-folder"));
+        final Path local = Files.createDirectory(this.tempDir.resolve("local-folder"));
         assertExitWithStatus(OK, () -> BFSC.create("cp", "-r", bfsUri(remote), local.toString()).run());
         final Path download = local.resolve(remote);
         final String filename = "aa.txt";
@@ -152,9 +155,9 @@ class DownloadCommandIT {
     }
 
     @Test
-    void testSuccessDownloadDirectoryWithRenaming(@TempDir final Path tempDir) throws IOException {
+    void testSuccessDownloadDirectoryWithRenaming() throws IOException {
         final String remote = "folder/";
-        final Path download = tempDir.resolve("local-folder");
+        final Path download = this.tempDir.resolve("local-folder");
         assertExitWithStatus(OK, () -> BFSC.create("cp", "-r", bfsUri(remote), download.toString()).run());
         final String filename = "aa.txt";
         assertThat(Files.readString(download.resolve(filename)), equalTo(content(remote + filename)));

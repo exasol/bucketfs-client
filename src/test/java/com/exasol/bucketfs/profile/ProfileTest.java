@@ -19,9 +19,9 @@ class ProfileTest {
         assertThat(testee.host(), nullValue());
         assertThat(testee.port(), equalTo(BucketFsUrl.UNDEFINED_PORT));
         assertThat(testee.bucket(), nullValue());
-        assertThat(testee.readPassword(), nullValue());
-        assertThat(testee.writePassword(), nullValue());
-        assertThat(testee.decodePasswords(), is(decode));
+        assertThat(testee.getReadPassword(), nullValue());
+        assertThat(testee.getWritePassword(), nullValue());
+        assertThat(testee.isDecodingPasswords(), is(decode));
     }
 
     @Test

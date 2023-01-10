@@ -19,6 +19,9 @@ import org.junitpioneer.jupiter.ClearSystemProperty;
 
 class ProfileReaderTest {
 
+    @TempDir
+    private Path tempDir;
+
     @Test
     void testDefaultConfigFile() {
         assertThat(ProfileReader.instance(null).getPathOfConfigFile(), equalTo(Path.of(ProfileReader.CONFIG_FILE)));
@@ -39,15 +42,15 @@ class ProfileReaderTest {
     }
 
     @Test
-    void testNoDefaultProfile(@TempDir final Path tempDir) throws IOException {
-        final Path file = tempDir.resolve("file");
+    void testNoDefaultProfile() throws IOException {
+        final Path file = this.tempDir.resolve("file");
         Files.writeString(file, "[xxx]");
         assertThat(testee(file).getProfile(), equalTo(Profile.empty(false)));
     }
 
     @Test
-    void testInvalidPort(@TempDir final Path tempDir) throws IOException {
-        final Path file = tempDir.resolve("file");
+    void testInvalidPort() throws IOException {
+        final Path file = this.tempDir.resolve("file");
         Files.writeString(file, lines("[default]", "port=abc"));
         final ProfileReader testee = testee(file);
         final Exception exception = assertThrows(IllegalStateException.class, () -> testee.getProfile());
@@ -56,8 +59,8 @@ class ProfileReaderTest {
     }
 
     @Test
-    void testInvalidDecodeOption(@TempDir final Path tempDir) throws IOException {
-        final Path file = tempDir.resolve("file");
+    void testInvalidDecodeOption() throws IOException {
+        final Path file = this.tempDir.resolve("file");
         Files.writeString(file, lines("[default]", "decode-base64=abc"));
         final ProfileReader testee = testee(file);
         final Exception exception = assertThrows(IllegalStateException.class, () -> testee.getProfile());
@@ -75,20 +78,20 @@ class ProfileReaderTest {
             "false, null , false", //
             "true , null , true", //
     })
-    void testCommandLineOverridesProfile(final Boolean cmdline, final Boolean profileValue, final boolean expected,
-            @TempDir final Path tempDir) throws IOException {
+    void testCommandLineOverridesProfile(final Boolean cmdline, final Boolean profileValue, final boolean expected)
+            throws IOException {
         final String readPassword = "read-password";
         final String writePassword = "write-password";
-        final Path file = tempDir.resolve("file");
+        final Path file = this.tempDir.resolve("file");
         final String encoded = encode(readPassword, expected);
         Files.writeString(file, lines("[default]", //
                 "password.read=" + encoded, //
                 "password.write=" + encode(writePassword, expected), //
                 profileValue != null ? "decode-base64=" + profileValue : ""));
         final Profile profile = new ProfileReader(Optional.ofNullable(cmdline), file).getProfile();
-        assertThat(profile.decodePasswords(), is(expected));
-        assertThat(profile.readPassword(), equalTo(readPassword));
-        assertThat(profile.writePassword(), equalTo(writePassword));
+        assertThat(profile.isDecodingPasswords(), is(expected));
+        assertThat(profile.getReadPassword(), equalTo(readPassword));
+        assertThat(profile.getWritePassword(), equalTo(writePassword));
     }
 
     private String encode(final String raw, final boolean encode) {
@@ -96,8 +99,8 @@ class ProfileReaderTest {
     }
 
     @Test
-    void testSuccess(@TempDir final Path tempDir) throws IOException {
-        final Path file = tempDir.resolve("file");
+    void testSuccess() throws IOException {
+        final Path file = this.tempDir.resolve("file");
         final String host = "host-from-profile";
         final String port = "8888";
         final String bucket = "bucket-from-profile";
