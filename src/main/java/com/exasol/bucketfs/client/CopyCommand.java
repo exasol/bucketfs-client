@@ -1,5 +1,7 @@
 package com.exasol.bucketfs.client;
 
+import static com.exasol.bucketfs.BucketOperation.DOWNLOAD;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -91,6 +93,9 @@ public class CopyCommand implements Callable<Integer> {
             new Downloader(this.parent, bucket, url, destinationPath).download();
         } catch (final BucketAccessException exception) {
             throw new BucketFsClientException(exception);
+        } catch (final IOException exception) {
+            throw new BucketFsClientException(
+                    BucketAccessException.downloadIoException(this.source, DOWNLOAD, exception));
         }
     }
 }

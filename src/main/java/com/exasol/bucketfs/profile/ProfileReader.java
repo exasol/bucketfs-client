@@ -11,14 +11,14 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-import com.exasol.bucketfs.Fallback;
+import com.exasol.bucketfs.url.BucketFsUrl;
 import com.exasol.errorreporting.ExaError;
 import com.github.vincentrussell.ini.Ini;
 
 /**
  * This class reads a profile from INI-file.
  */
-public class ProfileReader implements ProfileProvider {
+public class ProfileReader {
 
     /**
      * Create a new instance of {@link ProfileReader} for productive use.
@@ -34,28 +34,28 @@ public class ProfileReader implements ProfileProvider {
 
     private static final String HOME_DIRECTORY = System.getProperty("user.home");
     private static final Pattern BOOLEAN = Pattern.compile("true|false", Pattern.CASE_INSENSITIVE);
+
     static final String CONFIG_FILE = HOME_DIRECTORY + "/.bucketfs-client/config.ini";
 
     private final Optional<Boolean> decodePasswords;
     private final Path configFile;
-
-    /**
-     * @param decodePasswords optional boolean if present and with value {@code true} then profile reader should apply
-     *                        Base64 decoding to passwords
-     */
-    public ProfileReader(final Optional<Boolean> decodePasswords) {
-        this(decodePasswords, Path.of(Fallback.of(null, System.getProperty(CONFIG_FILE_PROPERTY), CONFIG_FILE)));
-    }
 
     ProfileReader(final Optional<Boolean> decodePasswords, final Path configFile) {
         this.decodePasswords = decodePasswords;
         this.configFile = configFile;
     }
 
-    @Override
+    Profile getProfile() {
+        return getProfile(null);
+    }
+
+    /**
+     * @param profileName name of the profile
+     * @return {@link Profile} with default values for parts of {@link BucketFsUrl} and password.
+     */
     public Profile getProfile(final String profileName) {
         try {
-            return getProfileInternal(profileName);
+            return getProfileInternal(profileName != null ? profileName : "default");
         } catch (final IOException | IllegalArgumentException exception) {
             throw new IllegalStateException(ExaError.messageBuilder("E-BFSC-7") //
                     .message("Failed to read profile from {{file}} caused by {{cause|uq}}.", //

@@ -2,6 +2,7 @@ package com.exasol.bucketfs.client;
 
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import com.exasol.bucketfs.http.HttpClientBuilder;
@@ -25,13 +26,13 @@ public class ListCommand implements Callable<Integer> {
     @ParentCommand
     BucketFsClient parent;
 
-    @Parameters(index = "0", paramLabel = "PATH", description = "path", converter = UriConverter.class)
+    @Parameters(index = "0", arity = "0..1", paramLabel = "PATH", description = "path", converter = UriConverter.class)
     private URI uri;
 
     @Override
     public Integer call() throws Exception {
         final Profile profile = this.parent.getProfile();
-        final BucketFsUrl bucketFsurl = BucketFsUrl.from(this.uri, profile);
+        final BucketFsUrl bucketFsurl = BucketFsUrl.from(Optional.ofNullable(this.uri), profile);
         final HttpClient client = new HttpClientBuilder().build();
         final String protocol = bucketFsurl.isTlsEnabled() ? "https" : "http";
         final String bucketName = bucketFsurl.getBucketName();

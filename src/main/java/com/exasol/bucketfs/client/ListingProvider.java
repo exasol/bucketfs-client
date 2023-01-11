@@ -24,6 +24,7 @@ public class ListingProvider {
     }
 
     // proposal: enhance interface of bucketfs-java:ReadEnableBucket and move this method there
+    // see https://github.com/exasol/bucketfs-java/issues/57
     List<String> list(final String path, final boolean recursive) throws BucketAccessException {
         final HttpClient client = new HttpClientBuilder().build();
         final ListingRetriever contentLister = new ListingRetriever(client);

@@ -1,6 +1,5 @@
 package com.exasol.bucketfs.client;
 
-import static com.exasol.bucketfs.BucketOperation.DOWNLOAD;
 import static com.exasol.bucketfs.url.BucketFsLocation.asDirectory;
 
 import java.io.IOException;
@@ -35,7 +34,7 @@ public class Downloader {
         this.destination = destination;
     }
 
-    public void download() throws BucketAccessException {
+    public void download() throws BucketAccessException, IOException {
         final BucketFsLocation location = BucketFsLocation.from(this.bucket, this.source.getPathInBucket());
         final RecurseOption recurseOption = RecurseOption.from(this.parent::recursiveOption, this.parent::isRecursive);
         final UseCase usecase = new UseCaseDetector(this.source, this.destination, recurseOption).detect(location);
@@ -44,7 +43,7 @@ public class Downloader {
             final String prefix = asDirectory(this.source.getPathInBucket());
             for (final String spec : getFilesForDownload()) {
                 final Path file = dest.resolve(spec);
-                createDirectory(file.getParent());
+                Files.createDirectories(file.getParent());
                 LOGGER.finer(() -> "Downloading " + this.source + spec + " to " + file);
                 this.bucket.downloadFile(prefix + spec, file);
             }
@@ -84,13 +83,5 @@ public class Downloader {
             }
         }
         return result;
-    }
-
-    private void createDirectory(final Path dir) throws BucketAccessException {
-        try {
-            Files.createDirectories(dir);
-        } catch (final IOException exception) {
-            throw BucketAccessException.downloadIoException(this.source.toURI(), DOWNLOAD, exception);
-        }
     }
 }
