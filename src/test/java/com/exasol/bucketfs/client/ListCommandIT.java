@@ -69,7 +69,7 @@ class ListCommandIT {
     @Test
     void testSubFolderWithoutProtocol(@TempDir final Path tempDir, final Capturable stream) throws IOException {
         final BFSC client = BFSC.create("ls", "folder").withConfigFile(createConfigFile(tempDir, "default"));
-        verifyListCommand(stream, client, a -> true, List.of("aa.txt", "bb.txt"));
+        verifyListCommand(stream, client, List.of("aa.txt", "bb.txt"));
     }
 
     @Test
