@@ -20,7 +20,7 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 
 class BucketFsUrlTest {
 
-    Profile profile = Profile.empty(false);
+    Profile profile = Profile.empty();
 
     @ParameterizedTest
     @CsvSource({ //
@@ -163,7 +163,7 @@ class BucketFsUrlTest {
             "bfs:/bucket/file,          bfs://host-from-profile:2580/bucket/file",
             "bfs://1.2.3.4/bucket/file, bfs://1.2.3.4:2580/bucket/file", })
     void hostFromProfile(final String spec, final String expected) throws Exception {
-        final Profile profile = new Profile("host-from-profile", null, null, null, null, false);
+        final Profile profile = new Profile("host-from-profile", null, null, null, null);
         verifyWithEnv(spec, profile, expected);
     }
 
@@ -172,14 +172,14 @@ class BucketFsUrlTest {
             "bfs:/bucket/file,               bfs://localhost:9999/bucket/file",
             "bfs://1.2.3.4:1234/bucket/file, bfs://1.2.3.4:1234/bucket/file", })
     void portFromProfile(final String spec, final String expected) throws Exception {
-        final Profile profile = new Profile(null, "9999", null, null, null, false);
+        final Profile profile = new Profile(null, "9999", null, null, null);
         verifyWithEnv(spec, profile, expected);
     }
 
     @ParameterizedTest
     @CsvSource(value = { "bfs:/a/b.txt, bfs://localhost:2580/bucket-from-environment/a/b.txt" })
     void bucketFromProfile(final String spec, final String expected) throws Exception {
-        final Profile profile = new Profile(null, null, "bucket-from-environment", null, null, false);
+        final Profile profile = new Profile(null, null, "bucket-from-environment", null, null);
         verifyWithEnv(spec, profile, expected);
     }
 

@@ -1,27 +1,25 @@
 package com.exasol.bucketfs.profile;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import com.exasol.bucketfs.url.BucketFsUrl;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 class ProfileTest {
-    @ParameterizedTest
-    @ValueSource(booleans = { true, false })
-    void emptyProfile(final boolean decode) {
-        final Profile testee = Profile.empty(decode);
+
+    @Test
+    void emptyProfile() {
+        final Profile testee = Profile.empty();
         assertThat(testee.host(), nullValue());
         assertThat(testee.port(), equalTo(BucketFsUrl.UNDEFINED_PORT));
         assertThat(testee.bucket(), nullValue());
         assertThat(testee.getReadPassword(), nullValue());
         assertThat(testee.getWritePassword(), nullValue());
-        assertThat(testee.isDecodingPasswords(), is(decode));
     }
 
     @Test

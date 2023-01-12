@@ -1,6 +1,5 @@
 package com.exasol.bucketfs.profile;
 
-import java.util.Base64;
 import java.util.Objects;
 
 import com.exasol.bucketfs.url.BucketFsUrl;
@@ -10,8 +9,8 @@ import com.exasol.bucketfs.url.BucketFsUrl;
  */
 public class Profile {
 
-    public static Profile empty(final boolean decodePasswords) {
-        return new Profile(null, null, null, null, null, decodePasswords);
+    public static Profile empty() {
+        return new Profile(null, null, null, null, null);
     }
 
     private final String host;
@@ -19,27 +18,23 @@ public class Profile {
     private final String bucket;
     private final String readPassword;
     private final String writePassword;
-    private final boolean decodePasswords;
 
     /**
      * Constructor for productive usage
      *
-     * @param host            host name or IP address of BucketFS service
-     * @param port            port HTTP or HTTPS port the BucketFS service listens on
-     * @param bucket          name of the root bucket
-     * @param readPassword    password for reading, required for private buckets
-     * @param writePassword   password for writing to the bucket
-     * @param decodePasswords {@code true} if BFSC should apply base-64 decoding to passwords from profile or from
-     *                        interactive prompt
+     * @param host          host name or IP address of BucketFS service
+     * @param port          port HTTP or HTTPS port the BucketFS service listens on
+     * @param bucket        name of the root bucket
+     * @param readPassword  password for reading, required for private buckets
+     * @param writePassword password for writing to the bucket
      */
     public Profile(final String host, final String port, final String bucket, final String readPassword,
-            final String writePassword, final boolean decodePasswords) {
+            final String writePassword) {
         this.host = host;
         this.port = port;
         this.bucket = bucket;
         this.readPassword = readPassword;
         this.writePassword = writePassword;
-        this.decodePasswords = decodePasswords;
     }
 
     /**
@@ -67,37 +62,19 @@ public class Profile {
      * @return password for reading, required for private buckets
      */
     public String getReadPassword() {
-        return decodePassword(this.readPassword);
+        return this.readPassword;
     }
 
     /**
      * @return password for writing to the bucket
      */
     public String getWritePassword() {
-        return decodePassword(this.writePassword);
-    }
-
-    public boolean isDecodingPasswords() {
-        return this.decodePasswords;
-    }
-
-    /**
-     * If {@link #isDecodingPasswords()} is {@code true} then return the Base64-decoded value of the argument otherwise
-     * return the input string.
-     *
-     * @param raw raw argument, potentially Base64 encoded
-     * @return decoded argument
-     */
-    public String decodePassword(final String raw) {
-        return (this.decodePasswords && (raw != null))//
-                ? new String(Base64.getDecoder().decode(raw))
-                : raw;
+        return this.writePassword;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.bucket, this.decodePasswords, this.host, this.port, this.readPassword,
-                this.writePassword);
+        return Objects.hash(this.bucket, this.host, this.port, this.readPassword, this.writePassword);
     }
 
     @Override
@@ -112,9 +89,8 @@ public class Profile {
             return false;
         }
         final Profile other = (Profile) obj;
-        return Objects.equals(this.bucket, other.bucket) && (this.decodePasswords == other.decodePasswords)
-                && Objects.equals(this.host, other.host) && Objects.equals(this.port, other.port)
-                && Objects.equals(this.readPassword, other.readPassword)
+        return Objects.equals(this.bucket, other.bucket) && Objects.equals(this.host, other.host)
+                && Objects.equals(this.port, other.port) && Objects.equals(this.readPassword, other.readPassword)
                 && Objects.equals(this.writePassword, other.writePassword);
     }
 }

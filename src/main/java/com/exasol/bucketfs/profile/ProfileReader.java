@@ -1,16 +1,13 @@
 package com.exasol.bucketfs.profile;
 
-import static com.exasol.bucketfs.Fallback.of;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 
+import com.exasol.bucketfs.Fallback;
 import com.exasol.bucketfs.url.BucketFsUrl;
 import com.exasol.errorreporting.ExaError;
 import com.github.vincentrussell.ini.Ini;
@@ -20,28 +17,19 @@ import com.github.vincentrussell.ini.Ini;
  */
 public class ProfileReader {
 
-    /**
-     * Create a new instance of {@link ProfileReader} for productive use.
-     *
-     * @param decodePasswords if {@code true} then profile reader should apply Base64 decoding to passwords
-     */
-    public static ProfileReader instance(final Boolean decodePasswords) {
-        final String configFile = of(null, System.getProperty(CONFIG_FILE_PROPERTY), CONFIG_FILE);
-        return new ProfileReader(Optional.ofNullable(decodePasswords), Path.of(configFile));
-    }
-
     public static final String CONFIG_FILE_PROPERTY = "bfsc.config.file";
-
     private static final String HOME_DIRECTORY = System.getProperty("user.home");
-    private static final Pattern BOOLEAN = Pattern.compile("true|false", Pattern.CASE_INSENSITIVE);
-
     static final String CONFIG_FILE = HOME_DIRECTORY + "/.bucketfs-client/config.ini";
-
-    private final Optional<Boolean> decodePasswords;
     private final Path configFile;
 
-    ProfileReader(final Optional<Boolean> decodePasswords, final Path configFile) {
-        this.decodePasswords = decodePasswords;
+    /**
+     * Create a new instance of {@link ProfileReader} for productive use.
+     */
+    public ProfileReader() {
+        this(Path.of(Fallback.of(null, System.getProperty(CONFIG_FILE_PROPERTY), CONFIG_FILE)));
+    }
+
+    ProfileReader(final Path configFile) {
         this.configFile = configFile;
     }
 
@@ -75,8 +63,7 @@ public class ProfileReader {
                 validate("integer", Integer::valueOf, section, "port"), //
                 (String) section.get("bucket"), //
                 (String) section.get("password.read"), //
-                (String) section.get("password.write"), //
-                this.decodePasswords.orElse(decodePasswords(section, "decode-base64")));
+                (String) section.get("password.write"));
     }
 
     Ini read() throws IOException {
@@ -91,12 +78,7 @@ public class ProfileReader {
     }
 
     private Profile defaultProfile() {
-        return Profile.empty(this.decodePasswords.orElse(false));
-    }
-
-    private boolean decodePasswords(final Map<String, Object> section, final String key) {
-        final String value = validate("boolean", this::validateBoolean, section, key);
-        return (value != null) && Boolean.valueOf(value);
+        return Profile.empty();
     }
 
     private <T> String validate(final String datatype, final Function<String, T> validator,
@@ -119,12 +101,5 @@ public class ProfileReader {
 
     Path getPathOfConfigFile() {
         return this.configFile;
-    }
-
-    private boolean validateBoolean(final String value) {
-        if (!BOOLEAN.matcher(value).matches()) {
-            throw new IllegalArgumentException();
-        }
-        return Boolean.valueOf(value);
     }
 }

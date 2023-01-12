@@ -2,19 +2,16 @@ package com.exasol.bucketfs.profile;
 
 import static com.exasol.bucketfs.Lines.lines;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.matchesRegex;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Base64;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junitpioneer.jupiter.ClearSystemProperty;
 
 class ProfileReaderTest {
@@ -24,7 +21,7 @@ class ProfileReaderTest {
 
     @Test
     void testDefaultConfigFile() {
-        assertThat(ProfileReader.instance(null).getPathOfConfigFile(), equalTo(Path.of(ProfileReader.CONFIG_FILE)));
+        assertThat(new ProfileReader().getPathOfConfigFile(), equalTo(Path.of(ProfileReader.CONFIG_FILE)));
     }
 
     @Test
@@ -32,20 +29,20 @@ class ProfileReaderTest {
     void testConfigFileFromSystemProperty() {
         final Path path = Path.of("/sample/location/file");
         System.setProperty(ProfileReader.CONFIG_FILE_PROPERTY, path.toString());
-        assertThat(ProfileReader.instance(null).getPathOfConfigFile(), equalTo(path));
+        assertThat(new ProfileReader().getPathOfConfigFile(), equalTo(path));
     }
 
     @Test
     void testNonExistingFile() {
         final ProfileReader testee = testee(Path.of("/non/existing/file"));
-        assertThat(testee.getProfile(), equalTo(Profile.empty(false)));
+        assertThat(testee.getProfile(), equalTo(Profile.empty()));
     }
 
     @Test
     void testNoDefaultProfile() throws IOException {
         final Path file = this.tempDir.resolve("file");
         Files.writeString(file, "[xxx]");
-        assertThat(testee(file).getProfile(), equalTo(Profile.empty(false)));
+        assertThat(testee(file).getProfile(), equalTo(Profile.empty()));
     }
 
     @Test
@@ -56,46 +53,6 @@ class ProfileReaderTest {
         final Exception exception = assertThrows(IllegalStateException.class, () -> testee.getProfile());
         assertThat(exception.getMessage(), matchesRegex("E-BFSC-7: Failed to read profile from '.*'"
                 + " caused by invalid integer value in entry 'port=abc'."));
-    }
-
-    @Test
-    void testInvalidDecodeOption() throws IOException {
-        final Path file = this.tempDir.resolve("file");
-        Files.writeString(file, lines("[default]", "decode-base64=abc"));
-        final ProfileReader testee = testee(file);
-        final Exception exception = assertThrows(IllegalStateException.class, () -> testee.getProfile());
-        assertThat(exception.getMessage(), matchesRegex("E-BFSC-7: Failed to read profile from '.*'"
-                + " caused by invalid boolean value in entry 'decode-base64=abc'."));
-    }
-
-    @ParameterizedTest
-    @CsvSource(value = { //
-            "     , true , true", //
-            "     , false, false", //
-            "     ,      , false", //
-            "true , false, true", //
-            "false, true , false", //
-            "false, null , false", //
-            "true , null , true", //
-    })
-    void testCommandLineOverridesProfile(final Boolean cmdline, final Boolean profileValue, final boolean expected)
-            throws IOException {
-        final String readPassword = "read-password";
-        final String writePassword = "write-password";
-        final Path file = this.tempDir.resolve("file");
-        final String encoded = encode(readPassword, expected);
-        Files.writeString(file, lines("[default]", //
-                "password.read=" + encoded, //
-                "password.write=" + encode(writePassword, expected), //
-                profileValue != null ? "decode-base64=" + profileValue : ""));
-        final Profile profile = new ProfileReader(Optional.ofNullable(cmdline), file).getProfile();
-        assertThat(profile.isDecodingPasswords(), is(expected));
-        assertThat(profile.getReadPassword(), equalTo(readPassword));
-        assertThat(profile.getWritePassword(), equalTo(writePassword));
-    }
-
-    private String encode(final String raw, final boolean encode) {
-        return encode ? new String(Base64.getEncoder().encode(raw.getBytes())) : raw;
     }
 
     @Test
@@ -119,11 +76,10 @@ class ProfileReaderTest {
                 port, //
                 bucket, //
                 readPassword, //
-                writePassword, //
-                Boolean.valueOf(decode))));
+                writePassword)));
     }
 
     private ProfileReader testee(final Path file) {
-        return new ProfileReader(Optional.empty(), file);
+        return new ProfileReader(file);
     }
 }

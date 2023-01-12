@@ -111,7 +111,7 @@ WritePasswd = <value>
 ReadPasswd = <value>
 ```
 
-Additionally the `<value>` is base64-encoded.  For additional convenience BFSC allows you to provide the passwords in base64 encoded format and let BFSC decode them, see section [Configuration File](#configuration-file). This applies to all methods providing passwords: via the profile in your configuration file, as well as via interactive prompt.
+Please note that each `<value>` is base64-encoded.
 
 ### Configuration File
 
@@ -135,7 +135,6 @@ BFCS uses the following elements of your profile with the specified hard coded d
 | Name of root bucket             | `bucket`         | (none)        |
 | Password for read operations    | `password.read`  | (none)        |
 | Password for write operations   | `password.write` | (none)        |
-| Decode base64 encoded password  | `decode-base64`  | `false`       |
 
 Here is an example for the content of a configuration file for BFSC:
 ```
@@ -145,7 +144,6 @@ port=8888
 bucket=simba
 password.read=abc
 password.write=def
-decode-base64=true
 ```
 
 Using this configuration file the command line

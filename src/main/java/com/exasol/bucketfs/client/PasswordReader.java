@@ -68,7 +68,7 @@ public class PasswordReader {
             return passwordFromProfile;
         }
         return this.readInteractively //
-                ? profile.decodePassword(this.consoleReader.readPassword(prompt(this.qualifier)))
+                ? this.consoleReader.readPassword(prompt(this.qualifier))
                 : "";
     }
 

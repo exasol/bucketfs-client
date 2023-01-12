@@ -28,9 +28,6 @@ public class BucketFsClient implements Callable<Integer> {
     @Option(names = { "-pw", "--require-read-password" }, //
             description = "whether BFSC should ask for a read password", scope = ScopeType.INHERIT)
     private boolean requireReadPassword;
-    @Option(names = { "-d", "--decode-passwords" }, //
-            description = "whether BFSC should apply base64 decoding to passwords", scope = ScopeType.INHERIT)
-    private Boolean decodePasswords;
 
     private final ConsoleReader consoleReader;
     private Profile profile;
@@ -70,7 +67,7 @@ public class BucketFsClient implements Callable<Integer> {
 
     public Profile getProfile() {
         if (this.profile == null) {
-            this.profile = ProfileReader.instance(this.decodePasswords).getProfile(this.profileName);
+            this.profile = new ProfileReader().getProfile(this.profileName);
         }
         return this.profile;
     }
@@ -78,10 +75,6 @@ public class BucketFsClient implements Callable<Integer> {
     String readPassword() {
         return PasswordReader.forReading(this.requireReadPassword, this.consoleReader) //
                 .readPassword(getProfile());
-    }
-
-    public Boolean decodePasswords() {
-        return this.decodePasswords;
     }
 
     String writePassword() {
