@@ -1,11 +1,13 @@
 package com.exasol.bucketfs.url;
 
-import static com.exasol.bucketfs.Fallback.fallback;
-
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.Objects;
 
+import com.exasol.bucketfs.Fallback;
+import com.exasol.bucketfs.client.BucketFsClientException;
 import com.exasol.bucketfs.profile.Profile;
+import com.exasol.errorreporting.ExaError;
 
 /**
  * BucketFS-specific URL.
@@ -20,71 +22,75 @@ public final class BucketFsUrl {
      * @return {@code true} if URI refers to BucketFS
      */
     public static boolean isBucketFsUrl(final URI uri) {
-        return (uri != null)
-                && (BUCKETFS_PROTOCOL.equals(uri.getScheme()) || BUCKETFS_PROTOCOL_WITH_TLS.equals(uri.getScheme()));
+        return (uri != null) && (BUCKETFS_PROTOCOL.equals(uri.getScheme()) //
+                || BUCKETFS_PROTOCOL_WITH_TLS.equals(uri.getScheme()));
     }
 
-    public static final String BUCKETFS_PROTOCOL = "bfs";
-    public static final String BUCKETFS_PROTOCOL_WITH_TLS = "bfss";
     public static final String PATH_SEPARATOR = "/";
-    public static final String DEFAULT_HOST = "localhost";
-    public static final int DEFAULT_PORT = 2580;
     public static final int UNDEFINED_PORT = -1;
+
+    static final String BUCKETFS_PROTOCOL = "bfs";
+    static final String BUCKETFS_PROTOCOL_WITH_TLS = "bfss";
+
+    private static final String DEFAULT_HOST = "localhost";
+    private static final int DEFAULT_PORT = 2580;
 
     /**
      * @param uri     URI to create the URL from
      * @param profile default values for specific parts of BucketFS URLs
-     * @return new BucketFS URL
+     * @return new instance of {@link BucketFsUrl}
      * @throws MalformedURLException if BucketFS service or bucket are missing in the path or the path is not an
      *                               absolute path
      */
-    public static BucketFsUrl from(final URI uri, final Profile profile) throws MalformedURLException {
+    public static BucketFsUrl from(final URI uri, final Profile profile) {
+        try {
+            final BucketFsPath path = BucketFsPath.from(uri, profile.bucket());
+            return from(uri.getScheme(), uri.getHost(), uri.getPort(), path, profile);
+        } catch (final MalformedURLException exception) {
+            throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-5") //
+                    .message("Invalid BucketFS URL: {{url}}.", uri) //
+                    .message(" Cause: {{cause}}.", exception.getMessage()) //
+                    .mitigation("Please use URL with the following form: {{form}}.",
+                            "bfs://<bucketfs-service/<bucket>/<path-in-bucket>") //
+                    .toString());
+        }
+    }
+
+    /**
+     * @param profile {@link Profile} with default values for specific parts of BucketFS URLs
+     * @return new instance of {@link BucketFsUrl} potentially with invalid {@link BucketFsPath}
+     */
+    public static BucketFsUrl from(final Profile profile) {
+        final BucketFsPath bucketFsPath = new BucketFsPath(profile.bucket(), "");
+        return from(null, null, UNDEFINED_PORT, bucketFsPath, profile);
+    }
+
+    private static BucketFsUrl from(final String protocol, final String host, final int port,
+            final BucketFsPath bucketFsPath, final Profile profile) {
         return new BucketFsUrl( //
-                uri.getScheme(), //
-                fallback(null, uri.getHost(), profile.host(), DEFAULT_HOST), //
-                fallback(UNDEFINED_PORT, uri.getPort(), profile.port(), DEFAULT_PORT), //
-                BucketFsPath.from(uri, profile.bucket()));
+                protocol, //
+                Fallback.of(null, host, profile.host(), DEFAULT_HOST), //
+                Fallback.of(UNDEFINED_PORT, port, profile.port(), DEFAULT_PORT), //
+                bucketFsPath);
     }
 
     private final String protocol;
     private final String host;
     private final int port;
     private final BucketFsPath bucketFsPath;
-    private final URI uri;
 
     /**
-     * @param protocol
-     * @param host
-     * @param port
-     * @param bucketName
-     * @param pathInBucket
-     * @throws MalformedURLException
+     *
+     * @param protocol     protocol of this URL
+     * @param host         host of this URL
+     * @param port         port number, or -1 if the port is not set
+     * @param bucketFsPath name of the bucket and remaining path inside the bucket
      */
-    BucketFsUrl(final String protocol, final String host, final int port, final BucketFsPath bucketFsPath)
-            throws MalformedURLException {
+    BucketFsUrl(final String protocol, final String host, final int port, final BucketFsPath bucketFsPath) {
         this.protocol = protocol;
         this.host = host;
         this.port = port;
         this.bucketFsPath = bucketFsPath;
-        try {
-            this.uri = makeUri(protocol, host, port, bucketFsPath);
-        } catch (final URISyntaxException exception) {
-            throw new MalformedURLException(exception.getMessage());
-        }
-    }
-
-    private static URI makeUri(final String protocol, final String host, final int port,
-            final BucketFsPath bucketFsPath) throws URISyntaxException {
-        return new URI(protocol, null, host, port, bucketFsPath.getUriPath(), null, null);
-    }
-
-    /**
-     * Get the path part of this URL.
-     *
-     * @return path part or this URL
-     */
-    public String getPath() {
-        return this.uri.getPath();
     }
 
     /**
@@ -112,15 +118,6 @@ public final class BucketFsUrl {
      */
     public int getPort() {
         return this.port;
-    }
-
-    /**
-     * Return a URI equivalent to this BucketFS URL.
-     *
-     * @return URI instance equivalent to this URL
-     */
-    public URI toURI() {
-        return this.uri;
     }
 
     /**
@@ -162,12 +159,12 @@ public final class BucketFsUrl {
 
     @Override
     public String toString() {
-        return this.uri.toString();
+        return this.protocol + "://" + this.host + ":" + this.port + this.bucketFsPath.getUriPath();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.uri);
+        return Objects.hash(this.bucketFsPath, this.host, this.port, this.protocol);
     }
 
     @Override
@@ -175,10 +172,14 @@ public final class BucketFsUrl {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof BucketFsUrl)) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
             return false;
         }
         final BucketFsUrl other = (BucketFsUrl) obj;
-        return Objects.equals(this.uri, other.uri);
+        return Objects.equals(this.bucketFsPath, other.bucketFsPath) && Objects.equals(this.host, other.host)
+                && (this.port == other.port) && Objects.equals(this.protocol, other.protocol);
     }
 }

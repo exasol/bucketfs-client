@@ -14,7 +14,7 @@ Added missing functionality to list and delete files in BucketFS and improved co
 
 ### Compile Dependency Updates
 
-* Updated `com.exasol:bucketfs-java:2.3.0` to `2.5.0`
+* Updated `com.exasol:bucketfs-java:2.3.0` to `2.6.0`
 * Updated `com.exasol:error-reporting-java:0.4.1` to `1.0.0`
 * Added `com.github.vincentrussell:java-ini-parser:1.3`
 * Updated `info.picocli:picocli:4.6.3` to `4.7.0`

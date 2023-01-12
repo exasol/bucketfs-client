@@ -16,7 +16,7 @@ public class Fallback {
      * @return first candidate with value not undefined
      */
     @SafeVarargs
-    public static <T> T fallback(final T undefined, final T... candidates) {
+    public static <T> T of(final T undefined, final T... candidates) {
         for (final T c : candidates) {
             if (c != undefined) {
                 return c;

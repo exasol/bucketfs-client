@@ -1,27 +1,33 @@
 package com.exasol.bucketfs.client;
 
+import static com.exasol.bucketfs.Lines.lines;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.itsallcode.junit.sysextensions.AssertExit.assertExitWithStatus;
 import static picocli.CommandLine.ExitCode.OK;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import org.itsallcode.io.Capturable;
 import org.itsallcode.junit.sysextensions.ExitGuard;
-import org.itsallcode.junit.sysextensions.SystemErrGuard;
+import org.itsallcode.junit.sysextensions.SystemOutGuard;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 
 import com.exasol.bucketfs.BucketAccessException;
-import com.exasol.bucketfs.UnsynchronizedBucket;
 
 @ExtendWith(ExitGuard.class)
-@ExtendWith(SystemErrGuard.class)
+@ExtendWith(SystemOutGuard.class)
+// [itest->dsn~list-contents~1]
+// [itest->dsn~list-files-and-directories~1]
+// [itest->dsn~highlight-type-of-entries~1]
 class ListCommandIT {
 
     private static final IntegrationTestSetup SETUP = new IntegrationTestSetup();
@@ -32,8 +38,8 @@ class ListCommandIT {
     }
 
     @BeforeAll
-    static void beforeAll() throws BucketAccessException {
-        createFiles();
+    static void beforeAll() throws BucketAccessException, InterruptedException {
+        SETUP.createRemoteFiles("b.txt", "a.txt", "folder/bb.txt", "folder/aa.txt");
     }
 
     void clean(final boolean cleanAll) throws BucketAccessException {
@@ -44,55 +50,80 @@ class ListCommandIT {
         }
     }
 
-    private static void createFile(final UnsynchronizedBucket bucket, final String path) {
-        try {
-            bucket.uploadStringContentNonBlocking(path, path);
-        } catch (BucketAccessException | TimeoutException e) {
-            throw new IllegalStateException(e);
-        }
+    @Test
+    void testRoot(final Capturable stream) {
+        verifyListCommand(stream, createClient("ls", ""), List.of("a.txt", "b.txt", "folder/"));
     }
 
     @Test
-    void root() {
-        verifyListCommand("", List.of("a.txt", "b.txt", "folder/"));
+    void testRecursive(final Capturable stream) {
+        verifyListCommand(stream, createClient("ls", "-r", ""),
+                List.of("a.txt", "b.txt", "folder/aa.txt", "folder/bb.txt"));
     }
 
     @Test
-    void subfolder() {
-        verifyListCommand("folder/", a -> true, List.of("a1.txt", "b1.txt"));
+    void testSubdirectory(final Capturable stream) {
+        verifyListCommand(stream, createClient("ls", "folder/"), a -> true, List.of("aa.txt", "bb.txt"));
+    }
+
+    @Test
+    void testSubFolderWithoutProtocol(@TempDir final Path tempDir, final Capturable stream) throws IOException {
+        final BFSC client = BFSC.create("ls", "folder").withConfigFile(createConfigFile(tempDir, "default"));
+        verifyListCommand(stream, client, List.of("aa.txt", "bb.txt"));
+    }
+
+    @Test
+    void testRootWithProfile(@TempDir final Path tempDir, final Capturable stream) throws IOException {
+        final BFSC client = BFSC.create("ls").withConfigFile(createConfigFile(tempDir, "default"));
+        verifyListCommand(stream, client, List.of("a.txt", "b.txt"));
+    }
+
+    @Test
+    void testBuckets(@TempDir final Path tempDir, final Capturable stream) throws IOException {
+        final BFSC client = BFSC.create("ls").withConfigFile(createConfigFile(tempDir, null));
+        verifyListCommand(stream, client, List.of("default"));
+    }
+
+    private Path createConfigFile(final Path dir, final String bucket) throws IOException {
+        final Path configFile = dir.resolve(".bucketfs-client-config");
+        Files.writeString(configFile, lines("[default]", //
+                (bucket != null ? "bucket=default" : ""), //
+                "host=" + SETUP.getHost(), //
+                "port=" + SETUP.getMappedBucketFsPort()));
+        return configFile;
     }
 
     // There is no test for empty folders as these are not possible in BucketFS.
 
     @Test
     void nonExistingFolder() {
-        final String path = SETUP.getDefaultBucketUriToFile("non-existing-folder/");
-        final BFSC client = BFSC.create("ls", path).catchStdout();
+        final BFSC client = createClient("ls", "non-existing-folder/");
         assertExitWithStatus(1, () -> client.run());
     }
 
-    private static void createFiles() throws BucketAccessException {
-        final UnsynchronizedBucket bucket = SETUP.getDefaultBucket();
-        Stream.of("b.txt", "a.txt", "folder/b1.txt", "folder/a1.txt") //
-                .forEach(path -> createFile(bucket, path));
-    }
-
-    private void verifyListCommand(final String folder, final List<String> expected) {
+    private void verifyListCommand(final Capturable stream, final BFSC client, final List<String> expected) {
         final String pattern = expected.stream().collect(Collectors.joining("|"));
-        verifyListCommand(folder, s -> s.matches(pattern), expected);
+        verifyListCommand(stream, client, s -> s.matches(pattern), expected);
     }
 
-    private void verifyListCommand(final String folder, final Predicate<String> listingFilter,
+    private void verifyListCommand(final Capturable stream, final BFSC client, final Predicate<String> listingFilter,
             final List<String> expected) {
-        final String path = SETUP.getDefaultBucketUriToFile(folder);
-        final BFSC client = BFSC.create("ls", path).catchStdout();
+        stream.capture();
         assertExitWithStatus(OK, () -> client.run());
-        final List<String> actual = listing(client.getStdOut(), listingFilter);
-        System.out.println(actual);
+        final String stdout = stream.getCapturedData().trim();
+        final List<String> actual = listing(stdout, listingFilter);
         assertThat(actual, equalTo(expected));
     }
 
-    private List<String> listing(final String raw, final Predicate<String> filter) {
+    private BFSC createClient(final String... args) {
+        final String path = args[args.length - 1];
+        args[args.length - 1] = SETUP.getDefaultBucketUriToFile(path);
+        return BFSC.create(args).feedStdIn(SETUP.getDefaultBucket().getReadPassword());
+    }
+
+    private List<String> listing(final String stdout, final Predicate<String> filter) {
+        final String prompt = PasswordReader.prompt("reading from");
+        final String raw = stdout.startsWith(prompt) ? stdout.substring(prompt.length()) : stdout;
         return Arrays.stream(raw.split(System.lineSeparator())) //
                 .filter(filter) //
                 .collect(Collectors.toList());

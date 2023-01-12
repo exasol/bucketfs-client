@@ -41,12 +41,19 @@ class BucketFsClientExecutableJarIT {
 
     @Test
     void executableFailsWithoutArguments() throws Exception {
-        assertProcessFails(run(), ExitCode.USAGE, equalTo(""), equalTo(lines("Missing required subcommand", //
-                "Usage: bfsc [COMMAND]", //
+        assertProcessFails(run(), ExitCode.USAGE, equalTo(""), equalTo(lines(//
+                "Missing required subcommand", //
+                "Usage: bfsc [-r] [-pw] [-p=<profileName>] [COMMAND]", //
                 "Exasol BucketFS client", //
+                "  -p, --profile=<profileName>", //
+                "                    name of the profile to use", //
+                "      -pw, --require-read-password", //
+                "                    whether BFSC should ask for a read password", //
+                "  -r, --recursive   recursive", //
                 "Commands:", //
                 "  cp  Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY", //
                 "  ls  List contents of PATH", //
+                "  rm  Remove file PATH from BucketFS", //
                 "")));
     }
 
@@ -58,7 +65,7 @@ class BucketFsClientExecutableJarIT {
         final String destination = getDefaultBucketUriToFile(filename);
         final Process process = run("cp", sourceFile.toString(), destination);
         writeToStdIn(process, "wrong password");
-        assertProcessFails(process, ExitCode.SOFTWARE, equalTo(PasswordReader.PROMPT),
+        assertProcessFails(process, ExitCode.SOFTWARE, equalTo(PasswordReader.prompt("writing to")),
                 startsWith("E-BFSJ-3: Access denied trying to upload "));
     }
 
@@ -69,8 +76,8 @@ class BucketFsClientExecutableJarIT {
         final String password = EXASOL.getClusterConfiguration().getDefaultBucketWritePassword();
         final Process process = run("cp", sourceFile.toString(), destination);
         writeToStdIn(process, password);
-        assertProcessFails(process, ExitCode.SOFTWARE, equalTo(PasswordReader.PROMPT),
-                equalTo(lines("E-BFSC-2: Unable to upload. No such file or directory: 'non-existing-file'", "")));
+        assertProcessFails(process, ExitCode.SOFTWARE, equalTo(PasswordReader.prompt("writing to")),
+                equalTo(lines("E-BFSC-2: Unable to upload. No such file or directory: 'non-existing-file'.", "")));
     }
 
     private void writeToStdIn(final Process process, final String value) throws IOException {

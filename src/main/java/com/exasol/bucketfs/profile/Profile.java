@@ -10,60 +10,71 @@ import com.exasol.bucketfs.url.BucketFsUrl;
 public class Profile {
 
     public static Profile empty() {
-        return new Profile(null, null, null, null);
+        return new Profile(null, null, null, null, null);
     }
 
     private final String host;
     private final String port;
     private final String bucket;
-    private final String password;
+    private final String readPassword;
+    private final String writePassword;
 
     /**
      * Constructor for productive usage
      *
-     * @param host
-     * @param object
-     * @param bucket
-     * @param password
+     * @param host          host name or IP address of BucketFS service
+     * @param port          port HTTP or HTTPS port the BucketFS service listens on
+     * @param bucket        name of the root bucket
+     * @param readPassword  password for reading, required for private buckets
+     * @param writePassword password for writing to the bucket
      */
-    public Profile(final String host, final String object, final String bucket, final String password) {
+    public Profile(final String host, final String port, final String bucket, final String readPassword,
+            final String writePassword) {
         this.host = host;
-        this.port = object;
+        this.port = port;
         this.bucket = bucket;
-        this.password = password;
+        this.readPassword = readPassword;
+        this.writePassword = writePassword;
     }
 
     /**
-     * @return host
+     * @return host name or IP address of BucketFS service
      */
     public String host() {
         return this.host;
     }
 
     /**
-     * @return port
+     * @return HTTP or HTTPS port the BucketFS service listens on
      */
     public int port() {
         return this.port != null ? Integer.parseInt(this.port) : BucketFsUrl.UNDEFINED_PORT;
     }
 
     /**
-     * @return bucket
+     * @return name of the root bucket
      */
     public String bucket() {
         return this.bucket;
     }
 
     /**
-     * @return password
+     * @return password for reading, required for private buckets
      */
-    public String password() {
-        return this.password;
+    public String getReadPassword() {
+        return this.readPassword;
+    }
+
+    /**
+     * @return password for writing to the bucket
+     */
+    public String getWritePassword() {
+        return this.writePassword;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.bucket, this.host, this.password, this.port);
+        return Objects.hash(this.bucket, this.host, this.port, this.readPassword, this.writePassword);
     }
 
     @Override
@@ -79,6 +90,7 @@ public class Profile {
         }
         final Profile other = (Profile) obj;
         return Objects.equals(this.bucket, other.bucket) && Objects.equals(this.host, other.host)
-                && Objects.equals(this.password, other.password) && Objects.equals(this.port, other.port);
+                && Objects.equals(this.port, other.port) && Objects.equals(this.readPassword, other.readPassword)
+                && Objects.equals(this.writePassword, other.writePassword);
     }
 }

@@ -1,54 +1,60 @@
 package com.exasol.bucketfs.client;
 
-import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.util.concurrent.Callable;
 
-import com.exasol.bucketfs.ReadEnabledBucket;
-import com.exasol.bucketfs.ReadOnlyBucket;
-import com.exasol.bucketfs.profile.ProfileProvider;
+import com.exasol.bucketfs.http.HttpClientBuilder;
+import com.exasol.bucketfs.list.*;
+import com.exasol.bucketfs.profile.Profile;
 import com.exasol.bucketfs.url.BucketFsUrl;
 import com.exasol.bucketfs.url.UriConverter;
-import com.exasol.errorreporting.ExaError;
 
 import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
+import picocli.CommandLine.*;
 
 /**
  * This class implements listing the contents of BucketFS
  */
 @Command(name = "ls", description = "List contents of PATH")
+// [impl->dsn~list-contents~1]
+// [impl->dsn~list-files-and-directories~1]
+// [impl->dsn~highlight-type-of-entries~1]
 public class ListCommand implements Callable<Integer> {
 
-    private final ProfileProvider profileProvider;
-    @Parameters(index = "0", paramLabel = "PATH", description = "path", converter = UriConverter.class)
-    private URI uri;
+    @ParentCommand
+    BucketFsClient parent;
 
-    public ListCommand(final ProfileProvider profileProvider) {
-        this.profileProvider = profileProvider;
-    }
+    @Parameters(index = "0", arity = "0..1", paramLabel = "PATH", description = "path", converter = UriConverter.class)
+    private URI uri;
 
     @Override
     public Integer call() throws Exception {
-        final BucketFsUrl url = bucketFsUrl();
-        final ReadOnlyBucket bucket = ReadEnabledBucket.builder() //
-                .ipAddress(url.getHost()) //
-                .port(url.getPort()) //
-                .name(url.getBucketName()) //
-                .build();
-        bucket.listContents(url.getPathInBucket()).stream() //
-                .forEach(System.out::println); // NOSONAR
-        // The purpose of the list command is to print the listing on stdout
+        final BucketFsUrl bucketFsUrl = getBucketFsUrl(this.uri, this.parent.getProfile());
+        final HttpClient client = new HttpClientBuilder().build();
+        final String protocol = bucketFsUrl.isTlsEnabled() ? "https" : "http";
+        final String bucketName = bucketFsUrl.getBucketName();
+        final ListingRetriever contentLister = new ListingRetriever(client);
+
+        if (bucketName == null) {
+            new BucketService(publicReadUri(protocol, bucketFsUrl, ""), contentLister) //
+                    .retrieve() //
+                    .forEach(this.parent::print);
+        } else {
+            final String path = bucketFsUrl.getPathInBucket();
+            final String password = this.parent.readPassword();
+            new BucketContentLister(publicReadUri(protocol, bucketFsUrl, bucketName), contentLister, password) //
+                    .retrieve(path, this.parent.isRecursive()) //
+                    .forEach(this.parent::print);
+        }
         return CommandLine.ExitCode.OK;
     }
 
-    private BucketFsUrl bucketFsUrl() {
-        try {
-            return BucketFsUrl.from(this.uri, this.profileProvider.getProfile());
-        } catch (final MalformedURLException exception) {
-            throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-5") //
-                    .message("Invalid BucketFS URL: {{url}}", this.uri).toString());
-        }
+    private BucketFsUrl getBucketFsUrl(final URI uri, final Profile profile) {
+        return uri != null ? BucketFsUrl.from(uri, profile) : BucketFsUrl.from(profile);
+    }
+
+    private URI publicReadUri(final String protocol, final BucketFsUrl url, final String suffix) {
+        return ListingRetriever.publicReadUri(protocol, url.getHost(), url.getPort(), suffix);
     }
 }

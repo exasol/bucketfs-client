@@ -11,13 +11,15 @@ import com.exasol.bucketfs.url.BucketFsUrl;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 class ProfileTest {
+
     @Test
     void emptyProfile() {
         final Profile testee = Profile.empty();
         assertThat(testee.host(), nullValue());
         assertThat(testee.port(), equalTo(BucketFsUrl.UNDEFINED_PORT));
         assertThat(testee.bucket(), nullValue());
-        assertThat(testee.password(), nullValue());
+        assertThat(testee.getReadPassword(), nullValue());
+        assertThat(testee.getWritePassword(), nullValue());
     }
 
     @Test

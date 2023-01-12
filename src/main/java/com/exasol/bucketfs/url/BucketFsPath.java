@@ -11,17 +11,17 @@ import java.util.regex.Pattern;
 import com.exasol.bucketfs.Fallback;
 import com.exasol.errorreporting.ExaError;
 
-public class BucketFsPath {
+class BucketFsPath {
 
     private static final Pattern PATH_PATTERN = Pattern.compile("/(\\w{1,128})(/.*)");
 
     // java doc for standard java class URI:
     // The path of a hierarchical URI that is either absolute or specifies an authority is always absolute.
-    public static BucketFsPath from(final URI uri, final String defaultBucket) throws MalformedURLException {
-        final String bucket = Fallback.fallback(null, defaultBucket);
+    static BucketFsPath from(final URI uri, final String defaultBucket) throws MalformedURLException {
+        final String bucketName = Fallback.of(null, defaultBucket);
         final String path = Optional.ofNullable(uri.getPath()).orElse("");
-        if (bucket != null) {
-            return new BucketFsPath(bucket, path);
+        if (bucketName != null) {
+            return new BucketFsPath(bucketName, path);
         }
 
         final Matcher matcher = PATH_PATTERN.matcher(path);
@@ -31,32 +31,30 @@ public class BucketFsPath {
 
         throw new MalformedURLException(ExaError.messageBuilder("E-BFSC-6") //
                 .message("URI contains illegal path in bucket: {{uri}}.", uri) //
-                .mitigation("Please use URI with the following form: {{form}}",
-                        "bfs://<bucketfs-service/<bucket>/<path-in-bucket>") //
                 .toString());
     }
 
-    private final String bucket;
+    private final String bucketName;
     private final String pathInBucket;
 
     /**
-     * @param bucket       name of the bucket
+     * @param bucketName   name of the bucket
      * @param pathInBucket remaining path inside the bucket
      */
-    BucketFsPath(final String bucket, final String pathInBucket) {
-        this.bucket = bucket;
+    BucketFsPath(final String bucketName, final String pathInBucket) {
+        this.bucketName = bucketName;
         this.pathInBucket = pathInBucket;
     }
 
-    public String getPathInBucket() {
+    String getPathInBucket() {
         return this.pathInBucket;
     }
 
-    public String getBucketName() {
-        return this.bucket;
+    String getBucketName() {
+        return this.bucketName;
     }
 
-    public String getUriPath() {
-        return PATH_SEPARATOR + this.bucket + this.pathInBucket;
+    String getUriPath() {
+        return PATH_SEPARATOR + this.bucketName + this.pathInBucket;
     }
 }
