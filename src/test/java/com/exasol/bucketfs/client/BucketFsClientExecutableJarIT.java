@@ -2,6 +2,7 @@ package com.exasol.bucketfs.client;
 
 import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKET;
 import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKETFS;
+import static com.exasol.bucketfs.Lines.lines;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -11,7 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +26,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.exasol.bucketfs.BucketAccessException;
 import com.exasol.containers.ExasolContainer;
 import com.exasol.containers.ExasolService;
 
@@ -39,33 +40,44 @@ class BucketFsClientExecutableJarIT {
             .withRequiredServices(ExasolService.BUCKETFS).withReuse(true);
 
     @Test
-    void executableFailsWithoutArguments() throws InterruptedException, IOException {
-        assertProcessFails(run(), ExitCode.USAGE, equalTo(""),
-                equalTo("Missing required subcommand\nUsage: bfs [COMMAND]\nExasol BucketFS client\nCommands:\n"
-                        + "  cp  Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY\n"));
+    void executableFailsWithoutArguments() throws Exception {
+        assertProcessFails(run(), ExitCode.USAGE, equalTo(""), equalTo(lines(//
+                "Missing required subcommand", //
+                "Usage: bfsc [-r] [-pw] [-p=<profileName>] [COMMAND]", //
+                "Exasol BucketFS client", //
+                "  -p, --profile=<profileName>", //
+                "                    name of the profile to use", //
+                "      -pw, --require-read-password", //
+                "                    whether BFSC should ask for a read password", //
+                "  -r, --recursive   recursive", //
+                "Commands:", //
+                "  cp  Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY", //
+                "  ls  List contents of PATH", //
+                "  rm  Remove file PATH from BucketFS", //
+                "")));
     }
 
     @Test
-    void copyFileFailsForMissingPassword(@TempDir final Path tempDir)
-            throws InterruptedException, IOException, BucketAccessException {
+    void copyFileFailsForWrongPassword(@TempDir final Path tempDir) throws Exception {
         final String filename = "upload.txt";
         final Path sourceFile = tempDir.resolve(filename);
         Files.writeString(sourceFile, "content");
         final String destination = getDefaultBucketUriToFile(filename);
         final Process process = run("cp", sourceFile.toString(), destination);
-        assertProcessFails(process, ExitCode.SOFTWARE, equalTo(""),
+        writeToStdIn(process, "wrong password");
+        assertProcessFails(process, ExitCode.SOFTWARE, equalTo(PasswordReader.prompt("writing to")),
                 startsWith("E-BFSJ-3: Access denied trying to upload "));
     }
 
     @Test
-    void copyFileFailsForNonExistingFile() throws InterruptedException, IOException, BucketAccessException {
-        final Path sourceFile = Paths.get("non-existing-file");
+    void copyFileFailsForNonExistingFile() throws Exception {
+        final Path sourceFile = Path.of("non-existing-file");
         final String destination = getDefaultBucketUriToFile(sourceFile.toString());
         final String password = EXASOL.getClusterConfiguration().getDefaultBucketWritePassword();
-        final Process process = run("cp", "--password", sourceFile.toString(), destination);
+        final Process process = run("cp", sourceFile.toString(), destination);
         writeToStdIn(process, password);
-        assertProcessFails(process, ExitCode.SOFTWARE, equalTo("Enter value for --password (password): "),
-                equalTo("E-BFSC-2: Unable to upload. No such file or directory: non-existing-file\n"));
+        assertProcessFails(process, ExitCode.SOFTWARE, equalTo(PasswordReader.prompt("writing to")),
+                equalTo(lines("E-BFSC-2: Unable to upload. No such file or directory: 'non-existing-file'.", "")));
     }
 
     private void writeToStdIn(final Process process, final String value) throws IOException {
@@ -81,8 +93,8 @@ class BucketFsClientExecutableJarIT {
     }
 
     private String getBucketFsUri(final String serviceName, final String bucketName, final String pathInBucket) {
-        return "bfs://" + EXASOL.getContainerIpAddress() + ":"
-                + EXASOL.getMappedPort(EXASOL.getDefaultInternalBucketfsPort()) + "/" + bucketName + "/" + pathInBucket;
+        return "bfs://" + EXASOL.getHost() + ":" + EXASOL.getMappedPort(EXASOL.getDefaultInternalBucketfsPort()) + "/"
+                + bucketName + "/" + pathInBucket;
     }
 
     private Process run(final String... args) throws IOException, InterruptedException {
@@ -95,7 +107,7 @@ class BucketFsClientExecutableJarIT {
     }
 
     private Path getJarFile() {
-        final Path jar = Paths.get("target/bfsc-0.2.2.jar").toAbsolutePath();
+        final Path jar = Path.of("target/bfsc-1.0.0.jar").toAbsolutePath();
         if (!Files.exists(jar)) {
             fail("Jar " + jar + " not found. Run 'mvn package' to build it.");
         }
@@ -108,7 +120,7 @@ class BucketFsClientExecutableJarIT {
         if (!success) {
             final String stdOut = readString(process.getInputStream());
             final String stdErr = readString(process.getErrorStream());
-            fail("Process did not finish within timeout of " + timeout + ". Std out: '" + stdOut + "'', std error: '"
+            fail("Process did not finish within timeout of " + timeout + ". Std out: '" + stdOut + "', std error: '"
                     + stdErr + "'");
         }
     }
@@ -127,6 +139,9 @@ class BucketFsClientExecutableJarIT {
 
     private String readString(final InputStream stream) {
         try {
+            if (stream.available() < 1) {
+                return "";
+            }
             return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (final IOException exception) {
             throw new UncheckedIOException(exception);

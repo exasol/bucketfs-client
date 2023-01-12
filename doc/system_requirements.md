@@ -53,11 +53,25 @@ Needs: req
 ### Copying Files
 `feat~copying-files~1`
 
-BFSC supports copying file from and to buckets in BucketFS.
+BFSC supports copying files from and to buckets in BucketFS.
 
 Rationale:
 
-This allows uploading UFDs, configuration and drivers or checking the contents of files on BucketFS.
+This allows uploading UFDs, configuration files and drivers, or checking the contents of files on BucketFS.
+
+Needs: req
+
+### Listing Contents
+`feat~listing-contents~1`
+
+BFSC supports listing the contents of a bucket in BucketFS.
+
+Needs: req
+
+### Deleting Files
+`feat~deleting-files~1`
+
+BFSC supports deleting files inside a bucket in BucketFS.
 
 Needs: req
 
@@ -72,21 +86,23 @@ To make BucketFS access similar to other file systems, BFSC introduces the conce
 
 A Bucket URL locates a resource inside a bucket with the following syntax:
 
-    bucket-url = protocol-identifier "://" bucketfs-service-name "/" bucket-name path-in-bucket
-    
-    protocol-identifier = "bfs"
-    
-    bucketfs-service-name = segment
-    
-    bucket-name = segment
-    
-    path-in-bucket = 1*("/" segment)
-    
-    segment = segment-start-character *segment-character
-    
-    segment-start-character = (ALPHA / DIGIT / "_")
-    
-    segment-character = (ALPHA / DIGIT / "-" / "_" / ".") 
+```bash
+bucket-url = protocol-identifier "://" bucketfs-service-name "/" bucket-name path-in-bucket
+
+protocol-identifier = "bfs"
+
+bucketfs-service-name = segment
+
+bucket-name = segment
+
+path-in-bucket = 1*("/" segment)
+
+segment = segment-start-character *segment-character
+
+segment-start-character = (ALPHA / DIGIT / "_")
+
+segment-character = (ALPHA / DIGIT / "-" / "_" / ".")
+```
 
 Covers:
 
@@ -101,7 +117,9 @@ Needs: dsn
 
 Users can copy a single file from BucketFS to local file storage with the following command:
 
-    bfs cp  <bfs-url> <local-path>
+```bash
+bfs cp  <bfs-url> <local-path>
+```
 
 Covers:
 
@@ -110,19 +128,43 @@ Covers:
 Needs: dsn
 
 #### Copy Single File to Bucket With Interactive Password
-`req~copy-single-file-to-bucket-with-interactive-password~1`
+`req~copy-single-file-to-bucket-with-interactive-password~2`
 
 Users can copy a single file from local file storage to a public bucket with the following command:
 
-    bfs cp --password <local-path> <bfs-url>
+```bash
+bfs cp <local-path> <bfs-url>
+```
 
 Comment:
 
-See also: [Interactive Password Entry](#interactive-password-entry)
+See also: [Password Protected Bucket Access](#interactive-password-entry)
 
 Covers:
 
 * [feat~copying-files~1](#copying-files)
+
+Needs: dsn
+
+### Listing Contents
+`req~list-contents-of-a-bucket~1`
+
+Users can list the contents of a bucket in BucketFS.
+
+Covers:
+
+* `feat~listing-contents~1`
+
+Needs: dsn
+
+### Deleting Files
+`req~delete-files~1`
+
+Users can delete files in a bucket in BucketFS.
+
+Covers:
+
+* `feat~deleting-files~1`
 
 Needs: dsn
 
@@ -147,21 +189,27 @@ Covers:
 
 Needs: dsn
 
-#### Interactive Password Entry
-`req~interactive-password-entry~1`
+#### Password Protected Bucket Access
+`req~password-protected-bucket-access~1`
 
-When the `--password` switch is set, BFSC brings up a password prompt where users have to enter the password interactively.
+For write operations like copying files to the BucketFS or deleting files from the BucketFS BFSC will retrieve the required write password. BFSC supports to read the password either from an [environment variable](#environment-variables-for-default-parameters) or from an interactive prompt hiding the characters typed by the user.
+
+Covers:
+* `feat~command-line-interface~1`
+
+Needs: dsn
+
+#### No Password on Command Line
+`req~no-command-line-option-for-password~1`
+
+BFSC does not enable users to supply the write password on the command line.
+
+Covers:
+* `feat~command-line-interface~1`
 
 Rationale:
 
 Passwords should never be supplied via the command line because they otherwise are logged in the command history. This is not the case with interactive input.
 
-Comment:
-
-If batch mode is required, the password must be taken from a key store. But this is outside of the scope of this requirement.
-
-Covers:
-
-* `feat~command-line-interface~1`
 
 Needs: dsn

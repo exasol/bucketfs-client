@@ -1,14 +1,20 @@
 package com.exasol.bucketfs.client;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import static com.exasol.bucketfs.profile.ProfileReader.CONFIG_FILE_PROPERTY;
+
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Wrapper for executing the BucketFsClient (BFSC) in integration tests.
+ * Executes the BucketFsClient (BFSC) in integration tests.
  */
 public class BFSC {
+
     private final String[] parameters;
-    private String in = null;
+    private Path configFile;
+    private final List<String> consoleInput = new ArrayList<>();
+    private int index = 0;
 
     /**
      * Create the wrapper with the given parameters.
@@ -20,43 +26,41 @@ public class BFSC {
         return new BFSC(parameters);
     }
 
-    /**
-     * Feed STDIN with a string.
-     *
-     * @param in string to be fed to STDIN
-     * @return {@code this} for fluent programming
-     */
-    public BFSC feedStdIn(final String in) {
-        this.in = in;
-        return this;
-    }
-
     private BFSC(final String[] parameters) {
         this.parameters = parameters;
     }
 
+    BFSC withConfigFile(final Path path) {
+        this.configFile = path;
+        return this;
+    }
+
+    /**
+     * Feed STDIN with a string.
+     *
+     * @param line simulate this line to be entered via interactive console input
+     * @return {@code this} for fluent programming
+     */
+    public BFSC feedStdIn(final String line) {
+        this.consoleInput.add(line);
+        return this;
+    }
+
+    private String simulateConsoleInput(final String prompt) {
+        ConsoleReaderWithFallbackToStdIn.showPrompt(prompt);
+        return this.index < this.consoleInput.size() //
+                ? this.consoleInput.get(this.index++)
+                : "";
+    }
+
     /**
      * Run the BucketFS client.
+     *
+     * @throws Exception
      */
     public void run() {
-        if (isStdInOverridden()) {
-            runWithOverriddenStdIn();
-        } else {
-            BucketFsClient.main(this.parameters);
-        }
-    }
-
-    private boolean isStdInOverridden() {
-        return this.in != null;
-    }
-
-    private void runWithOverriddenStdIn() {
-        final InputStream previousStdIn = System.in;
-        try {
-            System.setIn(new ByteArrayInputStream(this.in.getBytes()));
-            BucketFsClient.main(this.parameters);
-        } finally {
-            System.setIn(previousStdIn);
-        }
+        final String value = this.configFile != null ? this.configFile.toString() : "/non/existing/file";
+        System.setProperty(CONFIG_FILE_PROPERTY, value);
+        BucketFsClient.mainWithConsoleReader(this::simulateConsoleInput, this.parameters);
     }
 }

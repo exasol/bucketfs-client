@@ -2,4 +2,4 @@ error-tags:
   BFSC:
     packages:
       - com.exasol.bucketfs
-    highest-index: 4
+    highest-index: 14
