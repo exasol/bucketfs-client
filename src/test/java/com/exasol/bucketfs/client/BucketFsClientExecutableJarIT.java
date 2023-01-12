@@ -46,10 +46,10 @@ class BucketFsClientExecutableJarIT {
                 "Usage: bfsc [-r] [-pw] [-p=<profileName>] [COMMAND]", //
                 "Exasol BucketFS client", //
                 "  -p, --profile=<profileName>", //
-                "                           name of the profile to use", //
+                "                    name of the profile to use", //
                 "      -pw, --require-read-password", //
-                "                           whether BFSC should ask for a read password", //
-                "  -r, --recursive          recursive", //
+                "                    whether BFSC should ask for a read password", //
+                "  -r, --recursive   recursive", //
                 "Commands:", //
                 "  cp  Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY", //
                 "  ls  List contents of PATH", //
