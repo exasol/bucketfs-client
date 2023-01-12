@@ -1,10 +1,19 @@
-# bucketfs-client 1.0.0, released 2022-??-??
+# bucketfs-client 1.0.0, released 2023-01-12
 
 Code name: Added Missing Functionality
 
 ## Summary
 
-Added missing functionality to list and delete files in BucketFS and improved convenience.
+Added missing functionality and additional features:
+
+* Enabled to list buckets, files and directories inside a bucket or with a common path prefix.
+* Enabled to delete files and directories in buckets.
+* Added support for profiles in a configuration file.
+* Added option for recursive operations.
+* Added support for read password for private buckets.
+* Updated documentation and requirements.
+* Removed support to decode base64-encoded passwords.
+* Refactored URL conversion and password entry and tests and updated dependencies.
 
 ## Features
 
