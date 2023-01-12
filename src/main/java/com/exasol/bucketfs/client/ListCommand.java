@@ -2,7 +2,6 @@ package com.exasol.bucketfs.client;
 
 import java.net.URI;
 import java.net.http.HttpClient;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import com.exasol.bucketfs.http.HttpClientBuilder;
@@ -31,25 +30,28 @@ public class ListCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        final Profile profile = this.parent.getProfile();
-        final BucketFsUrl bucketFsurl = BucketFsUrl.from(Optional.ofNullable(this.uri), profile);
+        final BucketFsUrl bucketFsUrl = getBucketFsUrl(this.uri, this.parent.getProfile());
         final HttpClient client = new HttpClientBuilder().build();
-        final String protocol = bucketFsurl.isTlsEnabled() ? "https" : "http";
-        final String bucketName = bucketFsurl.getBucketName();
+        final String protocol = bucketFsUrl.isTlsEnabled() ? "https" : "http";
+        final String bucketName = bucketFsUrl.getBucketName();
         final ListingRetriever contentLister = new ListingRetriever(client);
 
         if (bucketName == null) {
-            new BucketService(publicReadUri(protocol, bucketFsurl, ""), contentLister) //
+            new BucketService(publicReadUri(protocol, bucketFsUrl, ""), contentLister) //
                     .retrieve() //
                     .forEach(this.parent::print);
         } else {
-            final String path = bucketFsurl.getPathInBucket();
+            final String path = bucketFsUrl.getPathInBucket();
             final String password = this.parent.readPassword();
-            new BucketContentLister(publicReadUri(protocol, bucketFsurl, bucketName), contentLister, password) //
+            new BucketContentLister(publicReadUri(protocol, bucketFsUrl, bucketName), contentLister, password) //
                     .retrieve(path, this.parent.isRecursive()) //
                     .forEach(this.parent::print);
         }
         return CommandLine.ExitCode.OK;
+    }
+
+    private BucketFsUrl getBucketFsUrl(final URI uri, final Profile profile) {
+        return uri != null ? BucketFsUrl.from(uri, profile) : BucketFsUrl.from(profile);
     }
 
     private URI publicReadUri(final String protocol, final BucketFsUrl url, final String suffix) {

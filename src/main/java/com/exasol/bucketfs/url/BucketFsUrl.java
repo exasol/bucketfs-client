@@ -3,7 +3,6 @@ package com.exasol.bucketfs.url;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Objects;
-import java.util.Optional;
 
 import com.exasol.bucketfs.Fallback;
 import com.exasol.bucketfs.client.BucketFsClientException;
@@ -37,16 +36,6 @@ public final class BucketFsUrl {
     private static final int DEFAULT_PORT = 2580;
 
     /**
-     * @param uri     {@code Optional<URI>}
-     * @param profile {@link Profile} with default values for specific parts of BucketFS URLs
-     * @return new instance of {@link BucketFsUrl}
-     */
-    public static BucketFsUrl from(final Optional<URI> uri, final Profile profile) {
-        return uri.isPresent() ? from(uri, profile)
-                : fromParametersOrProfile(null, null, UNDEFINED_PORT, new BucketFsPath(profile.bucket(), ""), profile);
-    }
-
-    /**
      * @param uri     URI to create the URL from
      * @param profile default values for specific parts of BucketFS URLs
      * @return new instance of {@link BucketFsUrl}
@@ -56,7 +45,7 @@ public final class BucketFsUrl {
     public static BucketFsUrl from(final URI uri, final Profile profile) {
         try {
             final BucketFsPath path = BucketFsPath.from(uri, profile.bucket());
-            return fromParametersOrProfile(uri.getScheme(), uri.getHost(), uri.getPort(), path, profile);
+            return from(uri.getScheme(), uri.getHost(), uri.getPort(), path, profile);
         } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-5") //
                     .message("Invalid BucketFS URL: {{url}}.", uri) //
@@ -67,7 +56,16 @@ public final class BucketFsUrl {
         }
     }
 
-    private static BucketFsUrl fromParametersOrProfile(final String protocol, final String host, final int port,
+    /**
+     * @param profile {@link Profile} with default values for specific parts of BucketFS URLs
+     * @return new instance of {@link BucketFsUrl} potentially with invalid {@link BucketFsPath}
+     */
+    public static BucketFsUrl from(final Profile profile) {
+        final BucketFsPath bucketFsPath = new BucketFsPath(profile.bucket(), "");
+        return from(null, null, UNDEFINED_PORT, bucketFsPath, profile);
+    }
+
+    private static BucketFsUrl from(final String protocol, final String host, final int port,
             final BucketFsPath bucketFsPath, final Profile profile) {
         return new BucketFsUrl( //
                 protocol, //
