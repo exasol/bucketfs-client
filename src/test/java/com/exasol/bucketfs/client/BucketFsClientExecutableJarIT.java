@@ -43,7 +43,7 @@ class BucketFsClientExecutableJarIT {
     void executableFailsWithoutArguments() throws Exception {
         assertProcessFails(run(), ExitCode.USAGE, equalTo(""), equalTo(lines(//
                 "Missing required subcommand", //
-                "Usage: bfsc [-dr] [-pw] [-p=<profileName>] [COMMAND]", //
+                "Usage: bfsc [-r] [-pw] [-p=<profileName>] [COMMAND]", //
                 "Exasol BucketFS client", //
                 "  -p, --profile=<profileName>", //
                 "                           name of the profile to use", //
