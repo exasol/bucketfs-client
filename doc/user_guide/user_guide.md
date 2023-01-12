@@ -103,7 +103,7 @@ BFSC will normally not ask for a read-password interactively.
 * This is also fine if the password is contained in your profile.
 * In case of accessing a private bucket without the read-password being contained in your profile you must add option `-pw` or `--require-read-password` to force BFSC to ask for the password via interactive prompt.
 
-### Retrieving the Password, Base64 Encoding
+### Retrieving the Password
 
 The passwords are usually stored in file `/exa/etc/EXAConf`:
 ```
@@ -111,7 +111,7 @@ WritePasswd = <value>
 ReadPasswd = <value>
 ```
 
-Please note that each `<value>` is base64-encoded.
+Please note that each of the passwords is base64-encoded. So before providing the passwords to BFSC please apply `echo <password> | base64 -d`.
 
 ### Configuration File
 
