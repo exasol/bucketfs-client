@@ -12,7 +12,8 @@ import static picocli.CommandLine.ExitCode.SOFTWARE;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import org.itsallcode.io.Capturable;
 import org.itsallcode.junit.sysextensions.*;
@@ -107,13 +108,6 @@ class UploadCommandIT {
         final String stdout = stream.getCapturedData();
         assertThat(stdout, containsString(PasswordReader.prompt("reading from")));
         assertThat(stdout, containsString(PasswordReader.prompt("writing to")));
-    }
-
-    @Test
-    void testUploadWithBase64EncodedPassword() throws Exception {
-        final BFSC client = createClient("cp", "-d") //
-                .feedStdIn(new String(Base64.getEncoder().encode(writePassword().getBytes())));
-        verifyUpload(client);
     }
 
     @Test

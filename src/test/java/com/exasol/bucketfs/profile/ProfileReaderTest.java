@@ -63,14 +63,12 @@ class ProfileReaderTest {
         final String bucket = "bucket-from-profile";
         final String readPassword = "read-password-from-profile";
         final String writePassword = "write-password-from-profile";
-        final String decode = "true";
         Files.writeString(file, lines("[default]", //
                 "host=" + host, //
                 "port=" + port, //
                 "bucket=" + bucket, //
                 "password.read=" + readPassword, //
-                "password.write=" + writePassword, //
-                "decode-base64=" + decode));
+                "password.write=" + writePassword));
         assertThat(testee(file).getProfile(), equalTo(new Profile( //
                 host, //
                 port, //

@@ -45,8 +45,6 @@ class BucketFsClientExecutableJarIT {
                 "Missing required subcommand", //
                 "Usage: bfsc [-dr] [-pw] [-p=<profileName>] [COMMAND]", //
                 "Exasol BucketFS client", //
-                "  -d, --decode-passwords   whether BFSC should apply base64 decoding to", //
-                "                             passwords", //
                 "  -p, --profile=<profileName>", //
                 "                           name of the profile to use", //
                 "      -pw, --require-read-password", //
