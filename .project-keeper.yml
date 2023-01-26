@@ -4,3 +4,4 @@ sources:
     modules:
       - integration_tests
       - jar_artifact
+      - native_image

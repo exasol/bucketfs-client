@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>bucketfs-client-generated-parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>pom</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -11,6 +11,24 @@
         <java.version>11</java.version>
         <test.excludeTags/>
     </properties>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <native-image.skip>false</native-image.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>skipNativeImage</id>
+            <properties>
+                <native-image.skip>true</native-image.skip>
+                <test.excludeTags>native-image</test.excludeTags>
+            </properties>
+        </profile>
+    </profiles>
     <licenses>
         <license>
             <name>MIT License</name>
@@ -180,6 +198,24 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.graalvm.nativeimage</groupId>
+                <artifactId>native-image-maven-plugin</artifactId>
+                <version>21.2.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>native-image</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>${native-image.skip}</skip>
+                    <imageName>${project.artifactId}</imageName>
+                    <buildArgs>--no-fallback -H:ReflectionConfigurationFiles=${project.basedir}/src/main/reflect-config.json</buildArgs>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
