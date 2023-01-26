@@ -4,6 +4,8 @@ Code name: Added native image
 
 ## Summary
 
+Enhanced build scripts to build native images of BFSC for various operating systems.
+
 ## Features
 
 * #10: Added build of native images
