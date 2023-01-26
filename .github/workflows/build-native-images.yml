@@ -33,7 +33,8 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Run tests for native image builds
         run: |
-          mvn --batch-mode --update-snapshots clean verify --file pom.xml \
+          mvn --batch-mode clean test \
+              -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
               -DtrimStackTrace=false \
               -P native-image \
               -Dtest=NativeImageTest
