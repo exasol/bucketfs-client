@@ -26,8 +26,6 @@ jobs:
           java-version: '11'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: check docker availability
-        run: docker --version
       - name: Enable testcontainer reuse
         run: echo 'testcontainers.reuse.enable=true' > "$HOME/.testcontainers.properties"
       - name: Cache local Maven repository
