@@ -25,7 +25,3 @@ Enhanced build scripts to build native images of BFSC for various operating syst
 * Updated `org.junit.jupiter:junit-jupiter-engine:5.9.1` to `5.9.2`
 * Updated `org.junit.jupiter:junit-jupiter-params:5.9.1` to `5.9.2`
 * Updated `org.mockito:mockito-junit-jupiter:4.9.0` to `5.0.0`
-
-### Plugin Dependency Updates
-
-* Added `org.graalvm.nativeimage:native-image-maven-plugin:21.2.0`

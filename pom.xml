@@ -8,6 +8,20 @@
         <junit.version>5.9.2</junit.version>
         <picocli.version>4.7.0</picocli.version>
     </properties>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <test.excludeTags>native-image</test.excludeTags>
+            </properties>
+        </profile>
+        <profile>
+            <id>native-image</id>
+        </profile>
+    </profiles>
     <dependencies>
         <dependency>
             <groupId>com.exasol</groupId>

@@ -4,6 +4,3 @@ sources:
     modules:
       - integration_tests
       - jar_artifact
-      - native_image
-excludes:
-  - "E-PK-CORE-18: Outdated content: '.github/workflows/ci-build-next-java.yml'"
