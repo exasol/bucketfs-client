@@ -57,9 +57,10 @@ class BucketFsClientExecutableJarIT {
         final Path sourceFile = tempDir.resolve(filename);
         Files.writeString(sourceFile, "content");
         final String destination = getDefaultBucketUriToFile(filename);
-        final JarExecutor executor = new JarExecutor().run("cp", sourceFile.toString(), destination) //
+        final JarExecutor executor = new JarExecutor() //
+                .run("cp", "--profile", "xxx", sourceFile.toString(), destination) //
                 .feedStdIn("wrong password");
-        assertProcessFails(executor, ExitCode.SOFTWARE, equalTo(""),
+        assertProcessFails(executor, ExitCode.SOFTWARE, equalTo("Password for writing to BucketFS: "),
                 startsWith("E-BFSJ-3: Access denied trying to upload "));
     }
 
@@ -69,9 +70,9 @@ class BucketFsClientExecutableJarIT {
         final String destination = getDefaultBucketUriToFile(sourceFile.toString());
         final String password = EXASOL.getClusterConfiguration().getDefaultBucketWritePassword();
         final JarExecutor executor = new JarExecutor() //
-                .run("cp", sourceFile.toString(), destination) //
+                .run("cp", "--profile", "xxx", sourceFile.toString(), destination) //
                 .feedStdIn(password);
-        assertProcessFails(executor, ExitCode.SOFTWARE, equalTo(""),
+        assertProcessFails(executor, ExitCode.SOFTWARE, equalTo("Password for writing to BucketFS: "),
                 equalTo(lines("E-BFSC-2: Unable to upload. No such file or directory: 'non-existing-file'.", "")));
     }
 
