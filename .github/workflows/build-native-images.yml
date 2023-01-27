@@ -43,7 +43,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: executable-${{ matrix.os }}
-          path: |
-            target/${{ github.event.repository.name }}
-            target/${{ github.event.repository.name }}.exe
+          path: target/bfsc-*
           if-no-files-found: error
