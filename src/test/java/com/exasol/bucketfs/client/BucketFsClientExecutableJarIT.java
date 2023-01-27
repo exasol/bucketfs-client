@@ -18,7 +18,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.exasol.bucketfs.JarExecutor;
+import com.exasol.bucketfs.ProcessExecutor;
 import com.exasol.containers.ExasolContainer;
 import com.exasol.containers.ExasolService;
 
@@ -32,7 +32,7 @@ class BucketFsClientExecutableJarIT {
 
     @Test
     void executableFailsWithoutArguments() throws Exception {
-        final JarExecutor executor = new JarExecutor().run();
+        final ProcessExecutor executor = ProcessExecutor.currentJar().run();
         assertProcessFails(executor, ExitCode.USAGE, equalTo(""), equalTo(lines(//
                 "Missing required subcommand", //
                 "Usage: bfsc [-hrV] [-pw] [-p=<profileName>] [COMMAND]", //
@@ -57,7 +57,7 @@ class BucketFsClientExecutableJarIT {
         final Path sourceFile = tempDir.resolve(filename);
         Files.writeString(sourceFile, "content");
         final String destination = getDefaultBucketUriToFile(filename);
-        final JarExecutor executor = new JarExecutor() //
+        final ProcessExecutor executor = ProcessExecutor.currentJar() //
                 .run("cp", "--profile", "xxx", sourceFile.toString(), destination) //
                 .feedStdIn("wrong password");
         assertProcessFails(executor, ExitCode.SOFTWARE, equalTo("Password for writing to BucketFS: "),
@@ -69,7 +69,7 @@ class BucketFsClientExecutableJarIT {
         final Path sourceFile = Path.of("non-existing-file");
         final String destination = getDefaultBucketUriToFile(sourceFile.toString());
         final String password = EXASOL.getClusterConfiguration().getDefaultBucketWritePassword();
-        final JarExecutor executor = new JarExecutor() //
+        final ProcessExecutor executor = ProcessExecutor.currentJar() //
                 .run("cp", "--profile", "xxx", sourceFile.toString(), destination) //
                 .feedStdIn(password);
         assertProcessFails(executor, ExitCode.SOFTWARE, equalTo("Password for writing to BucketFS: "),
@@ -85,7 +85,7 @@ class BucketFsClientExecutableJarIT {
                 + bucketName + "/" + pathInBucket;
     }
 
-    private void assertProcessFails(final JarExecutor executor, final int expectedExitCode,
+    private void assertProcessFails(final ProcessExecutor executor, final int expectedExitCode,
             final Matcher<String> expectedStdOut, final Matcher<String> expectedStdErr)
             throws InterruptedException, IOException {
         executor.assertProcessFinishes();

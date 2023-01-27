@@ -14,36 +14,56 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 /**
- * Helps to execute the BucketFS Client's Jar in integration tests or tests for native images.
+ * Helps to execute the BucketFS Client's Jar in integration tests or to run native images.
  */
-public class JarExecutor {
-    private static final Logger LOGGER = Logger.getLogger(JarExecutor.class.getName());
-
-    private Process process;
-    private final Duration timeout = Duration.ofSeconds(5);
+public class ProcessExecutor {
 
     /**
-     * Execute jar file in a sub process. Jar must be built before into directory {@code target}.
+     * Create a {@link ProcessExecutor} for the jar built by for the current projects. The Jar file must be built before
+     * into directory {@code target}.
      *
-     * @param args command line arguments for executing the jar file
-     * @return this for fluent programming
-     * @throws IOException          in case of errors
-     * @throws InterruptedException in case process was interrupted
+     * @return new instance of {@link ProcessExecutor}
      */
-    public JarExecutor run(final String... args) throws IOException, InterruptedException {
-        final Path jar = getJarFile();
-        final List<String> commandLine = new ArrayList<>(List.of("java", "-jar", jar.toString()));
-        commandLine.addAll(asList(args));
-        this.process = new ProcessBuilder(commandLine).redirectErrorStream(false).start();
-        return this;
+    public static ProcessExecutor currentJar() {
+        return new ProcessExecutor("java", "-jar", getJarFile().toString());
     }
 
-    private Path getJarFile() {
+    private static Path getJarFile() {
         final Path jar = Path.of("target/bfsc-1.1.0.jar").toAbsolutePath();
         if (!Files.exists(jar)) {
             fail("Jar " + jar + " not found. Run 'mvn package' to build it.");
         }
         return jar;
+    }
+
+    private static final Logger LOGGER = Logger.getLogger(ProcessExecutor.class.getName());
+
+    private final String[] initialArgs;
+    private Process process;
+    private final Duration timeout = Duration.ofSeconds(5);
+
+    /**
+     * Create a new instance of {@link ProcessExecutor}.
+     *
+     * @param initialArgs initial arguments to run the current executable
+     */
+    public ProcessExecutor(final String... initialArgs) {
+        this.initialArgs = initialArgs;
+    }
+
+    /**
+     * Execute sub process defined by this {@link ProcessExecutor}.
+     *
+     * @param args additional command line arguments for execution
+     * @return this for fluent programming
+     * @throws IOException          in case of errors
+     * @throws InterruptedException in case process was interrupted
+     */
+    public ProcessExecutor run(final String... args) throws IOException, InterruptedException {
+        final List<String> commandLine = new ArrayList<>(asList(this.initialArgs));
+        commandLine.addAll(asList(args));
+        this.process = new ProcessBuilder(commandLine).redirectErrorStream(false).start();
+        return this;
     }
 
     /**
@@ -85,7 +105,7 @@ public class JarExecutor {
      * @return this for fluent programming
      * @throws IOException in case of an error
      */
-    public JarExecutor feedStdIn(final String value) throws IOException {
+    public ProcessExecutor feedStdIn(final String value) throws IOException {
         LOGGER.fine("Writing value to stdin");
         try (final BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(this.process.getOutputStream(), StandardCharsets.UTF_8))) {

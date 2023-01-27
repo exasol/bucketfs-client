@@ -14,10 +14,11 @@ jobs:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
         include:
           - os: macos-latest
-            suffix: -mac-x86
+            binary: bfsc
           - os: windows-latest
+            binary: bfsc.exe
           - os: ubuntu-latest
-            suffix: -linux-x86
+            binary: bfsc
     concurrency:
       group: ${{ github.workflow }}-${{ matrix.os }}-${{ github.ref }}
       cancel-in-progress: true
@@ -41,13 +42,13 @@ jobs:
       - name: Run tests for native image builds
         run: |
           mvn --batch-mode clean package "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -DtrimStackTrace=false -DskipTests "-Dmaven.test.skip=true" "-Dproject-keeper.skip=true" "-Dossindex.skip=true" "-Dmaven.javadoc.skip=true" "-Djacoco.skip=true" "-Dreproducible.skip=true"
-          native-image -jar target/*.jar target/bfsc${{ matrix.suffix }}
-          mvn test -D"native.binary=bin-${{ matrix.os }}" -D"org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -DtrimStackTrace=false -P native-image -Dtest=NativeImageTest
+          native-image -jar target/*.jar target/bin/bfsc
+          mvn test -D"native.binary=target/${{ matrix.binary }}" -D"org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -DtrimStackTrace=false -P native-image -Dtest=NativeImageTest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload binary
         uses: actions/upload-artifact@v3
         with:
-          name: bfsc${{ matrix.suffix }} # name of zip file
-          path: target/bfsc${{ matrix.suffix }}
+          name: ${{ matrix.os }} # name of zip file
+          path: target/bin/${{ matrix.binary }}
           if-no-files-found: error

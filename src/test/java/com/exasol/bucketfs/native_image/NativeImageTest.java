@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import com.exasol.bucketfs.JarExecutor;
+import com.exasol.bucketfs.ProcessExecutor;
 
 @Tag("native-image")
 class NativeImageTest {
@@ -18,8 +18,9 @@ class NativeImageTest {
 
     @Test
     void testNativeImage() throws IOException, InterruptedException {
-        LOGGER.fine("System property native.binary=" + System.getProperty("native.binary"));
-        final JarExecutor executor = new JarExecutor().run("--help");
+        final String binary = System.getProperty("native.binary");
+        LOGGER.fine("System property native.binary=" + binary);
+        final ProcessExecutor executor = new ProcessExecutor(binary).run("--help");
         executor.assertProcessFinishes();
         assertThat(executor.getStdOut(), startsWith("Usage: "));
     }
