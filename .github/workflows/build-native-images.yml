@@ -24,6 +24,7 @@ jobs:
           java-version: '11'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: 'true'
       - name: Cache local Maven repository
         uses: actions/cache@v3
         with:
@@ -34,12 +35,15 @@ jobs:
       - name: Run tests for native image builds
         run: |
           mvn --batch-mode clean package "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -DtrimStackTrace=false -DskipTests "-Dmaven.test.skip=true" "-Dproject-keeper.skip=true" "-Dossindex.skip=true" "-Dmaven.javadoc.skip=true" "-Djacoco.skip=true" "-Dreproducible.skip=true"
+          native-image --verbose -jar target/*.jar
           mvn test -D"native.binary=executable-${{ matrix.os }}" -D"org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -DtrimStackTrace=false -P native-image -Dtest=NativeImageTest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Upload binary
         uses: actions/upload-artifact@v3
         with:
           name: executable-${{ matrix.os }}
-          path: target/${{ github.event.repository.name }}
+          path: |
+            target/${{ github.event.repository.name }}
+            target/${{ github.event.repository.name }}.exe
+          if-no-files-found: error
