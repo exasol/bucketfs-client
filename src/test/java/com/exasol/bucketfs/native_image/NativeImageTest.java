@@ -19,7 +19,6 @@ class NativeImageTest {
     @Test
     void testNativeImage() throws IOException, InterruptedException {
         final String binary = System.getProperty("native.binary");
-        LOGGER.fine("System property native.binary=" + binary);
         final ProcessExecutor executor = new ProcessExecutor(binary).run("--help");
         executor.assertProcessFinishes();
         assertThat(executor.getStdOut(), startsWith("Usage: "));
