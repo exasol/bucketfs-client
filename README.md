@@ -37,4 +37,3 @@ Requirement, design documents and coverage tags are written in [OpenFastTrace](h
 * [System Requirement Specification](doc/system_requirements.md)
 * [Design](doc/design.md)
 * [Dependencies](dependencies.md)
-* [Developers guide for native-image projects](https://github.com/exasol/project-keeper/blob/main/doc/developers_guide/preparing_a_project_for_native_image_builds.md)

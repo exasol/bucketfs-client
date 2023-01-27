@@ -1,10 +1,10 @@
-# Bucketfs Client 1.1.0, released 2023-??-??
+# Bucketfs Client 1.1.0, released 2023-01-27
 
 Code name: Added native image
 
 ## Summary
 
-Enhanced build scripts to build native images of BFSC for various operating systems.
+Enhanced build scripts to build native images of BFSC for x86 CPU with OS Ubuntu Linux, Mac and Windows.
 
 ## Features
 
