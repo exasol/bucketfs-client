@@ -15,11 +15,11 @@ jobs:
         binary: [""]
         include:
           - os: macos-latest
-            binary: "bfsc-mac-x86"
+            binary: bfsc-mac-x86
           - os: windows-latest
-            binary: "bfsc-win-x86"
+            binary: bfsc-win-x86
           - os: ubuntu-latest
-            binary: "bfsc-linux-x86"
+            binary: bfsc-linux-x86
     concurrency:
       group: ${{ github.workflow }}-${{ matrix.os }}-${{ github.ref }}
       cancel-in-progress: true
