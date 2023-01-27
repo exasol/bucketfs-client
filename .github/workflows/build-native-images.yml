@@ -33,18 +33,8 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Run tests for native image builds
         run: |
-          mvn --batch-mode clean package \
-              -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-              -DtrimStackTrace=false \
-              -DskipTests -Dmaven.test.skip=true -Dproject-keeper.skip=true \
-              -Dossindex.skip=true -Dmaven.javadoc.skip=true \
-              -Djacoco.skip=true -Dreproducible.skip=true \
-              -Dproject-keeper.skip=true
-          mvn test \
-              -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-              -DtrimStackTrace=false \
-              -P native-image \
-              -Dtest=NativeImageTest
+          mvn --batch-mode clean package -D"org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -DtrimStackTrace=false -DskipTests -Dmaven.test.skip=true -Dproject-keeper.skip=true -Dossindex.skip=true -Dmaven.javadoc.skip=true -Djacoco.skip=true -Dreproducible.skip=true -Dproject-keeper.skip=true
+          mvn test -D"org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -DtrimStackTrace=false -P native-image -Dtest=NativeImageTest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
