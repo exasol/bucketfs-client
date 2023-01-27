@@ -11,7 +11,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
+        os: [""]
+        binary: [""]
+        include:
+          - os: macos-latest
+            binary: "bfsc-mac-x86"
+          - os: windows-latest
+            binary: "bfsc-win-x86"
+          - os: ubuntu-latest
+            binary: "bfsc-linux-x86"
     concurrency:
       group: ${{ github.workflow }}-${{ matrix.os }}-${{ github.ref }}
       cancel-in-progress: true
@@ -35,13 +43,13 @@ jobs:
       - name: Run tests for native image builds
         run: |
           mvn --batch-mode clean package "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -DtrimStackTrace=false -DskipTests "-Dmaven.test.skip=true" "-Dproject-keeper.skip=true" "-Dossindex.skip=true" "-Dmaven.javadoc.skip=true" "-Djacoco.skip=true" "-Dreproducible.skip=true"
-          native-image --verbose -jar target/*.jar
-          mvn test -D"native.binary=executable-${{ matrix.os }}" -D"org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -DtrimStackTrace=false -P native-image -Dtest=NativeImageTest
+          native-image --verbose -jar target/*.jar target/${{ matrix.binary }}
+          mvn test -D"native.binary=${{ matrix.binary }}" -D"org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -DtrimStackTrace=false -P native-image -Dtest=NativeImageTest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload binary
         uses: actions/upload-artifact@v3
         with:
-          name: executable-${{ matrix.os }}
-          path: target/bfsc-*
+          name: ${{ matrix.binary }}
+          path: target/${{ matrix.binary }}
           if-no-files-found: error
