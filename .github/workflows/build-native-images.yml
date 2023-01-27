@@ -18,7 +18,7 @@ jobs:
           - os: windows-latest
             suffix: .exe
           - os: ubuntu-latest
-            suffix: -mac-x86
+            suffix: -linux-x86
     concurrency:
       group: ${{ github.workflow }}-${{ matrix.os }}-${{ github.ref }}
       cancel-in-progress: true
