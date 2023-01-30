@@ -38,31 +38,37 @@ jobs:
           mvn --batch-mode clean verify -DskipTests
           native-image -jar target/*.jar target/${{ matrix.binary }}
 
-      - name: Generate sha256 checksum files on Windows
+      - name: Generate sha256 checksum file on Windows
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
           cd target
           powershell "\$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8' ; (Get-FileHash ${{ matrix.binary }}.exe -Algorithm SHA256).Hash.ToLower() > ${{ matrix.binary }}.exe.sha256"
-      - name: Generate sha256 checksum files on Ubuntu and MacOS
-        if: ${{ matrix.os != 'windows-latest' }}
+      - name: Generate sha256 checksum file on MacOS
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          cd target
+          bash -c shasum -a 256 ${{ matrix.binary }} > ${{ matrix.binary }}.sha256
+      - name: Generate sha256 checksum files on Ubuntu
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           cd target
           bash -c sha256sum ${{ matrix.binary }} > ${{ matrix.binary }}.sha256
           file=$(basename -- bfsc-*.jar)
           bash -c sha256sum $file > $file.sha256
+
       - name: Upload native executable and sha256 checksum file
         uses: shogo82148/actions-upload-release-asset@v1
         with:
           upload_url: ${{ github.event.inputs.upload_url }}
           asset_path: target/${{ matrix.binary }}*
       - name: Upload jar and sha256 checksum file
-        if: ${{ matrix.os != 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: shogo82148/actions-upload-release-asset@v1
         with:
           upload_url: ${{ github.event.inputs.upload_url }}
           asset_path: target/*.jar*
       - name: Upload error-code-report
-        if: ${{ matrix.os != 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: shogo82148/actions-upload-release-asset@v1
         with:
           upload_url: ${{ github.event.inputs.upload_url }}
