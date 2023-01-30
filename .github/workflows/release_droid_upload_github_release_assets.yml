@@ -35,7 +35,7 @@ jobs:
           native-image-job-reports: 'true'
       - name: Build with Maven skipping tests
         run: |
-          mvn --batch-mode clean verify -DskipTests "-Dproject-keeper.skip=true"
+          mvn --batch-mode clean verify -DskipTests
           native-image -jar target/*.jar target/${{ matrix.binary }}
 
       - name: Generate sha256 checksum files on Windows
