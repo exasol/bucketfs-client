@@ -1,4 +1,4 @@
-# Bucketfs Client 1.1.0, released 2023-01-27
+# Bucketfs Client 1.1.0, released 2023-01-31
 
 Code name: Added native executables
 
