@@ -6,7 +6,6 @@ Code name: Display Version Information
 
 Enabled BFSC to display its own version and updated User Guide to mention native executables instead of `java -jar`.
 
-
 ## Features
 
 * #23: Enabled BFSC to display its own version
