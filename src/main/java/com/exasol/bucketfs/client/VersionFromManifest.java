@@ -10,7 +10,7 @@ import picocli.CommandLine.IVersionProvider;
 public class VersionFromManifest implements IVersionProvider {
 
     @SuppressWarnings("java:S1075") // this is not a URL, but the path of a resource in BFSC's jar file
-    private static final String DEFAULT_MANIFEST_PATH = "/META-INF/MANIFEST.MF";
+    static final String DEFAULT_MANIFEST_PATH = "/META-INF/MANIFEST.MF";
     private static final String VERSION_ATTRIBUTE = "Implementation-Version";
     private final String resourcePath;
 
@@ -36,5 +36,9 @@ public class VersionFromManifest implements IVersionProvider {
             final Attributes attributes = manifest.getMainAttributes();
             return attributes.getValue(VERSION_ATTRIBUTE);
         }
+    }
+
+    String getResourcePath() {
+        return this.resourcePath;
     }
 }

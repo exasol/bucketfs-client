@@ -15,7 +15,13 @@ class VersionFromManifestTest {
 
     @Test
     void testNoManifest() throws Exception {
-        final VersionFromManifest testee = new VersionFromManifest();
+        final VersionFromManifest testee = new VersionFromManifest("/non-existing-file");
         assertNull(testee.getVersion()[0]);
+    }
+
+    @Test
+    void testDefaultConstructor() throws Exception {
+        final VersionFromManifest testee = new VersionFromManifest();
+        assertThat(testee.getResourcePath(), equalTo(VersionFromManifest.DEFAULT_MANIFEST_PATH));
     }
 }
