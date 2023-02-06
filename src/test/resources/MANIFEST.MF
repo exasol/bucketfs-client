@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Created-By: Maven Archiver 3.6.0
+Build-Jdk-Spec: 11
+Implementation-Version: 9.8.7
+Main-Class: com.exasol.bucketfs.client.BucketFsClient

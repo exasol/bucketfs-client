@@ -29,7 +29,7 @@ public class ProcessExecutor {
     }
 
     private static Path getJarFile() {
-        final Path jar = Path.of("target/bfsc-1.1.0.jar").toAbsolutePath();
+        final Path jar = Path.of("target/bfsc-1.1.1.jar").toAbsolutePath();
         if (!Files.exists(jar)) {
             fail("Jar " + jar + " not found. Run 'mvn package' to build it.");
         }

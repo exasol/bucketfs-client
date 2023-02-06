@@ -15,38 +15,14 @@ The most common use case for BucketFS is storing files on it that UDFs need:
 * Configuration files
 * Immutable lookup tables
 
-## Prerequisites
-
-To run the BucketFS Client, you need Java 11 or later.
-
-Installation depends on your operating system.
-
-* Any operating system: [Adoptium OpenJDK build](https://adoptium.net/)
-* Linux
-    * Ubuntu, Debian:
-      ```shell
-      sudo apt install openjdk-11-jre-headless
-      ```
-    * RedHat
-      ```shell
-      sudo yum install java-11-openjdk
-      ```
-    * SuSE: [OpenJDK build of the Leap project](https://software.opensuse.org/download/package?package=java-11-openjdk&project=openSUSE%3ALeap%3A15.1%3AUpdate)
-
 ## Using the Client
 
-The client is a Java program.
+The client is implemented in Java and provides native executables for x86 CPU with operating system Ubuntu Linux, Mac, or Windows.
 
-The purist way of starting that is of course starting the application straight out of the JAR archive.
-
-```shell
-java -jar "<path-to-bfsc-jar>" <command> <option> ...
-```
-
-Since this gets a little bit unwieldy very quickly, you should set an alias:
+To make BFSC really handy you can either rename the binary or set an alias
 
 ```shell
-alias bfsc='java -jar <path-to-bfsc-jar>'
+alias bfsc='bfsc-linux_x86'
 ```
 
 ### Sub-commands and Command Line Options

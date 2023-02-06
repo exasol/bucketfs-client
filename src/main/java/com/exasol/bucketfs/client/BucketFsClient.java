@@ -18,6 +18,7 @@ import picocli.CommandLine.Model.CommandSpec;
         name = "bfsc", //
         mixinStandardHelpOptions = true, //
         description = "Exasol BucketFS client", //
+        versionProvider = VersionFromManifest.class, //
         subcommands = { CopyCommand.class, ListCommand.class, DeleteCommand.class })
 public class BucketFsClient implements Callable<Integer> {
     @Spec
