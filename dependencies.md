@@ -83,7 +83,7 @@
 [30]: https://www.mojohaus.org/flatten-maven-plugin/
 [31]: https://sonatype.github.io/ossindex-maven/maven-plugin/
 [32]: https://maven.apache.org/surefire/maven-surefire-plugin/
-[33]: https://www.mojohaus.org/versions-maven-plugin/
+[33]: https://www.mojohaus.org/versions/versions-maven-plugin/
 [34]: https://maven.apache.org/plugins/maven-assembly-plugin/
 [35]: https://maven.apache.org/plugins/maven-jar-plugin/
 [36]: https://github.com/exasol/artifact-reference-checker-maven-plugin/
