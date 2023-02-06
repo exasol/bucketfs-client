@@ -25,6 +25,36 @@ To make BFSC really handy you can either rename the binary or set an alias
 alias bfsc='bfsc-linux_x86'
 ```
 
+### Running the JAR File
+
+Besides executing the binaries you can also download BFSC's JAR file and let a Java VM execute it.
+
+For that you need Java 11 or later, the installation procedure depends on your operating system.
+
+* Any operating system: [Adoptium OpenJDK build](https://adoptium.net/)
+* Linux
+    * Ubuntu, Debian:
+      ```shell
+      sudo apt install openjdk-11-jre-headless
+      ```
+    * RedHat
+      ```shell
+      sudo yum install java-11-openjdk
+      ```
+    * SuSE: [OpenJDK build of the Leap project](https://software.opensuse.org/download/package?package=java-11-openjdk&project=openSUSE%3ALeap%3A15.1%3AUpdate)
+
+As soon as Java 11 is available you can run BFSC's JAR file the following command:
+
+```shell
+java -jar "<path-to-bfsc-jar>" <command> <option> ...
+```
+
+An alias in your shell is even more useful here:
+
+```shell
+alias bfsc='java -jar <path-to-bfsc-jar>'
+```
+
 ### Sub-commands and Command Line Options
 
 Sub-commands control the action that BFSC is taking. For each type of action there is a sub-command. The way to use this is:
