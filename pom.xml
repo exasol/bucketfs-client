@@ -2,6 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bucketfs-client</artifactId>
+    <version>1.1.1</version>
     <description>Command line client for BucketFS</description>
     <url>https://github.com/exasol/bucketfs-client/</url>
     <properties>
@@ -126,7 +127,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>2.9.1</version>
+                <version>2.9.3</version>
                 <executions>
                     <execution>
                         <goals>
@@ -159,6 +160,7 @@
                     <archive>
                         <manifest>
                             <mainClass>com.exasol.bucketfs.client.BucketFsClient</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
                 </configuration>
@@ -168,7 +170,7 @@
     <parent>
         <artifactId>bucketfs-client-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>

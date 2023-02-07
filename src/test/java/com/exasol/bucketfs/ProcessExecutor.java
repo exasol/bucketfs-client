@@ -18,6 +18,9 @@ import java.util.logging.Logger;
  */
 public class ProcessExecutor {
 
+    /** Name of the JAR file */
+    public static String JAR_NAME = "bfsc-1.1.1.jar";
+
     /**
      * Create a {@link ProcessExecutor} for the jar built by for the current projects. The Jar file must be built before
      * into directory {@code target}.
@@ -29,7 +32,7 @@ public class ProcessExecutor {
     }
 
     private static Path getJarFile() {
-        final Path jar = Path.of("target/bfsc-1.1.0.jar").toAbsolutePath();
+        final Path jar = Path.of("target").resolve(JAR_NAME).toAbsolutePath();
         if (!Files.exists(jar)) {
             fail("Jar " + jar + " not found. Run 'mvn package' to build it.");
         }
@@ -121,5 +124,12 @@ public class ProcessExecutor {
             fail("Process did not finish within timeout of " + this.timeout + ". Std out: '" + getStdOut()
                     + "', std error: '" + getStdErr() + "'");
         }
+    }
+
+    /**
+     * @return version number part of JAR file
+     */
+    public String getJarVersion() {
+        return JAR_NAME.replaceAll(".*([0-9]+\\.[0-9]+\\.[0-9]+).*", "$1");
     }
 }

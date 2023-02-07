@@ -33,7 +33,7 @@ class BucketFsClientExecutableJarIT {
     @Test
     void executableFailsWithoutArguments() throws Exception {
         final ProcessExecutor executor = ProcessExecutor.currentJar().run();
-        assertProcessFails(executor, ExitCode.USAGE, equalTo(""), equalTo(lines(//
+        assertResult(executor, ExitCode.USAGE, equalTo(""), equalTo(lines(//
                 "Missing required subcommand", //
                 "Usage: bfsc [-hrV] [-pw] [-p=<profileName>] [COMMAND]", //
                 "Exasol BucketFS client", //
@@ -60,7 +60,7 @@ class BucketFsClientExecutableJarIT {
         final ProcessExecutor executor = ProcessExecutor.currentJar() //
                 .run("cp", "--profile", "xxx", sourceFile.toString(), destination) //
                 .feedStdIn("wrong password");
-        assertProcessFails(executor, ExitCode.SOFTWARE, equalTo("Password for writing to BucketFS: "),
+        assertResult(executor, ExitCode.SOFTWARE, equalTo("Password for writing to BucketFS: "),
                 startsWith("E-BFSJ-3: Access denied trying to upload "));
     }
 
@@ -72,8 +72,14 @@ class BucketFsClientExecutableJarIT {
         final ProcessExecutor executor = ProcessExecutor.currentJar() //
                 .run("cp", "--profile", "xxx", sourceFile.toString(), destination) //
                 .feedStdIn(password);
-        assertProcessFails(executor, ExitCode.SOFTWARE, equalTo("Password for writing to BucketFS: "),
+        assertResult(executor, ExitCode.SOFTWARE, equalTo("Password for writing to BucketFS: "),
                 equalTo(lines("E-BFSC-2: Unable to upload. No such file or directory: 'non-existing-file'.", "")));
+    }
+
+    @Test
+    void testVersion() throws Exception {
+        final ProcessExecutor executor = ProcessExecutor.currentJar().run("--version");
+        assertResult(executor, ExitCode.OK, equalTo(lines(executor.getJarVersion(), "")), equalTo(""));
     }
 
     private String getDefaultBucketUriToFile(final String filename) {
@@ -85,7 +91,7 @@ class BucketFsClientExecutableJarIT {
                 + bucketName + "/" + pathInBucket;
     }
 
-    private void assertProcessFails(final ProcessExecutor executor, final int expectedExitCode,
+    private void assertResult(final ProcessExecutor executor, final int expectedExitCode,
             final Matcher<String> expectedStdOut, final Matcher<String> expectedStdErr)
             throws InterruptedException, IOException {
         executor.assertProcessFinishes();
