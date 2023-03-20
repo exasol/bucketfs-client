@@ -31,7 +31,7 @@ Each workflow uses a matrix strategy containing the platforms the native executa
 ```yaml
 strategy:
   matrix:
-    os: [ macos-latest, windows-latest, ubuntu-latest ]
+    os: [ windows-latest, ubuntu-latest ]
 ```
 
 The name of each of the elements of the matrix is used to define the execution platform for the GitHub runner:
@@ -44,8 +44,6 @@ Using the `include` directive the workflow script defines an additional property
 
 ```yaml
 include:
-  - os: macos-latest
-    binary: bfsc
   - os: windows-latest
     binary: bfsc.exe
   - os: ubuntu-latest

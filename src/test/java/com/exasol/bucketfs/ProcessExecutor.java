@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class ProcessExecutor {
 
     /** Name of the JAR file */
-    public static String JAR_NAME = "bfsc-1.1.1.jar";
+    public static String JAR_NAME = "bfsc-1.1.2.jar";
 
     /**
      * Create a {@link ProcessExecutor} for the jar built by for the current projects. The Jar file must be built before
