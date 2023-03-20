@@ -23,7 +23,7 @@ Platforms
 | Platform | Available?   | Notes |
 |----------|--------------|-------|
 | Linux    | &#x2705; yes | Built using GitHub hosted runner [latest_ubuntu](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources). For release 1.1.2 this is Ubuntu 22.04 with glibc 2.32. |
-| Windows  | &#x2705; yes | When downloading the native executable some browsers may display a warning about security risks imposed by downloading unsined binaries. |
+| Windows  | &#x2705; yes | When downloading the native executable some browsers may display a warning about security risks imposed by downloading unsigned binaries. |
 | macOS    | &#x274c; no  | Latest macOS Ventura (e.g. version 13.2.1) refuses to execute unsigned binaries. |
 
 Signed binaries for Windows and macOS will be provided as soon as a signing process is established.

@@ -10,7 +10,7 @@ As some platforms warn when downloading or even refuse to execute unsigned binar
 
 * #26: Removed build for macOS and updated documentation
 * #25: Documented fall back to running the jar file for platforms not supported currently
-* #27: Added information on browser warnings when donloading unsigned binaries on Windows platform
+* #27: Added information on browser warnings when downloading unsigned binaries on Windows platform
 
 ## Dependency Updates
 
