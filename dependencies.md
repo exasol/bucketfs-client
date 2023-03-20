@@ -32,7 +32,7 @@
 | [OpenFastTrace Maven Plugin][24]                        | [GNU General Public License v3.0][25]         |
 | [Project keeper maven plugin][26]                       | [The MIT License][27]                         |
 | [Apache Maven Compiler Plugin][28]                      | [Apache License, Version 2.0][18]             |
-| [Apache Maven Enforcer Plugin][29]                      | [Apache License, Version 2.0][18]             |
+| [Apache Maven Enforcer Plugin][29]                      | [Apache-2.0][18]                              |
 | [Maven Flatten Plugin][30]                              | [Apache Software Licenese][18]                |
 | [org.sonatype.ossindex.maven:ossindex-maven-plugin][31] | [ASL2][5]                                     |
 | [Maven Surefire Plugin][32]                             | [Apache License, Version 2.0][18]             |

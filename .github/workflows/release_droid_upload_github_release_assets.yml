@@ -13,10 +13,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
+        os: [ windows-latest, ubuntu-latest ]
         include:
-          - os: macos-latest
-            binary: bfsc-mac_x86
           - os: windows-latest
             binary: bfsc-win_x86
             suffix: .exe
@@ -44,11 +42,6 @@ jobs:
         run: |
           cd target
           powershell "\$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8' ; (Get-FileHash ${{ matrix.binary }}.exe -Algorithm SHA256).Hash.ToLower() > ${{ matrix.binary }}.exe.sha256"
-      - name: Generate sha256 checksum file on MacOS
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          cd target
-          bash -c shasum -a 256 ${{ matrix.binary }} > ${{ matrix.binary }}.sha256
       - name: Generate sha256 checksum files on Ubuntu
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
