@@ -17,6 +17,7 @@ Code name:
 
 ### Test Dependency Updates
 
+* Added `org.slf4j:slf4j-jdk14:2.0.7`
 * Updated `org.testcontainers:junit-jupiter:1.17.6` to `1.18.0`
 
 ### Plugin Dependency Updates
