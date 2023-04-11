@@ -23,4 +23,5 @@ Code name:
 ### Plugin Dependency Updates
 
 * Updated `com.exasol:project-keeper-maven-plugin:2.9.4` to `2.9.6`
+* Added `org.basepom.maven:duplicate-finder-maven-plugin:1.5.1`
 * Updated `org.itsallcode:openfasttrace-maven-plugin:1.5.0` to `1.6.1`

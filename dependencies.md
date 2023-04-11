@@ -45,11 +45,12 @@
 | [JaCoCo :: Maven Plugin][41]                            | [Eclipse Public License 2.0][42]              |
 | [error-code-crawler-maven-plugin][43]                   | [MIT License][44]                             |
 | [Reproducible Build Maven Plugin][45]                   | [Apache 2.0][5]                               |
-| [Maven Clean Plugin][46]                                | [The Apache Software License, Version 2.0][5] |
-| [Maven Resources Plugin][47]                            | [The Apache Software License, Version 2.0][5] |
-| [Maven Install Plugin][48]                              | [The Apache Software License, Version 2.0][5] |
-| [Maven Deploy Plugin][49]                               | [The Apache Software License, Version 2.0][5] |
-| [Maven Site Plugin 3][50]                               | [The Apache Software License, Version 2.0][5] |
+| [duplicate-finder-maven-plugin Maven Mojo][46]          | [Apache License 2.0][47]                      |
+| [Maven Clean Plugin][48]                                | [The Apache Software License, Version 2.0][5] |
+| [Maven Resources Plugin][49]                            | [The Apache Software License, Version 2.0][5] |
+| [Maven Install Plugin][50]                              | [The Apache Software License, Version 2.0][5] |
+| [Maven Deploy Plugin][51]                               | [The Apache Software License, Version 2.0][5] |
+| [Maven Site Plugin 3][52]                               | [The Apache Software License, Version 2.0][5] |
 
 [0]: https://github.com/exasol/bucketfs-java/
 [1]: https://github.com/exasol/bucketfs-java/blob/main/LICENSE
@@ -97,8 +98,10 @@
 [43]: https://github.com/exasol/error-code-crawler-maven-plugin/
 [44]: https://github.com/exasol/error-code-crawler-maven-plugin/blob/main/LICENSE
 [45]: http://zlika.github.io/reproducible-build-maven-plugin
-[46]: http://maven.apache.org/plugins/maven-clean-plugin/
-[47]: http://maven.apache.org/plugins/maven-resources-plugin/
-[48]: http://maven.apache.org/plugins/maven-install-plugin/
-[49]: http://maven.apache.org/plugins/maven-deploy-plugin/
-[50]: http://maven.apache.org/plugins/maven-site-plugin/
+[46]: https://github.com/basepom/duplicate-finder-maven-plugin
+[47]: http://www.apache.org/licenses/LICENSE-2.0.html
+[48]: http://maven.apache.org/plugins/maven-clean-plugin/
+[49]: http://maven.apache.org/plugins/maven-resources-plugin/
+[50]: http://maven.apache.org/plugins/maven-install-plugin/
+[51]: http://maven.apache.org/plugins/maven-deploy-plugin/
+[52]: http://maven.apache.org/plugins/maven-site-plugin/
