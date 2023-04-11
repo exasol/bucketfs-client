@@ -43,7 +43,7 @@ public class DeleteCommand implements Callable<Integer> {
         final String path = url.getPathInBucket();
         bucket.deleteFileNonBlocking(path);
         if (this.parent.isRecursive()) {
-            for (final String child : new ListingProvider(bucket, url).list(path, true)) {
+            for (final String child : bucket.listContentsRecursively(path)) {
                 bucket.deleteFileNonBlocking(asDirectory(path) + child);
             }
         }
