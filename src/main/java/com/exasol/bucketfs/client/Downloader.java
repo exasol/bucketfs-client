@@ -66,8 +66,7 @@ public class Downloader {
 
     // [impl->dsn~copy-ambigue-entrie-on-lower-level~1]
     private List<String> getFilesForDownload() throws BucketAccessException {
-        final List<String> list = new ListingProvider(this.bucket, this.source).list(this.source.getPathInBucket(),
-                true);
+        final List<String> list = this.bucket.listContentsRecursively(this.source.getPathInBucket());
         final List<String> result = new ArrayList<>();
         final int n = list.size();
         for (int i = 0; i < n; i++) {

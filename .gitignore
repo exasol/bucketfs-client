@@ -18,6 +18,8 @@ target
 dependency-reduced-pom.xml
 .project
 .classpath
+.settings/org.eclipse.jdt.apt.core.prefs
+.settings/org.eclipse.core.resources.prefs
 pom.xml.versionsBackup
 ~*
 *.orig
