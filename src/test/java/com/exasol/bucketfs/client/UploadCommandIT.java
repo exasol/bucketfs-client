@@ -22,6 +22,8 @@ import org.itsallcode.junit.sysextensions.SystemOutGuard.SysOut;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junitpioneer.jupiter.ClearSystemProperty;
 
 import com.exasol.bucketfs.BucketAccessException;
@@ -111,7 +113,7 @@ class UploadCommandIT {
     }
 
     @Test
-    void testSuccessUploadWithPassswordFromProfile() throws Exception {
+    void testSuccessUploadWithPasswordFromProfile() throws Exception {
         final Path configFile = this.tempDir.resolve(".bucketfs-client-config");
         Files.writeString(configFile, lines("[other-profile]", "password.write=" + writePassword()));
         final BFSC client = createClient("cp", "--profile", "other-profile").withConfigFile(configFile);
@@ -136,6 +138,14 @@ class UploadCommandIT {
         final String remote = "dir/";
         final BFSC client = BFSC.create("cp", local.toString(), bfsUri(remote)).feedStdIn(writePassword());
         verifyUpload(client, local, remote + FILENAME);
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "some_file", "./some_file" })
+    void testSuccessUploadFile(final String localPath) throws Exception {
+        final String remote = "uploaded_file";
+        final BFSC client = BFSC.create("cp", localPath, bfsUri(remote)).feedStdIn(writePassword());
+        verifyUpload(client, Path.of("some_file"), remote);
     }
 
     private void verifyUpload(final BFSC client, final Path localFile, final String remotePath)

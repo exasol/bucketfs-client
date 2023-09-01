@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class ProcessExecutor {
 
     /** Name of the JAR file */
-    public static String JAR_NAME = "bfsc-1.1.3.jar";
+    public static final String JAR_NAME = "bfsc-1.1.3.jar";
 
     /**
      * Create a {@link ProcessExecutor} for the jar built by for the current projects. The Jar file must be built before
@@ -44,6 +44,7 @@ public class ProcessExecutor {
     private final String[] initialArgs;
     private Process process;
     private final Duration timeout = Duration.ofSeconds(5);
+    private Path workingDir = null;
 
     /**
      * Create a new instance of {@link ProcessExecutor}.
@@ -52,6 +53,19 @@ public class ProcessExecutor {
      */
     public ProcessExecutor(final String... initialArgs) {
         this.initialArgs = initialArgs;
+    }
+
+    /**
+     * Set the working directory for the new process.
+     * <p>
+     * Default value {@code null} is the current working directory.
+     * 
+     * @param workingDir the working directory for the new process
+     * @return this instance for method chaining
+     */
+    public ProcessExecutor workingDirectory(final Path workingDir) {
+        this.workingDir = workingDir;
+        return this;
     }
 
     /**
@@ -65,7 +79,8 @@ public class ProcessExecutor {
     public ProcessExecutor run(final String... args) throws IOException, InterruptedException {
         final List<String> commandLine = new ArrayList<>(asList(this.initialArgs));
         commandLine.addAll(asList(args));
-        this.process = new ProcessBuilder(commandLine).redirectErrorStream(false).start();
+        final File directory = workingDir == null ? null : workingDir.toAbsolutePath().toFile();
+        this.process = new ProcessBuilder(commandLine).redirectErrorStream(false).directory(directory).start();
         return this;
     }
 

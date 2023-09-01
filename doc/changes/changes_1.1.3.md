@@ -4,6 +4,10 @@ Code name:
 
 ## Summary
 
+## Bugfixes
+
+* #30: Fixed uploading when no directory is specified
+
 ## Refactoring
 
 * #19: Removed class ListingProvider
