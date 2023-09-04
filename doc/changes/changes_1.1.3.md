@@ -1,8 +1,10 @@
-# Bucketfs Client 1.1.3, released 2023-??-??
+# Bucketfs Client 1.1.3, released 2023-09-04
 
-Code name:
+Code name: Fix Uploading Local File
 
 ## Summary
+
+This release fixes uploading a local file without specifying a directory. This failed with error `Cannot invoke "java.nio.file.Path.relativize(java.nio.file.Path)" because "this.sourceRoot" is null` before.
 
 ## Bugfixes
 
