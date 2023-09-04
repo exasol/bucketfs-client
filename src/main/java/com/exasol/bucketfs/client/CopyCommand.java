@@ -65,7 +65,8 @@ public class CopyCommand implements Callable<Integer> {
             if (!Files.exists(sourcePath)) {
                 throw Uploader.createExceptionForFileNotFound(sourcePath);
             }
-            Files.walkFileTree(sourcePath, Uploader.from(sourcePath.getParent(), bucket, url));
+            final Path sourceParent = sourcePath.getParent() == null ? Path.of(".") : sourcePath.getParent();
+            Files.walkFileTree(sourcePath, Uploader.from(sourceParent, bucket, url));
         } catch (final IOException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-9") //
                     .message("Failed to upload {{file}}", sourcePath)

@@ -4,6 +4,7 @@ import static com.exasol.bucketfs.url.BucketFsUrl.PATH_SEPARATOR;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 public class PathCompleter {
 
@@ -12,8 +13,8 @@ public class PathCompleter {
     private final boolean isDirectory;
 
     public PathCompleter(final Path sourceRoot, final String pathInBucket) {
-        this.sourceRoot = sourceRoot;
-        this.pathInBucket = pathInBucket;
+        this.sourceRoot = Objects.requireNonNull(sourceRoot, "sourceRoot");
+        this.pathInBucket = Objects.requireNonNull(pathInBucket, "pathInBucket");
         this.isDirectory = BucketFsLocation.isDirectorySyntax(pathInBucket);
     }
 

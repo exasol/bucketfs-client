@@ -89,7 +89,7 @@ class BucketFsUrlTest {
     }
 
     @Test
-    void testGetProtocolWithouTls() throws Exception {
+    void testGetProtocolWithoutTls() throws Exception {
         assertThat(randomBucketFsUrl(false).getProtocol(), equalTo("bfs"));
     }
 
