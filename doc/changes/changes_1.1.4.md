@@ -12,6 +12,10 @@ This release fixes vulnerability CVE-2023-42503 in transitive test dependency to
 
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Updated `com.exasol:bucketfs-java:3.1.0` to `3.1.1`
+
 ### Test Dependency Updates
 
 * Updated `com.exasol:exasol-testcontainers:6.6.1` to `6.6.2`
