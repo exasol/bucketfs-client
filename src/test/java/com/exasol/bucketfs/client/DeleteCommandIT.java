@@ -37,7 +37,7 @@ class DeleteCommandIT {
 
     @Test
     void testFileInDirectory() throws Exception {
-        SETUP.createRemoteFiles("folder/delete.txt");
+        SETUP.createRemoteFiles("folder/delete.txt", "folder/other-file.txt");
         verifyDelete("folder/delete.txt");
     }
 
