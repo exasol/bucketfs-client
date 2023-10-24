@@ -1,4 +1,4 @@
-# Bucketfs Client 1.1.4, released 2023-10-24
+# Bucketfs Client 1.1.4, released 2023-10-25
 
 Code name: Dependency Upgrade
 
