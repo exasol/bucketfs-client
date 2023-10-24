@@ -81,7 +81,7 @@
 [32]: https://sonatype.github.io/ossindex-maven/maven-plugin/
 [33]: https://maven.apache.org/surefire/maven-surefire-plugin/
 [34]: https://www.mojohaus.org/versions/versions-maven-plugin/
-[35]: https://github.com/basepom/duplicate-finder-maven-plugin
+[35]: https://basepom.github.io/duplicate-finder-maven-plugin
 [36]: http://www.apache.org/licenses/LICENSE-2.0.html
 [37]: https://maven.apache.org/plugins/maven-assembly-plugin/
 [38]: https://maven.apache.org/plugins/maven-jar-plugin/
