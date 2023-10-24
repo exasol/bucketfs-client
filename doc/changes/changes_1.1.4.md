@@ -12,10 +12,6 @@ This release fixes vulnerability CVE-2023-42503 in transitive test dependency to
 
 ## Dependency Updates
 
-### Compile Dependency Updates
-
-* Updated `com.exasol:bucketfs-java:3.1.0` to `3.1.1`
-
 ### Test Dependency Updates
 
 * Updated `com.exasol:exasol-testcontainers:6.6.1` to `6.6.2`
@@ -28,7 +24,7 @@ This release fixes vulnerability CVE-2023-42503 in transitive test dependency to
 ### Plugin Dependency Updates
 
 * Updated `com.exasol:error-code-crawler-maven-plugin:1.3.0` to `1.3.1`
-* Updated `com.exasol:project-keeper-maven-plugin:2.9.11` to `2.9.13`
+* Updated `com.exasol:project-keeper-maven-plugin:2.9.11` to `2.9.14`
 * Removed `org.apache.maven.plugins:maven-enforcer-plugin:3.4.0`
 * Updated `org.basepom.maven:duplicate-finder-maven-plugin:1.5.1` to `2.0.1`
 * Updated `org.codehaus.mojo:versions-maven-plugin:2.16.0` to `2.16.1`
