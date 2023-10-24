@@ -37,7 +37,10 @@ class DeleteCommandIT {
 
     @Test
     void testFileInDirectory() throws Exception {
-        SETUP.createRemoteFiles("folder/delete.txt");
+        // "aa.txt" in same folder ensures folder to still be observable after
+        // file "delete.txt" has been deleted. Otherwise folder would no longer be observable
+        // as BucketFS only manages a list of flat file paths but not a hierarchy of folders and files.
+        SETUP.createRemoteFiles("folder/delete.txt", "folder/aa.txt");
         verifyDelete("folder/delete.txt");
     }
 
