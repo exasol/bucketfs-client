@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       upload_url:
-        description: 'Assets upload URL'
+        description: "Assets upload URL"
         required: true
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-latest, ubuntu-latest ]
+        os: [windows-latest, ubuntu-latest]
         include:
           - os: windows-latest
             binary: bfsc-win_x86
@@ -22,16 +22,21 @@ jobs:
             binary: bfsc-linux_x86
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Set up JDKs
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: 17
+          cache: "maven"
       - uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.3.1'
-          java-version: '11'
-          components: 'native-image'
+          java-version: "17"
+          components: "native-image"
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          native-image-job-reports: 'true'
+          native-image-job-reports: "true"
       - name: Build with Maven skipping tests
         run: |
           mvn --batch-mode clean verify -DskipTests

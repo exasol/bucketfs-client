@@ -40,21 +40,21 @@ alias bfsc='bfsc-linux_x86'
 
 Besides executing the binaries you can also download BFSC's JAR file and let a Java VM execute it.
 
-For that you need Java 11 or later, the installation procedure depends on your operating system.
+For that you need Java 17 or later, the installation procedure depends on your operating system.
 
 * Any operating system: [Adoptium OpenJDK build](https://adoptium.net/)
 * Linux
     * Ubuntu, Debian:
       ```shell
-      sudo apt install openjdk-11-jre-headless
+      sudo apt install openjdk-17-jre-headless
       ```
     * RedHat
       ```shell
-      sudo yum install java-11-openjdk
+      sudo yum install java-17-openjdk
       ```
-    * SuSE: [OpenJDK build of the Leap project](https://software.opensuse.org/download/package?package=java-11-openjdk&project=openSUSE%3ALeap%3A15.1%3AUpdate)
+    * SuSE: OpenJDK build of the Leap project](https://software.opensuse.org/download/package?package=java-17-openjdk&project=openSUSE%3AFactory)
 
-As soon as Java 11 is available you can run BFSC's JAR file the following command:
+As soon as Java 17 is available you can run BFSC's JAR file the following command:
 
 ```shell
 java -jar "<path-to-bfsc-jar>" <command> <option> ...
