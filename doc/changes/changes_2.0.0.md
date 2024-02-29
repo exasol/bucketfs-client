@@ -1,4 +1,4 @@
-# Bucketfs Client 1.1.5, released 2024-02-29
+# Bucketfs Client 2.0.0, released 2024-02-29
 
 Code name: Fix CVE-2024-25710 and CVE-2024-26308 in test dependency `org.apache.commons:commons-compress`
 
