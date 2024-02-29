@@ -6,6 +6,10 @@ Code name: Fix CVE-2024-25710 and CVE-2024-26308 in test dependency `org.apache.
 
 This release fixes vulnerabilities CVE-2024-25710 and CVE-2024-26308 in test dependency `org.apache.commons:commons-compress`.
 
+### Breaking Change
+
+Starting with this release running the `.jar` file requires Java 17 or later. See the [user guide](https://github.com/exasol/bucketfs-client/blob/main/doc/user_guide/user_guide.md#running-the-jar-file) for details.
+
 ## Security
 
 * #36: Fixed CVE-2024-25710 and CVE-2024-26308 in test dependency `org.apache.commons:commons-compress`

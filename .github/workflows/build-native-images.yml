@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-latest, ubuntu-latest ]
+        os: [windows-latest, ubuntu-latest]
         include:
           - os: windows-latest
             binary: bfsc.exe
@@ -22,14 +22,13 @@ jobs:
       cancel-in-progress: true
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.3.1'
-          java-version: '11'
-          components: 'native-image'
+          java-version: "17"
+          components: "native-image"
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          native-image-job-reports: 'true'
+          native-image-job-reports: "true"
       - name: Cache local Maven repository
         uses: actions/cache@v3
         with:
