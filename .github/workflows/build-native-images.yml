@@ -23,19 +23,20 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
+      - name: Set up JDKs
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: |
+            11
+            17
+          cache: "maven"
       - uses: graalvm/setup-graalvm@v1
         with:
           java-version: "17"
           components: "native-image"
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: "true"
-      - name: Cache local Maven repository
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
       - name: Run tests for native image builds
         run: |
           mvn --batch-mode clean package "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -DtrimStackTrace=false -DskipTests "-Dmaven.test.skip=true" "-Dproject-keeper.skip=true" "-Dossindex.skip=true" "-Dmaven.javadoc.skip=true" "-Djacoco.skip=true" "-Dreproducible.skip=true"
