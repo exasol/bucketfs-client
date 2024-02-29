@@ -1,4 +1,4 @@
-# Bucketfs Client 1.1.5, released 2024-??-??
+# Bucketfs Client 1.1.5, released 2024-02-29
 
 Code name: Fix CVE-2024-25710 and CVE-2024-26308 in test dependency `org.apache.commons:commons-compress`
 
@@ -11,6 +11,21 @@ This release fixes vulnerabilities CVE-2024-25710 and CVE-2024-26308 in test dep
 * #36: Fixed CVE-2024-25710 and CVE-2024-26308 in test dependency `org.apache.commons:commons-compress`
 
 ## Dependency Updates
+
+### Compile Dependency Updates
+
+* Updated `com.github.vincentrussell:java-ini-parser:1.5` to `1.6`
+
+### Test Dependency Updates
+
+* Updated `com.exasol:exasol-testcontainers:6.6.2` to `7.0.1`
+* Updated `nl.jqno.equalsverifier:equalsverifier:3.15.2` to `3.15.7`
+* Updated `org.junit-pioneer:junit-pioneer:2.1.0` to `2.2.0`
+* Updated `org.junit.jupiter:junit-jupiter-params:5.10.0` to `5.10.2`
+* Updated `org.junit.jupiter:junit-jupiter:5.10.0` to `5.10.2`
+* Updated `org.mockito:mockito-junit-jupiter:5.6.0` to `5.10.0`
+* Updated `org.slf4j:slf4j-jdk14:2.0.9` to `2.0.12`
+* Updated `org.testcontainers:junit-jupiter:1.19.1` to `1.19.6`
 
 ### Plugin Dependency Updates
 
