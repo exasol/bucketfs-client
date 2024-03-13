@@ -16,6 +16,10 @@ import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.testcontainers.containers.Container;
+import org.testcontainers.containers.ExecConfig;
+import org.testcontainers.containers.ExecConfig.ExecConfigBuilder;
+
 import com.exasol.bucketfs.*;
 import com.exasol.bucketfs.http.HttpClientBuilder;
 import com.exasol.bucketfs.list.BucketContentLister;
@@ -25,10 +29,14 @@ import com.exasol.containers.ExasolContainer;
 import com.exasol.containers.ExasolService;
 
 public class IntegrationTestSetup {
+
+    private static final int BucketFsTlsPort = 2581;
     private static final Logger LOGGER = Logger.getLogger(IntegrationTestSetup.class.getName());
 
     private final ExasolContainer<? extends ExasolContainer<?>> exasol = new ExasolContainer<>()//
-            .withRequiredServices(ExasolService.BUCKETFS).withReuse(true);
+            .withExposedPorts(BucketFsTlsPort, 20000, 20001, 20002, 20003, 2580, 8563) //
+            .withRequiredServices(ExasolService.BUCKETFS)//
+            .withReuse(true); //
 
     public void stop() {
         this.exasol.stop();
@@ -36,6 +44,79 @@ public class IntegrationTestSetup {
 
     public IntegrationTestSetup() {
         this.exasol.start();
+
+        setBucketFsPortsAndEnableBucketFsTls();
+
+    }
+
+    private void setBucketFsPortsAndEnableBucketFsTls() {
+        try {
+
+            stopDatabase();
+            alterBucketFsConfig();
+            startDatabase();
+            //String stdout;
+            //int exitCode;
+
+//            lsResult = exasol.execInContainer("/bin/bash", "-c",
+//                    "confd_client -c bucketfs_modify -a '{\"bucketfs_name\": \"bfsdefault\", \"http_port\": 2580, \"https_port\": 2581}'");
+//            stdout = lsResult.getStdout();
+//            exitCode = lsResult.getExitCode();
+//            lsResult = exasol.execInContainer("/bin/bash", "-c",
+//                    "confd_client -c db_start -A '{ \"db_name\": \"DB1\"}'");
+//            stdout = lsResult.getStdout();
+//            exitCode = lsResult.getExitCode();
+//            lsResult = exasol.execInContainer("/bin/bash",  "-c", "printenv");
+//            stdout = lsResult.getStdout();
+//            exitCode = lsResult.getExitCode();
+//            lsResult = exasol.execInContainer("/bin/bash",  "-c", "which confd_client");
+//            stdout = lsResult.getStdout();
+//            exitCode = lsResult.getExitCode();
+            // Container.ExecResult lsResult = exasol.execInContainer("/bin/bash", "-c","confd_client", "-c", "db_stop",
+            // "-A", "'{ \"db_name\": \"DB1\"}'");
+            // String stdout = lsResult.getStdout();
+            // int exitCode = lsResult.getExitCode();
+            // lsResult = exasol.execInContainer("/bin/bash", "-c", "confd_client", "-c","bucketfs_modify", "-a",
+            // "db_start", "-A", "'{\"bucketfs_name\": \"bfsdefault\", \"http_port\": 2580, \"https_port\": 2581}'");
+            // stdout = lsResult.getStdout();
+            // exitCode = lsResult.getExitCode();
+            // lsResult = exasol.execInContainer("/bin/bash", "-c", "confd_client", "-c", "db_start", "-A", "'{
+            // \"db_name\": \"DB1\"}'");
+            // stdout = lsResult.getStdout();
+            // exitCode = lsResult.getExitCode();
+
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void stopDatabase() throws IOException, InterruptedException {
+        String cmd = "confd_client -c db_stop -A '{ \"db_name\": \"DB1\"}'";
+        executeCommandInExasolDockerDb(cmd);
+    }
+    private void alterBucketFsConfig() throws IOException, InterruptedException {
+        //String cmd = "confd_client -c bucketfs_modify -a '{\"bucketfs_name\": \"bfsdefault\", \"http_port\": 2580, \"https_port\": 2581}'";
+        String cmd = "confd_client -c bucketfs_modify -a '{\"bucketfs_name\": \"bfsdefault\", \"https_port\": 2581}'";
+        executeCommandInExasolDockerDb(cmd);
+    }
+    private void startDatabase() throws IOException, InterruptedException {
+        String cmd = "confd_client -c db_start -A '{ \"db_name\": \"DB1\"}'";
+        executeCommandInExasolDockerDb(cmd);
+    }
+
+    private void executeCommandInExasolDockerDb(String cmd) throws IOException, InterruptedException {
+        final ExecConfigBuilder ecb = ExecConfig.builder() //
+                //.user("root") //
+                //.envVars(Map.of("COS_DIRECTORY","/usr/opt/EXASuite-7/EXAClusterOS-7.1.25"))
+                //.workDir("")
+                .command(new String[] { "/bin/bash", "-c", "source /root/.bashrc ; " + cmd}); //
+
+        Container.ExecResult cmdExecResult = exasol.execInContainer(ecb.build());
+
+        String stdout = cmdExecResult.getStdout();
+        int exitCode = cmdExecResult.getExitCode();
     }
 
     public void cleanBucketFS() throws BucketAccessException {
@@ -56,6 +137,10 @@ public class IntegrationTestSetup {
 
     public Integer getMappedBucketFsPort() {
         return this.exasol.getMappedPort(this.exasol.getDefaultInternalBucketfsPort());
+    }
+
+    public Integer getMappedBucketFsTlsPort() {
+        return this.exasol.getMappedPort(2581);
     }
 
     public String getHost() {
@@ -80,8 +165,17 @@ public class IntegrationTestSetup {
         return getBucketFsUri(DEFAULT_BUCKETFS, DEFAULT_BUCKET, filename);
     }
 
+    public String getDefaultBucketTlsUriToFile(final String filename) {
+        return getBucketTlsFsUri(DEFAULT_BUCKETFS, DEFAULT_BUCKET, filename);
+    }
+
     public String getBucketFsUri(final String serviceName, final String bucketName, final String pathInBucket) {
         return "bfs://" + getHost() + ":" + getMappedBucketFsPort() + "/" + bucketName + "/" + pathInBucket;
+    }
+
+    public String getBucketTlsFsUri(final String serviceName, final String bucketName, final String pathInBucket) {
+        return "bfss://" + getHost() + ":" + getMappedBucketFsTlsPort() + "/" + bucketName + "/" + pathInBucket;
+        // return "bfss://" + "127.0.0.1:36551" + "/" + bucketName + "/" + pathInBucket;
     }
 
     public static List<Path> createLocalFiles(final Path folder, final String... filenames) {
