@@ -55,35 +55,6 @@ public class IntegrationTestSetup {
             stopDatabase();
             alterBucketFsConfig();
             startDatabase();
-            //String stdout;
-            //int exitCode;
-
-//            lsResult = exasol.execInContainer("/bin/bash", "-c",
-//                    "confd_client -c bucketfs_modify -a '{\"bucketfs_name\": \"bfsdefault\", \"http_port\": 2580, \"https_port\": 2581}'");
-//            stdout = lsResult.getStdout();
-//            exitCode = lsResult.getExitCode();
-//            lsResult = exasol.execInContainer("/bin/bash", "-c",
-//                    "confd_client -c db_start -A '{ \"db_name\": \"DB1\"}'");
-//            stdout = lsResult.getStdout();
-//            exitCode = lsResult.getExitCode();
-//            lsResult = exasol.execInContainer("/bin/bash",  "-c", "printenv");
-//            stdout = lsResult.getStdout();
-//            exitCode = lsResult.getExitCode();
-//            lsResult = exasol.execInContainer("/bin/bash",  "-c", "which confd_client");
-//            stdout = lsResult.getStdout();
-//            exitCode = lsResult.getExitCode();
-            // Container.ExecResult lsResult = exasol.execInContainer("/bin/bash", "-c","confd_client", "-c", "db_stop",
-            // "-A", "'{ \"db_name\": \"DB1\"}'");
-            // String stdout = lsResult.getStdout();
-            // int exitCode = lsResult.getExitCode();
-            // lsResult = exasol.execInContainer("/bin/bash", "-c", "confd_client", "-c","bucketfs_modify", "-a",
-            // "db_start", "-A", "'{\"bucketfs_name\": \"bfsdefault\", \"http_port\": 2580, \"https_port\": 2581}'");
-            // stdout = lsResult.getStdout();
-            // exitCode = lsResult.getExitCode();
-            // lsResult = exasol.execInContainer("/bin/bash", "-c", "confd_client", "-c", "db_start", "-A", "'{
-            // \"db_name\": \"DB1\"}'");
-            // stdout = lsResult.getStdout();
-            // exitCode = lsResult.getExitCode();
 
         } catch (final IOException e) {
             throw new RuntimeException(e);
@@ -96,11 +67,13 @@ public class IntegrationTestSetup {
         String cmd = "confd_client -c db_stop -A '{ \"db_name\": \"DB1\"}'";
         executeCommandInExasolDockerDb(cmd);
     }
+
     private void alterBucketFsConfig() throws IOException, InterruptedException {
         //String cmd = "confd_client -c bucketfs_modify -a '{\"bucketfs_name\": \"bfsdefault\", \"http_port\": 2580, \"https_port\": 2581}'";
         String cmd = "confd_client -c bucketfs_modify -a '{\"bucketfs_name\": \"bfsdefault\", \"https_port\": 2581}'";
         executeCommandInExasolDockerDb(cmd);
     }
+
     private void startDatabase() throws IOException, InterruptedException {
         String cmd = "confd_client -c db_start -A '{ \"db_name\": \"DB1\"}'";
         executeCommandInExasolDockerDb(cmd);
@@ -111,7 +84,7 @@ public class IntegrationTestSetup {
                 //.user("root") //
                 //.envVars(Map.of("COS_DIRECTORY","/usr/opt/EXASuite-7/EXAClusterOS-7.1.25"))
                 //.workDir("")
-                .command(new String[] { "/bin/bash", "-c", "source /root/.bashrc ; " + cmd}); //
+                .command(new String[]{"/bin/bash", "-c", "source /root/.bashrc ; " + cmd}); //
 
         Container.ExecResult cmdExecResult = exasol.execInContainer(ecb.build());
 
