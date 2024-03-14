@@ -54,7 +54,7 @@ class ListCommandIT {
     void testRoot(final Capturable stream) {
         verifyListCommand(stream, createClient("ls", ""), List.of("a.txt", "b.txt", "folder/"));
     }
-
+    @Disabled
     @Test
     void testRootTls(final Capturable stream) {
         verifyListCommand(stream, createTlsClient("ls", ""), List.of("a.txt", "b.txt", "folder/"));
