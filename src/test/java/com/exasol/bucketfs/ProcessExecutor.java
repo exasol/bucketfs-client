@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class ProcessExecutor {
 
     /** Name of the JAR file */
-    public static final String JAR_NAME = "bfsc-2.0.0.jar";
+    public static final String JAR_NAME = "bfsc-2.0.1.jar";
 
     /**
      * Create a {@link ProcessExecutor} for the jar built by for the current projects. The Jar file must be built before
@@ -43,7 +43,7 @@ public class ProcessExecutor {
 
     private final String[] initialArgs;
     private Process process;
-    private final Duration timeout = Duration.ofSeconds(5);
+    private final Duration timeout = Duration.ofSeconds(60);
     private Path workingDir = null;
 
     /**

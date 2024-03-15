@@ -54,6 +54,11 @@ class ListCommandIT {
     void testRoot(final Capturable stream) {
         verifyListCommand(stream, createClient("ls", ""), List.of("a.txt", "b.txt", "folder/"));
     }
+    @Disabled
+    @Test
+    void testRootTls(final Capturable stream) {
+        verifyListCommand(stream, createTlsClient("ls", ""), List.of("a.txt", "b.txt", "folder/"));
+    }
 
     @Test
     void testRecursive(final Capturable stream) {
@@ -118,6 +123,13 @@ class ListCommandIT {
     private BFSC createClient(final String... args) {
         final String path = args[args.length - 1];
         args[args.length - 1] = SETUP.getDefaultBucketUriToFile(path);
+        return BFSC.create(args).feedStdIn(SETUP.getDefaultBucket().getReadPassword());
+    }
+
+    private BFSC createTlsClient(final String... args) {
+        final String path = args[args.length - 1];
+        final String uri = SETUP.getDefaultBucketTlsUriToFile(path);
+        args[args.length - 1] = uri;
         return BFSC.create(args).feedStdIn(SETUP.getDefaultBucket().getReadPassword());
     }
 
