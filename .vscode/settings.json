@@ -17,5 +17,6 @@
   "sonarlint.connectedMode.project": {
     "connectionId": "exasol",
     "projectKey": "com.exasol:bucketfs-client"
-  }
+  },
+  "java.configuration.updateBuildConfiguration": "automatic"
 }
