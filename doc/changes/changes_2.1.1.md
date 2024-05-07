@@ -1,12 +1,24 @@
-# Bucketfs Client 2.1.1, released 2024-??-??
+# Bucketfs Client 2.1.1, released 2024-05-08
 
-Code name:
+Code name: Improve error message for "connection refused"
 
 ## Summary
 
-## Features
+This release improves the error message when the user tries to connect to a non existing service. Instead of message
 
-* ISSUE_NUMBER: description
+```
+E-BFSJ-5: I/O error trying to list 'http://localhost:2580/blah'. Cause: null
+```
+
+the BucketFS Client now prints the following message:
+
+```
+E-BFSJ-5: I/O error trying to list 'http://localhost:2580/blah'. Unable to connect to service, Cause: java.net.ConnectException, Cause: java.net.ConnectException, Cause: java.nio.channels.ClosedChannelException
+```
+
+## Bugfixes
+
+* #42: Improve error message for "connection refused"
 
 ## Dependency Updates
 

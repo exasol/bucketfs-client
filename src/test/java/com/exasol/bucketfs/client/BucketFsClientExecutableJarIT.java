@@ -95,6 +95,15 @@ class BucketFsClientExecutableJarIT {
     }
 
     @Test
+    void listFailsWhenServerNotListening() throws Exception {
+        final String url = "bfs://localhost:65535/bucket/";
+        final ProcessExecutor executor = ProcessExecutor.currentJar().run("ls", "-pw", url) //
+                .feedStdIn("somePassword");
+        assertResult(executor, ExitCode.SOFTWARE, equalTo("Password for reading from BucketFS: "), equalTo(
+                "E-BFSJ-5: I/O error trying to list 'http://localhost:65535/bucket'. Unable to connect to service, Cause: java.net.ConnectException, Cause: java.net.ConnectException, Cause: java.nio.channels.ClosedChannelException\n"));
+    }
+
+    @Test
     void testVersion() throws Exception {
         final ProcessExecutor executor = ProcessExecutor.currentJar().run("--version");
         assertResult(executor, ExitCode.OK, equalTo(lines(executor.getJarVersion(), "")), equalTo(""));
