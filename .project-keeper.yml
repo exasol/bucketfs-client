@@ -6,10 +6,10 @@ sources:
       - jar_artifact
 excludes:
   - "E-PK-CORE-18: Outdated content: '.github/workflows/release_droid_upload_github_release_assets.yml'"
-  - "W-PK-CORE-153: Project-keeper version 4.1.0 is outdated. Please update project-keeper to latest version 4.2.0."
+  - regex: "W-PK-CORE-153: Project-keeper version 4.1.0 is outdated. Please update project-keeper to latest version .*."
 build:
   runnerOs: ubuntu-20.04
   freeDiskSpace: false
   exasolDbVersions:
-    - "8.25.0"
-    - "7.1.25"
+    - "8.27.0"
+    - "7.1.26"
