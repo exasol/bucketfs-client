@@ -10,6 +10,8 @@ import picocli.CommandLine.ParseResult;
  * Handler that outputs exception messages as error messages on the consoles STDERR.
  */
 public class PrintExceptionMessageHandler implements IExecutionExceptionHandler {
+    private static final int MAX_DEPTH = 5;
+
     @Override
     public int handleExecutionException(final Exception exception, final CommandLine commandLine,
             final ParseResult parseResult) throws Exception {
@@ -31,19 +33,27 @@ public class PrintExceptionMessageHandler implements IExecutionExceptionHandler 
         if (hasConnectException(exception)) {
             message = ". Unable to connect to service";
         }
-        return message + getNestedCause(exception.getCause());
+        return message + getNestedCause(exception);
     }
 
-    private static String getNestedCause(final Throwable cause) {
-        if (cause == null) {
+    private static String getNestedCause(final Throwable throwable) {
+        if (throwable == null) {
             return "";
         }
-        return ", Cause: " + cause.toString() + getNestedCause(cause.getCause());
+        final StringBuilder message = new StringBuilder();
+        Throwable cause = throwable.getCause();
+        int depth = 0;
+        while (cause != null && depth++ < MAX_DEPTH) {
+            message.append(", Cause: " + cause.toString());
+            cause = cause.getCause();
+        }
+        return message.toString();
     }
 
     private static boolean hasConnectException(final Exception exception) {
         Throwable cause = exception.getCause();
-        while (cause != null) {
+        int depth = 0;
+        while (cause != null && depth++ < 10) {
             if (cause instanceof java.net.ConnectException) {
                 return true;
             }

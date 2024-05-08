@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -33,6 +34,16 @@ class PrintExceptionMessageHandlerTest {
     @MethodSource("exceptionMessageTestData")
     void testGetErrorMessage(final String testName, final Exception exception, final String expectedMessage) {
         assertThat(PrintExceptionMessageHandler.getErrorMessage(exception), equalTo(expectedMessage));
+    }
+
+    @Test
+    void testStopsAtDepthFive() {
+        final RuntimeException cause1 = new RuntimeException("cause 1");
+        final RuntimeException cause2 = new RuntimeException("cause 2", cause1);
+        cause1.initCause(cause2);
+        final Exception exception = new Exception("msg", cause1);
+        assertThat(PrintExceptionMessageHandler.getErrorMessage(exception), equalTo(
+                "msg, Cause: java.lang.RuntimeException: cause 1, Cause: java.lang.RuntimeException: cause 2, Cause: java.lang.RuntimeException: cause 1, Cause: java.lang.RuntimeException: cause 2, Cause: java.lang.RuntimeException: cause 1"));
     }
 
     static Arguments testCase(final String testName, final Exception exception, final String expectedMessage) {
