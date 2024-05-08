@@ -10,18 +10,13 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.concurrent.TimeoutException;
-import java.util.logging.Logger;
 
 import org.hamcrest.Matcher;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.exasol.bucketfs.BucketAccessException;
 import com.exasol.bucketfs.ProcessExecutor;
 import com.exasol.containers.ExasolContainer;
 import com.exasol.containers.ExasolService;
@@ -30,28 +25,14 @@ import picocli.CommandLine.ExitCode;
 
 @Testcontainers
 class BucketFsClientExecutableJarIT {
-    private static final Logger LOGGER = Logger.getLogger(BucketFsClientExecutableJarIT.class.getName());
-
+    // BucketFS PUT requests will block until the UDF container is unpacked, causing timeouts. So we need to wait for
+    // UDF, too.
     @Container
     private static ExasolContainer<? extends ExasolContainer<?>> EXASOL = new ExasolContainer<>()//
-            .withRequiredServices(ExasolService.BUCKETFS).withReuse(true);
+            .withRequiredServices(ExasolService.BUCKETFS, ExasolService.UDF).withReuse(true);
 
     @TempDir
     Path tempDir;
-
-    /*
-     * Some tests fail after a fresh container start. This is a workaround to make sure that BucketFS is working.
-     */
-    @BeforeAll
-    static void verifyBucketFsWorks() throws BucketAccessException, InterruptedException, TimeoutException {
-        final List<String> contentBeforeUpload = EXASOL.getDefaultBucket().listContents();
-        LOGGER.info("Content before upload: " + contentBeforeUpload);
-        final String pathInBucket = "test-file-" + System.currentTimeMillis() + ".txt";
-        LOGGER.info("Uploading file to BucketFS: " + pathInBucket);
-        EXASOL.getDefaultBucket().uploadStringContent("content", pathInBucket);
-        final List<String> content = EXASOL.getDefaultBucket().listContents();
-        LOGGER.info("Content after upload: " + content);
-    }
 
     @Test
     void executableFailsWithoutArguments() throws Exception {
