@@ -25,6 +25,7 @@ E-BFSJ-5: I/O error trying to list 'http://localhost:2580/blah'. Unable to conne
 ### Compile Dependency Updates
 
 * Updated `com.exasol:bucketfs-java:3.1.1` to `3.1.2`
+* Updated `info.picocli:picocli:4.7.5` to `4.7.6`
 
 ### Test Dependency Updates
 
