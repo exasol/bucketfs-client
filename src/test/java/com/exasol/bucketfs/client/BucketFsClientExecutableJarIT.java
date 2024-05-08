@@ -10,13 +10,17 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import org.hamcrest.Matcher;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import com.exasol.bucketfs.BucketAccessException;
 import com.exasol.bucketfs.ProcessExecutor;
 import com.exasol.containers.ExasolContainer;
 import com.exasol.containers.ExasolService;
@@ -31,6 +35,18 @@ class BucketFsClientExecutableJarIT {
 
     @TempDir
     Path tempDir;
+
+    /*
+     * Some tests fail after a fresh container start. This is a workaround to make sure that BucketFS is working.
+     */
+    @BeforeAll
+    static void verifyBucketFsWorks() throws BucketAccessException, InterruptedException, TimeoutException {
+        final List<String> contentBeforeUpload = EXASOL.getDefaultBucket().listContents();
+        final String pathInBucket = "test-file-" + System.currentTimeMillis() + ".txt";
+        EXASOL.getDefaultBucket().uploadStringContent("content", pathInBucket);
+        final List<String> content = EXASOL.getDefaultBucket().listContents();
+        assertThat(content, hasSize(contentBeforeUpload.size() + 1));
+    }
 
     @Test
     void executableFailsWithoutArguments() throws Exception {
