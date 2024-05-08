@@ -43,7 +43,7 @@ public class ProcessExecutor {
 
     private final String[] initialArgs;
     private Process process;
-    private final Duration timeout = Duration.ofSeconds(5);
+    private final Duration timeout = Duration.ofSeconds(10);
     private Path workingDir = null;
 
     /**
