@@ -25,9 +25,11 @@ import picocli.CommandLine.ExitCode;
 
 @Testcontainers
 class BucketFsClientExecutableJarIT {
+    // BucketFS PUT requests will block until the UDF container is unpacked, causing timeouts. So we need to wait for
+    // UDF, too.
     @Container
     private static ExasolContainer<? extends ExasolContainer<?>> EXASOL = new ExasolContainer<>()//
-            .withRequiredServices(ExasolService.BUCKETFS).withReuse(true);
+            .withRequiredServices(ExasolService.BUCKETFS, ExasolService.UDF).withReuse(true);
 
     @TempDir
     Path tempDir;
@@ -92,6 +94,15 @@ class BucketFsClientExecutableJarIT {
                 .feedStdIn(password);
         assertResult(executor, ExitCode.OK, equalTo("Password for writing to BucketFS: "), emptyString());
         assertThat(EXASOL.getDefaultBucket().downloadFileAsString(fileName), equalTo(fileContent));
+    }
+
+    @Test
+    void listFailsWhenServerNotListening() throws Exception {
+        final String url = "bfs://localhost:65535/bucket/";
+        final ProcessExecutor executor = ProcessExecutor.currentJar().run("ls", "-pw", url) //
+                .feedStdIn("somePassword");
+        assertResult(executor, ExitCode.SOFTWARE, equalTo("Password for reading from BucketFS: "), equalTo(
+                "E-BFSJ-5: I/O error trying to list 'http://localhost:65535/bucket'. Unable to connect to service, Cause: java.net.ConnectException, Cause: java.net.ConnectException, Cause: java.nio.channels.ClosedChannelException\n"));
     }
 
     @Test

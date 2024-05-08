@@ -8,8 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -18,8 +17,11 @@ import java.util.logging.Logger;
  */
 public class ProcessExecutor {
 
+    private static final Logger LOGGER = Logger.getLogger(ProcessExecutor.class.getName());
+    private static final Duration TIMEOUT = Duration.ofSeconds(5);
+
     /** Name of the JAR file */
-    public static final String JAR_NAME = "bfsc-2.1.0.jar";
+    public static final String JAR_NAME = "bfsc-2.1.1.jar";
 
     /**
      * Create a {@link ProcessExecutor} for the jar built by for the current projects. The Jar file must be built before
@@ -39,11 +41,8 @@ public class ProcessExecutor {
         return jar;
     }
 
-    private static final Logger LOGGER = Logger.getLogger(ProcessExecutor.class.getName());
-
     private final String[] initialArgs;
     private Process process;
-    private final Duration timeout = Duration.ofSeconds(5);
     private Path workingDir = null;
 
     /**
@@ -79,8 +78,10 @@ public class ProcessExecutor {
     public ProcessExecutor run(final String... args) throws IOException, InterruptedException {
         final List<String> commandLine = new ArrayList<>(asList(this.initialArgs));
         commandLine.addAll(asList(args));
-        final File directory = workingDir == null ? null : workingDir.toAbsolutePath().toFile();
+        final File directory = Optional.ofNullable(workingDir).map(Path::toAbsolutePath).map(Path::toFile).orElse(null);
         this.process = new ProcessBuilder(commandLine).redirectErrorStream(false).directory(directory).start();
+        LOGGER.fine(() -> "Running command " + commandLine + " in directory " + directory + " with PID " + process.pid()
+                + "...");
         return this;
     }
 
@@ -133,11 +134,13 @@ public class ProcessExecutor {
     }
 
     public void assertProcessFinishes() throws InterruptedException {
-        LOGGER.fine("Waiting " + this.timeout + " for process to finish...");
-        final boolean success = this.process.waitFor(this.timeout.toMillis(), TimeUnit.MILLISECONDS);
+        LOGGER.fine("Waiting " + TIMEOUT + " for process " + this.process.pid() + " to finish...");
+        final boolean success = this.process.waitFor(TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
         if (!success) {
-            fail("Process did not finish within timeout of " + this.timeout + ". Std out: '" + getStdOut()
-                    + "', std error: '" + getStdErr() + "'");
+            final String message = "Process " + process.pid() + " did not finish within timeout of " + TIMEOUT
+                    + ". Std out: '" + getStdOut() + "', std error: '" + getStdErr() + "'";
+            LOGGER.warning(message);
+            fail(message);
         }
     }
 
