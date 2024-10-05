@@ -1,34 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.exasol</groupId>
+        <artifactId>bucketfs-client-generated-parent</artifactId>
+        <version>2.1.2</version>
+        <relativePath>pk_generated_parent.pom</relativePath>
+    </parent>
     <artifactId>bucketfs-client</artifactId>
-    <version>2.1.1</version>
+    <version>2.1.2</version>
     <description>Command line client for BucketFS</description>
     <url>https://github.com/exasol/bucketfs-client/</url>
     <properties>
-        <java.version>17</java.version>
-        <junit.version>5.10.2</junit.version>
         <picocli.version>4.7.6</picocli.version>
+        <java.version>17</java.version>
+        <junit.version>5.11.2</junit.version>
     </properties>
-    <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <test.excludeTags>native-image</test.excludeTags>
-            </properties>
-        </profile>
-        <profile>
-            <id>native-image</id>
-        </profile>
-    </profiles>
     <dependencies>
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>bucketfs-java</artifactId>
-            <version>3.1.2</version>
+            <version>3.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.exasol</groupId>
@@ -45,7 +37,6 @@
             <artifactId>java-ini-parser</artifactId>
             <version>1.6</version>
         </dependency>
-        <!-- test dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -61,37 +52,37 @@
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
-            <version>2.2</version>
+            <version>3.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.11.0</version>
+            <version>5.14.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>exasol-testcontainers</artifactId>
-            <version>7.1.0</version>
+            <version>7.1.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.19.7</version>
+            <version>1.20.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <version>3.16.1</version>
+            <version>3.17.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.itsallcode</groupId>
             <artifactId>junit5-system-extensions</artifactId>
-            <version>1.2.0</version>
+            <version>1.2.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -101,21 +92,17 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <!-- Enable testcontainers log output for integration tests -->
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>2.0.13</version>
+            <version>2.0.16</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
-                    <!-- Required to avoid error running integration tests:
-                        java.lang.IllegalAccessError: class com.exasol.bucketfs.client.BucketFsClientExecutableJarIT (in module jakarta.json) cannot access class java.util.logging.Logger (in module java.logging) because module jakarta.json does not read module java.logging -->
                     <useModulePath>false</useModulePath>
                 </configuration>
             </plugin>
@@ -145,7 +132,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <annotationProcessorPaths>
@@ -162,7 +148,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <groupId>org.apache.maven.plugins</groupId>
                 <configuration>
                     <finalName>bfsc-${project.version}</finalName>
                     <archive>
@@ -175,10 +160,17 @@
             </plugin>
         </plugins>
     </build>
-    <parent>
-        <artifactId>bucketfs-client-generated-parent</artifactId>
-        <groupId>com.exasol</groupId>
-        <version>2.1.1</version>
-        <relativePath>pk_generated_parent.pom</relativePath>
-    </parent>
+    <profiles>
+        <profile>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <test.excludeTags>native-image</test.excludeTags>
+            </properties>
+        </profile>
+        <profile>
+            <id>native-image</id>
+        </profile>
+    </profiles>
 </project>

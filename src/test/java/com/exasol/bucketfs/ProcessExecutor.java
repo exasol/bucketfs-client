@@ -21,7 +21,7 @@ public class ProcessExecutor {
     private static final Duration TIMEOUT = Duration.ofSeconds(5);
 
     /** Name of the JAR file */
-    public static final String JAR_NAME = "bfsc-2.1.1.jar";
+    public static final String JAR_NAME = "bfsc-2.1.2.jar";
 
     /**
      * Create a {@link ProcessExecutor} for the jar built by for the current projects. The Jar file must be built before

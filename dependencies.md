@@ -16,7 +16,7 @@
 | ----------------------------------------------- | --------------------------------- |
 | [JUnit Jupiter (Aggregator)][7]                 | [Eclipse Public License v2.0][8]  |
 | [JUnit Jupiter Params][7]                       | [Eclipse Public License v2.0][8]  |
-| [Hamcrest][9]                                   | [BSD License 3][10]               |
+| [Hamcrest][9]                                   | [BSD-3-Clause][10]                |
 | [mockito-junit-jupiter][11]                     | [MIT][12]                         |
 | [Test containers for Exasol on Docker][13]      | [MIT License][14]                 |
 | [Testcontainers :: JUnit Jupiter Extension][15] | [MIT][16]                         |
@@ -58,7 +58,7 @@
 [7]: https://junit.org/junit5/
 [8]: https://www.eclipse.org/legal/epl-v20.html
 [9]: http://hamcrest.org/JavaHamcrest/
-[10]: http://opensource.org/licenses/BSD-3-Clause
+[10]: https://raw.githubusercontent.com/hamcrest/JavaHamcrest/master/LICENSE
 [11]: https://github.com/mockito/mockito
 [12]: https://opensource.org/licenses/MIT
 [13]: https://github.com/exasol/exasol-testcontainers/
