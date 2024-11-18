@@ -8,7 +8,7 @@ This release fixes CVE-2024-47554 in `commons-io:commons-io:jar:2.7:compile`.
 
 ## Security
 
-* #45: Fixed CVE-2024-47554 in `commons-io:commons-io:jar:2.7:compile`
+* #44: Fixed CVE-2024-47554 in `commons-io:commons-io:jar:2.7:compile`
 
 ## Dependency Updates
 
