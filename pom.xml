@@ -7,7 +7,7 @@
     <url>https://github.com/exasol/bucketfs-client/</url>
     <properties>
         <java.version>17</java.version>
-        <junit.version>5.10.2</junit.version>
+        <junit.version>5.11.3</junit.version>
         <picocli.version>4.7.6</picocli.version>
     </properties>
     <profiles>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>bucketfs-java</artifactId>
-            <version>3.1.2</version>
+            <version>3.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.exasol</groupId>
@@ -43,7 +43,13 @@
         <dependency>
             <groupId>com.github.vincentrussell</groupId>
             <artifactId>java-ini-parser</artifactId>
-            <version>1.6</version>
+            <version>1.7</version>
+        </dependency>
+        <dependency>
+            <!-- Fix CVE-2024-47554 -->
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.17.0</version>
         </dependency>
         <!-- test dependencies -->
         <dependency>
@@ -61,50 +67,50 @@
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
-            <version>2.2</version>
+            <version>3.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.11.0</version>
+            <version>5.14.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>exasol-testcontainers</artifactId>
-            <version>7.1.0</version>
+            <version>7.1.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.19.7</version>
+            <version>1.20.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <version>3.16.1</version>
+            <version>3.17.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.itsallcode</groupId>
             <artifactId>junit5-system-extensions</artifactId>
-            <version>1.2.0</version>
+            <version>1.2.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit-pioneer</groupId>
             <artifactId>junit-pioneer</artifactId>
-            <version>2.2.0</version>
+            <version>2.3.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <!-- Enable testcontainers log output for integration tests -->
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>2.0.13</version>
+            <version>2.0.16</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
