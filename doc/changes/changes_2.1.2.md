@@ -17,6 +17,7 @@ This release fixes CVE-2024-47554 in `commons-io:commons-io:jar:2.7:compile`.
 * Updated `com.exasol:bucketfs-java:3.1.2` to `3.2.0`
 * Updated `com.github.vincentrussell:java-ini-parser:1.6` to `1.7`
 * Added `commons-io:commons-io:2.17.0`
+* Added `org.apache.commons:commons-lang3:3.17.0`
 
 ### Test Dependency Updates
 
