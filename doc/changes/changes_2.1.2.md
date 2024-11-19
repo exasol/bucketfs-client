@@ -1,4 +1,4 @@
-# Bucketfs Client 2.1.2, released 2024-11-18
+# Bucketfs Client 2.1.2, released 2024-11-19
 
 Code name: Fix CVE-2024-47554: commons-io:commons-io:jar:2.7:compile
 
