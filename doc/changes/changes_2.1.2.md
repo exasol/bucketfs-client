@@ -4,7 +4,7 @@ Code name: Fix CVE-2024-47554: commons-io:commons-io:jar:2.7:compile
 
 ## Summary
 
-This release fixes CVE-2024-47554 in `commons-io:commons-io:jar:2.7:compile`.
+This release fixes CVE-2024-47554 in transitive production dependency `commons-io:commons-io:jar:2.7:compile`.
 
 ## Security
 
