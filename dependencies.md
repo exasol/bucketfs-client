@@ -25,7 +25,7 @@
 | [EqualsVerifier \| release normal jar][20]      | [Apache License, Version 2.0][8]  |
 | [JUnit5 System Extensions][21]                  | [Eclipse Public License v2.0][22] |
 | [junit-pioneer][23]                             | [Eclipse Public License v2.0][11] |
-| [SLF4J JDK14 Provider][24]                      | [MIT License][25]                 |
+| [SLF4J JDK14 Provider][24]                      | [MIT][25]                         |
 
 ## Plugin Dependencies
 
@@ -75,7 +75,7 @@
 [22]: http://www.eclipse.org/legal/epl-v20.html
 [23]: https://junit-pioneer.org/
 [24]: http://www.slf4j.org
-[25]: http://www.opensource.org/licenses/mit-license.php
+[25]: https://opensource.org/license/mit
 [26]: http://sonarsource.github.io/sonar-scanner-maven/
 [27]: http://www.gnu.org/licenses/lgpl.txt
 [28]: https://maven.apache.org/plugins/maven-toolchains-plugin/
