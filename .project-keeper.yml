@@ -10,3 +10,18 @@ build:
   exasolDbVersions:
     - "8.32.0"
     - "7.1.30"
+  workflows:
+    - name: ci-build.yml
+      stepCustomizations:
+        - action: INSERT_AFTER
+          job: matrix-build
+          stepId: setup-java
+          content:
+            name: Setup GraalVM 17
+            id: setup-graalvm
+            uses: graalvm/setup-graalvm@v1
+            with:
+              java-version: "17"
+              components: "native-image"
+              github-token: ${{ secrets.GITHUB_TOKEN }}
+              native-image-job-reports: "true"

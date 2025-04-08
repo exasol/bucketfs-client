@@ -60,6 +60,15 @@ jobs:
           java-version: '17',
           cache: maven
         }
+      - name: Setup GraalVM 17
+        id: setup-graalvm
+        uses: graalvm/setup-graalvm@v1
+        with: {
+          java-version: '17',
+          components: native-image,
+          github-token: '${{ secrets.GITHUB_TOKEN }}',
+          native-image-job-reports: 'true'
+        }
       - name: Cache SonarCloud packages
         id: cache-sonar
         uses: actions/cache@v4
