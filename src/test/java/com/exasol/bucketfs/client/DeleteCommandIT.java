@@ -19,14 +19,14 @@ import com.exasol.bucketfs.BucketAccessException;
 
 @ExtendWith(ExitGuard.class)
 @ExtendWith(SystemErrGuard.class)
-//[itest->dsn~delete-file~1]
+// [itest->dsn~delete-file~1]
 class DeleteCommandIT {
 
     private static final IntegrationTestSetup SETUP = new IntegrationTestSetup();
 
     @AfterAll
     static void afterAll() {
-        SETUP.stop();
+        SETUP.close();
     }
 
     @Test

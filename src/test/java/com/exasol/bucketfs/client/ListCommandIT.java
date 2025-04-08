@@ -34,7 +34,7 @@ class ListCommandIT {
 
     @AfterAll
     static void afterAll() {
-        SETUP.stop();
+        SETUP.close();
     }
 
     @BeforeAll

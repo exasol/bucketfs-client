@@ -47,7 +47,7 @@ class UploadCommandIT {
 
     @AfterAll
     static void after() {
-        SETUP.stop();
+        SETUP.close();
     }
 
     // [itest->dsn~copy-command-copies-file-to-bucket~1]

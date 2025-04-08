@@ -21,17 +21,18 @@ import com.exasol.bucketfs.http.HttpClientBuilder;
 import com.exasol.bucketfs.list.BucketContentLister;
 import com.exasol.bucketfs.list.ListingRetriever;
 import com.exasol.config.BucketConfiguration;
-import com.exasol.containers.ExasolContainer;
-import com.exasol.containers.ExasolService;
+import com.exasol.containers.*;
 
-public class IntegrationTestSetup {
+public class IntegrationTestSetup implements AutoCloseable {
     private static final Logger LOGGER = Logger.getLogger(IntegrationTestSetup.class.getName());
 
+@SuppressWarnings("resource") // Will be closed in close() method
     private final ExasolContainer<? extends ExasolContainer<?>> exasol = new ExasolContainer<>()//
             .withRequiredServices(ExasolService.BUCKETFS).withReuse(true);
 
-    public void stop() {
-        this.exasol.stop();
+@Override
+    public void close() {
+        this.exasol.close();
     }
 
     public IntegrationTestSetup() {
