@@ -5,7 +5,7 @@ sources:
       - integration_tests
       - jar_artifact
 build:
-  runnerOs: ubuntu-20.04
+  runnerOs: ubuntu-latest
   freeDiskSpace: false
   exasolDbVersions:
     - "8.32.0"
