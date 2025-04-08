@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.exasol.bucketfs.*;
+import com.exasol.bucketfs.WriteEnabledBucket.Builder;
 import com.exasol.bucketfs.http.HttpClientBuilder;
 import com.exasol.bucketfs.list.BucketContentLister;
 import com.exasol.bucketfs.list.ListingRetriever;
@@ -26,11 +27,11 @@ import com.exasol.containers.*;
 public class IntegrationTestSetup implements AutoCloseable {
     private static final Logger LOGGER = Logger.getLogger(IntegrationTestSetup.class.getName());
 
-@SuppressWarnings("resource") // Will be closed in close() method
+    @SuppressWarnings("resource") // Will be closed in close() method
     private final ExasolContainer<? extends ExasolContainer<?>> exasol = new ExasolContainer<>()//
             .withRequiredServices(ExasolService.BUCKETFS).withReuse(true);
 
-@Override
+    @Override
     public void close() {
         this.exasol.close();
     }
@@ -67,14 +68,16 @@ public class IntegrationTestSetup implements AutoCloseable {
         final BucketConfiguration bucketConfiguration = this.exasol.getClusterConfiguration() //
                 .getBucketFsServiceConfiguration(DEFAULT_BUCKETFS) //
                 .getBucketConfiguration(DEFAULT_BUCKET);
-        return WriteEnabledBucket.builder() //
+        final Builder<?> builder = WriteEnabledBucket.builder() //
+                .useTls(useTls())
                 .host(getHost()) //
                 .port(getMappedBucketFsPort()) //
                 .serviceName("bfsdefault") //
                 .name("default") //
                 .writePassword(bucketConfiguration.getWritePassword()) //
-                .readPassword(bucketConfiguration.getReadPassword()) //
-                .build();
+                .readPassword(bucketConfiguration.getReadPassword());
+        exasol.getTlsCertificate().ifPresent(cert -> builder.certificate(cert).allowAlternativeHostName("localhost"));
+        return builder.build();
     }
 
     public String getDefaultBucketUriToFile(final String filename) {
@@ -82,7 +85,8 @@ public class IntegrationTestSetup implements AutoCloseable {
     }
 
     public String getBucketFsUri(final String serviceName, final String bucketName, final String pathInBucket) {
-        return "bfs://" + getHost() + ":" + getMappedBucketFsPort() + "/" + bucketName + "/" + pathInBucket;
+        final String protocol = useTls() ? "bfss://" : "bfs://";
+        return protocol + getHost() + ":" + getMappedBucketFsPort() + "/" + bucketName + "/" + pathInBucket;
     }
 
     public static List<Path> createLocalFiles(final Path folder, final String... filenames) {
@@ -124,11 +128,23 @@ public class IntegrationTestSetup implements AutoCloseable {
     }
 
     public List<String> listAll(final UnsynchronizedBucket bucket) throws BucketAccessException {
-        final HttpClient client = new HttpClientBuilder().build();
+        final HttpClientBuilder httpClientBuilder = new HttpClientBuilder();
+        exasol.getTlsCertificate()
+                .ifPresent(cert -> httpClientBuilder.certificate(cert).allowAlternativeHostName("localhost"));
+        final HttpClient client = httpClientBuilder.build();
         final ListingRetriever contentLister = new ListingRetriever(client);
-        final URI uri = ListingRetriever.publicReadUri("http", getHost(), getMappedBucketFsPort(),
+        final URI uri = ListingRetriever.publicReadUri(getProtocol(), getHost(), getMappedBucketFsPort(),
                 bucket.getBucketName());
         return new BucketContentLister(uri, contentLister, bucket.getReadPassword()).retrieve("", true);
+    }
+
+    private String getProtocol() {
+        return useTls() ? "https" : "http";
+    }
+
+    private boolean useTls() {
+        final ExasolDockerImageReference version = exasol.getDockerImageReference();
+        return version.getMajor() >= 8;
     }
 
     public void uploadStringContent(final String content, final String pathInBucket)
