@@ -13,7 +13,7 @@
     "java.test.config": {
         "vmArgs": [
             "-Djava.util.logging.config.file=src/test/resources/logging.properties",
-            "-Dcom.exasol.dockerdb.image=8.27.0"
+            "-Dcom.exasol.dockerdb.image=7.1.26"
         ]
     },
     "sonarlint.connectedMode.project": {
