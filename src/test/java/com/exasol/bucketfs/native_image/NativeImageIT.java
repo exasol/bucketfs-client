@@ -11,7 +11,7 @@ import com.exasol.bucketfs.ProcessExecutor;
 import com.exasol.bucketfs.url.OsCheck;
 import com.exasol.bucketfs.url.OsCheck.OSType;
 
-class NativeImageTest {
+class NativeImageIT {
     @Test
     void testNativeImage() throws IOException, InterruptedException {
         final String suffix = new OsCheck().getOperatingSystemType() == OSType.WINDOWS ? ".exe" : "";
