@@ -60,7 +60,7 @@
         <!-- test dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
+            <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -111,6 +111,13 @@
             <artifactId>junit-pioneer</artifactId>
             <version>2.3.0</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <!-- Fix error "TestEngine with ID 'junit-jupiter' failed to discover tests" -->
+                    <groupId>org.junit.platform</groupId>
+                    <artifactId>junit-platform-launcher</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <!-- Enable testcontainers log output for integration tests -->

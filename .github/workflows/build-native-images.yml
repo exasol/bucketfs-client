@@ -27,9 +27,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: |
-            11
-            17
+          java-version: 17
           cache: "maven"
       - uses: graalvm/setup-graalvm@v1
         with:
@@ -45,7 +43,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload binary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }} # name of zip file
           path: target/${{ matrix.binary }}

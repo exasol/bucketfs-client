@@ -18,8 +18,9 @@ Code name:
 
 * Updated `com.exasol:exasol-testcontainers:7.1.1` to `7.1.4`
 * Updated `nl.jqno.equalsverifier:equalsverifier:3.17.3` to `3.19.3`
+* Added `org.junit.jupiter:junit-jupiter-api:5.12.1`
 * Updated `org.junit.jupiter:junit-jupiter-params:5.11.3` to `5.12.1`
-* Updated `org.junit.jupiter:junit-jupiter:5.11.3` to `5.12.1`
+* Removed `org.junit.jupiter:junit-jupiter:5.11.3`
 * Updated `org.mockito:mockito-junit-jupiter:5.14.2` to `5.17.0`
 * Updated `org.slf4j:slf4j-jdk14:2.0.16` to `2.0.17`
 * Updated `org.testcontainers:junit-jupiter:1.20.3` to `1.20.6`

@@ -16,7 +16,7 @@
 
 | Dependency                                      | License                           |
 | ----------------------------------------------- | --------------------------------- |
-| [JUnit Jupiter (Aggregator)][10]                | [Eclipse Public License v2.0][11] |
+| [JUnit Jupiter API][10]                         | [Eclipse Public License v2.0][11] |
 | [JUnit Jupiter Params][10]                      | [Eclipse Public License v2.0][11] |
 | [Hamcrest][12]                                  | [BSD-3-Clause][13]                |
 | [mockito-junit-jupiter][14]                     | [MIT][15]                         |
