@@ -10,6 +10,30 @@
         <junit.version>5.12.1</junit.version>
         <picocli.version>4.7.6</picocli.version>
     </properties>
+    <profiles>
+        <profile>
+            <id>Windows</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <properties>
+                <binary.suffix>.exe</binary.suffix>
+            </properties>
+        </profile>
+        <profile>
+            <id>unix</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <properties>
+                <binary.suffix></binary.suffix>
+            </properties>
+        </profile>
+    </profiles>
     <dependencies>
         <dependency>
             <groupId>com.exasol</groupId>
@@ -190,7 +214,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>native-image</executable>
+                            <executable>native-image${binary.suffix}</executable>
                             <arguments>
                                 <argument>-jar</argument>
                                 <argument>target/bfsc-${project.version}.jar</argument>
