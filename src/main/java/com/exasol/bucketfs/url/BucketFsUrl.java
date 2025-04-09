@@ -1,8 +1,11 @@
 package com.exasol.bucketfs.url;
 
+import static java.util.Objects.requireNonNull;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Objects;
+import java.util.Set;
 
 import com.exasol.bucketfs.Fallback;
 import com.exasol.bucketfs.client.BucketFsClientException;
@@ -31,6 +34,7 @@ public final class BucketFsUrl {
 
     static final String BUCKETFS_PROTOCOL = "bfs";
     static final String BUCKETFS_PROTOCOL_WITH_TLS = "bfss";
+    private static final Set<String> ALLOWED_PROTOCOLS = Set.of(BUCKETFS_PROTOCOL, BUCKETFS_PROTOCOL_WITH_TLS);
 
     private static final String DEFAULT_HOST = "localhost";
     private static final int DEFAULT_PORT = 2580;
@@ -80,17 +84,26 @@ public final class BucketFsUrl {
     private final BucketFsPath bucketFsPath;
 
     /**
-     *
-     * @param protocol     protocol of this URL
+     * Create a new instance.
+     * 
+     * @param protocol     protocol of this URL, one of
+     *                     <ul>
+     *                     <li>{@link #BUCKETFS_PROTOCOL}</li>
+     *                     <li>{@link #BUCKETFS_PROTOCOL_WITH_TLS}</li>
+     *                     </ul>
      * @param host         host of this URL
      * @param port         port number, or -1 if the port is not set
      * @param bucketFsPath name of the bucket and remaining path inside the bucket
      */
     BucketFsUrl(final String protocol, final String host, final int port, final BucketFsPath bucketFsPath) {
-        this.protocol = protocol;
-        this.host = host;
-        this.port = port;
-        this.bucketFsPath = bucketFsPath;
+        if (!ALLOWED_PROTOCOLS.contains(protocol)) {
+            throw new IllegalArgumentException(
+                    "Protocol '%s' is not supported, use one of %s".formatted(protocol, ALLOWED_PROTOCOLS));
+        }
+        this.protocol = requireNonNull(protocol, "protocol");
+        this.host = requireNonNull(host, "host");
+        this.port = requireNonNull(port, "port");
+        this.bucketFsPath = requireNonNull(bucketFsPath, "bucketFsPath");
     }
 
     /**
@@ -140,7 +153,11 @@ public final class BucketFsUrl {
     }
 
     /**
-     * Get the protocol name of this URL.
+     * Get the protocol name of this URL: one of
+     * <ul>
+     * <li>{@link #BUCKETFS_PROTOCOL}</li>
+     * <li>{@link #BUCKETFS_PROTOCOL_WITH_TLS}</li>
+     * </ul>
      *
      * @return protocol of this URL
      */

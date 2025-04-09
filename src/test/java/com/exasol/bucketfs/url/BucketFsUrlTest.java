@@ -4,6 +4,7 @@ import static com.exasol.bucketfs.url.BucketFsUrl.BUCKETFS_PROTOCOL;
 import static com.exasol.bucketfs.url.BucketFsUrl.BUCKETFS_PROTOCOL_WITH_TLS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.*;
 
@@ -21,6 +22,13 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 class BucketFsUrlTest {
 
     Profile profile = Profile.empty();
+
+    @Test
+    void invalidProtocol() {
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new BucketFsUrl("invalid", "host", 0, null));
+        assertThat(exception.getMessage(), equalTo("Protocol 'invalid' is not supported, use one of [bfs, bfss]"));
+    }
 
     @ParameterizedTest
     @CsvSource({ //
