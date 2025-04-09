@@ -20,7 +20,7 @@ import picocli.CommandLine.*;
 /**
  * This class implements copy operations to and from BucketFS
  */
-//[impl->dsn~command-line-parsing~1]
+// [impl->dsn~command-line-parsing~1]
 @Command(name = "cp", description = "Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY")
 public class CopyCommand implements Callable<Integer> {
 
@@ -55,13 +55,7 @@ public class CopyCommand implements Callable<Integer> {
         try {
             final Profile profile = this.parent.getProfile();
             final BucketFsUrl url = BucketFsUrl.from(this.destination, profile);
-            final UnsynchronizedBucket bucket = WriteEnabledBucket.builder() //
-                    .host(url.getHost()) //
-                    .port(url.getPort()) //
-                    .name(url.getBucketName()) //
-                    .readPassword(this.parent.readPassword())//
-                    .writePassword(this.parent.writePassword()) //
-                    .build();
+            final UnsynchronizedBucket bucket = this.parent.buildWriteEnabledBucket(destination);
             if (!Files.exists(sourcePath)) {
                 throw Uploader.createExceptionForFileNotFound(sourcePath);
             }
@@ -84,12 +78,7 @@ public class CopyCommand implements Callable<Integer> {
         try {
             final Profile profile = this.parent.getProfile();
             final BucketFsUrl url = BucketFsUrl.from(this.source, profile);
-            final ReadOnlyBucket bucket = ReadEnabledBucket.builder() //
-                    .host(url.getHost()) //
-                    .port(url.getPort()) //
-                    .name(url.getBucketName()) //
-                    .readPassword(this.parent.readPassword()) //
-                    .build();
+            final ReadOnlyBucket bucket = this.parent.buildReadOnlyBucket(this.source);
             final Path destinationPath = convertSpecToPath(this.destination);
             new Downloader(this.parent, bucket, url, destinationPath).download();
         } catch (final BucketAccessException exception) {

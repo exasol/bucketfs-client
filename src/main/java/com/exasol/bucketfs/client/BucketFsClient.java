@@ -1,10 +1,16 @@
 package com.exasol.bucketfs.client;
 
+import java.net.URI;
+import java.net.http.HttpClient;
 import java.util.concurrent.Callable;
 
+import com.exasol.bucketfs.*;
 import com.exasol.bucketfs.client.PasswordReader.ConsoleReader;
+import com.exasol.bucketfs.http.HttpClientBuilder;
+import com.exasol.bucketfs.list.ListingRetriever;
 import com.exasol.bucketfs.profile.Profile;
 import com.exasol.bucketfs.profile.ProfileReader;
+import com.exasol.bucketfs.url.BucketFsUrl;
 
 import picocli.CommandLine;
 import picocli.CommandLine.*;
@@ -30,6 +36,8 @@ public class BucketFsClient implements Callable<Integer> {
     @Option(names = { "-pw", "--require-read-password" }, //
             description = "whether BFSC should ask for a read password", scope = ScopeType.INHERIT)
     private boolean requireReadPassword;
+    @Option(names = { "-c", "--certificate" }, //
+            description = "local path to the server certificate in case the certificate is not contained in the Java keystore", scope = ScopeType.INHERIT)
 
     private final ConsoleReader consoleReader;
     private Profile profile;
@@ -81,6 +89,34 @@ public class BucketFsClient implements Callable<Integer> {
 
     String writePassword() {
         return PasswordReader.forWriting(this.consoleReader).readPassword(getProfile());
+    }
+
+    UnsynchronizedBucket buildWriteEnabledBucket(final URI destination) {
+        final Profile profile = this.getProfile();
+        final BucketFsUrl url = BucketFsUrl.from(destination, profile);
+        return WriteEnabledBucket.builder()
+                .host(url.getHost())
+                .port(url.getPort())
+                .name(url.getBucketName())
+                .readPassword(this.readPassword())
+                .writePassword(this.writePassword())
+                .build();
+    }
+
+    ReadOnlyBucket buildReadOnlyBucket(final URI source) {
+        final Profile profile = this.getProfile();
+        final BucketFsUrl url = BucketFsUrl.from(source, profile);
+        return ReadEnabledBucket.builder()
+                .host(url.getHost())
+                .port(url.getPort())
+                .name(url.getBucketName())
+                .readPassword(this.readPassword())
+                .build();
+    }
+
+    ListingRetriever createListingRetriever() {
+        final HttpClient client = new HttpClientBuilder().build();
+        return new ListingRetriever(client);
     }
 
     @Override

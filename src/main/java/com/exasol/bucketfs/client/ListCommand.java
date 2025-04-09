@@ -1,10 +1,8 @@
 package com.exasol.bucketfs.client;
 
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.util.concurrent.Callable;
 
-import com.exasol.bucketfs.http.HttpClientBuilder;
 import com.exasol.bucketfs.list.*;
 import com.exasol.bucketfs.profile.Profile;
 import com.exasol.bucketfs.url.BucketFsUrl;
@@ -31,10 +29,9 @@ public class ListCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         final BucketFsUrl bucketFsUrl = getBucketFsUrl(this.uri, this.parent.getProfile());
-        final HttpClient client = new HttpClientBuilder().build();
+        final ListingRetriever contentLister = this.parent.createListingRetriever();
         final String protocol = bucketFsUrl.isTlsEnabled() ? "https" : "http";
         final String bucketName = bucketFsUrl.getBucketName();
-        final ListingRetriever contentLister = new ListingRetriever(client);
 
         if (bucketName == null) {
             new BucketService(publicReadUri(protocol, bucketFsUrl, ""), contentLister) //
