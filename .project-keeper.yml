@@ -13,7 +13,6 @@ excludes:
   - regex: "E-PK-CORE-26: '.github[/\\\\]workflows[/\\\\]release_droid_upload_github_release_assets.yml' exists but must not exist. Reason: Release-droid workflows are replaced by release.yml"
   - regex: "E-PK-CORE-26: '.github[/\\\\]workflows[/\\\\]release_droid_print_quick_checksum.yml' exists but must not exist. Reason: Release-droid workflows are replaced by release.yml"
   - regex: "E-PK-CORE-26: '.github[/\\\\]workflows[/\\\\]release_droid_prepare_original_checksum.yml' exists but must not exist. Reason: Release-droid workflows are replaced by release.yml"
-  - regex: "E-PK-CORE-17: Missing required file: '.github[/\\\\]workflows[/\\\\]release.yml'"
 build:
   runnerOs: ubuntu-latest
   freeDiskSpace: false
@@ -46,3 +45,20 @@ build:
                   -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
                   -DtrimStackTrace=false \
                   -Dcom.exasol.dockerdb.image=${{ matrix.exasol_db_version }}
+
+    - name: release.yml
+      stepCustomizations:
+        - action: REPLACE
+          job: release
+          stepId: deploy-maven-central
+          content:
+            name: Skip Maven Central Release
+            id: deploy-maven-central
+            run: echo "Maven Central release not needed"
+        - action: REPLACE
+          job: release
+          stepId: create-github-release
+          content:
+            name: Skip GitHub release
+            id: create-github-release
+            run: echo "GitHub release is done via Release Droid"
