@@ -66,7 +66,7 @@ class ProfileReaderTest {
         final String readPassword = "read-password-from-profile";
         final String writePassword = "write-password-from-profile";
         final BucketFsProtocol protocol = BucketFsProtocol.BFS;
-        final Path tlsCertificatePath = Path.of("/path/to/cert.pem");
+        final Path tlsCertificatePath = Path.of("/path/cert.pem");
         Files.writeString(file, lines("[default]", //
                 "host=" + host, //
                 "port=" + port, //
@@ -84,6 +84,14 @@ class ProfileReaderTest {
                 .writePassword(writePassword)
                 .tlsCertificate(tlsCertificatePath)
                 .build()));
+    }
+
+    @Test
+    void testWindowsCertificatePath() throws IOException {
+        final Path file = this.tempDir.resolve("file");
+        Files.writeString(file, lines("[default]",
+                "certificate=C:\\path\\cert.pem"));
+        assertThat(testee(file).getProfile().tlsCertificate(), equalTo(Path.of("C:\\path\\cert.pem")));
     }
 
     private ProfileReader testee(final Path file) {
