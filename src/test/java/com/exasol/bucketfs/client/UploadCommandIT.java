@@ -55,7 +55,7 @@ class UploadCommandIT {
     void testFailureUploadWithMalformedBucketFsUrlRaisesError(@SysErr final Capturable stream) {
         final BFSC client = createClientWithCert("cp", "some_file", "bfs://illegal/");
         stream.capture();
-        assertExitWithStatus(SOFTWARE, () -> client.run());
+        assertExitWithStatus(SOFTWARE, client::run);
         assertThat(stream.getCapturedData(), startsWith("E-BFSC-5: Invalid BucketFS URL: 'bfs://illegal/'"));
     }
 
@@ -75,7 +75,7 @@ class UploadCommandIT {
         stream.capture();
         final BFSC client = createClientWithCert("cp", sourceFile.toString(), bfsUri(filename))
                 .feedStdIn(writePassword());
-        assertExitWithStatus(SOFTWARE, () -> client.run());
+        assertExitWithStatus(SOFTWARE, client::run);
         assertThat(stream.getCapturedData().trim(),
                 equalTo("E-BFSC-2: Unable to upload. No such file or directory: 'non-existing-local-file'."));
     }
@@ -86,7 +86,7 @@ class UploadCommandIT {
         Files.createDirectory(folder);
         final List<Path> files = createLocalFiles(folder, "aa.txt", "bb.txt");
         final BFSC client = createClientWithCert("cp", "-r", folder.toString(), bfsUri("")).feedStdIn(writePassword());
-        assertExitWithStatus(OK, () -> client.run());
+        assertExitWithStatus(OK, client::run);
         SETUP.waitUntilObjectSynchronized();
         for (final Path file : files) {
             verifyFile("upload/" + file.getFileName(), file);
@@ -151,7 +151,7 @@ class UploadCommandIT {
 
     private void verifyUpload(final BFSC client, final Path localFile, final String remotePath)
             throws BucketAccessException, IOException, InterruptedException {
-        assertExitWithStatus(OK, () -> client.run());
+        assertExitWithStatus(OK, client::run);
         SETUP.waitUntilObjectSynchronized();
         verifyFile(remotePath, localFile);
     }

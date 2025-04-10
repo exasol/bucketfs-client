@@ -52,7 +52,7 @@ class ProfileReaderTest {
         final Path file = this.tempDir.resolve("file");
         Files.writeString(file, lines("[default]", "port=abc"));
         final ProfileReader testee = testee(file);
-        final Exception exception = assertThrows(IllegalStateException.class, () -> testee.getProfile());
+        final Exception exception = assertThrows(IllegalStateException.class, testee::getProfile);
         assertThat(exception.getMessage(), matchesRegex("E-BFSC-7: Failed to read profile from '.*'"
                 + " caused by invalid integer value in entry 'port=abc'."));
     }

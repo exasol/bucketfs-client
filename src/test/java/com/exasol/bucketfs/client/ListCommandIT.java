@@ -98,7 +98,7 @@ class ListCommandIT {
     @Test
     void nonExistingFolder() {
         final BFSC client = createClientWithBucketUri("ls", "non-existing-folder/");
-        assertExitWithStatus(1, () -> client.run());
+        assertExitWithStatus(1, client::run);
     }
 
     private void verifyListCommand(final Capturable stream, final BFSC client, final List<String> expected) {
@@ -109,7 +109,7 @@ class ListCommandIT {
     private void verifyListCommand(final Capturable stream, final BFSC client, final Predicate<String> listingFilter,
             final List<String> expected) {
         stream.capture();
-        assertExitWithStatus(OK, () -> client.run());
+        assertExitWithStatus(OK, client::run);
         final String stdout = stream.getCapturedData().trim();
         final List<String> actual = listing(stdout, listingFilter);
         assertThat(actual, equalTo(expected));

@@ -96,7 +96,7 @@ class DeleteCommandIT {
     }
 
     private void verifyDelete(final BFSC client, final String list, final String missing) throws BucketAccessException {
-        assertExitWithStatus(OK, () -> client.run());
+        assertExitWithStatus(OK, client::run);
         final List<String> actual = SETUP.getDefaultBucket().listContents(list);
         assertThat(actual, not(hasItem(missing)));
     }

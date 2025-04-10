@@ -101,8 +101,7 @@ public class BucketFsClient implements Callable<Integer> {
     }
 
     UnsynchronizedBucket buildWriteEnabledBucket(final URI destination) {
-        final Profile profile = this.getProfile();
-        final BucketFsUrl url = BucketFsUrl.from(destination, profile);
+        final BucketFsUrl url = BucketFsUrl.from(destination, this.getProfile());
         final Builder<? extends Builder<?>> builder = WriteEnabledBucket.builder()
                 .useTls(url.isTlsEnabled())
                 .host(url.getHost())
@@ -117,8 +116,7 @@ public class BucketFsClient implements Callable<Integer> {
     }
 
     ReadOnlyBucket buildReadOnlyBucket(final URI source) {
-        final Profile profile = this.getProfile();
-        final BucketFsUrl url = BucketFsUrl.from(source, profile);
+        final BucketFsUrl url = BucketFsUrl.from(source, this.getProfile());
         final var builder = ReadEnabledBucket.builder()
                 .useTls(url.isTlsEnabled())
                 .host(url.getHost())

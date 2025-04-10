@@ -48,7 +48,7 @@ class DownloadCommandIT {
     void testFailureDownloadWithMalformedBucketFsUrl(final Capturable stream) {
         final BFSC client = create("cp", "bfs://illegal/", "some_file");
         stream.capture();
-        assertExitWithStatus(SOFTWARE, () -> client.run());
+        assertExitWithStatus(SOFTWARE, client::run);
         assertThat(stream.getCapturedData(), startsWith("E-BFSC-5: Invalid BucketFS URL: 'bfs://illegal/'"));
     }
 
@@ -66,7 +66,7 @@ class DownloadCommandIT {
     private void verifyNoSuchFile(final String remote, final Capturable stream) {
         final BFSC client = create("cp", bfsUri(remote), "some_file");
         stream.capture();
-        assertExitWithStatus(SOFTWARE, () -> client.run());
+        assertExitWithStatus(SOFTWARE, client::run);
         assertThat(stream.getCapturedData().trim(),
                 matchesRegex("E-BFSC-10: Cannot download '.*/" + remote + "': No such file or directory."));
     }

@@ -19,8 +19,6 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 
 class BucketFsUrlTest {
 
-    Profile profile = Profile.empty();
-
     @Test
     void missingProtocol() {
         final NullPointerException exception = assertThrows(NullPointerException.class,
@@ -53,7 +51,7 @@ class BucketFsUrlTest {
             "bfs://127.0.0.1:123/b/foo/bar/baz" //
     })
     void createFromUri(final String spec) throws Exception {
-        assertThat(BucketFsUrl.from(URI.create(spec), this.profile).toString(), equalTo(spec));
+        assertThat(BucketFsUrl.from(URI.create(spec), Profile.empty()).toString(), equalTo(spec));
     }
 
     @ParameterizedTest
@@ -161,7 +159,7 @@ class BucketFsUrlTest {
     // port can only be specified together with host
     })
     void emptyEnvironment(final String spec, final String expected) throws Exception {
-        verifyWithEnv(spec, this.profile, expected);
+        verifyWithEnv(spec, Profile.empty(), expected);
     }
 
     @ParameterizedTest
@@ -192,7 +190,7 @@ class BucketFsUrlTest {
     @ParameterizedTest
     @ValueSource(strings = { "bfs:/bucket/drivers/a.txt" })
     void relative(final String spec) throws Exception {
-        verifyWithEnv(spec, this.profile, "bfs://localhost:2580/bucket/drivers/a.txt");
+        verifyWithEnv(spec, Profile.empty(), "bfs://localhost:2580/bucket/drivers/a.txt");
     }
 
     private void verifyWithEnv(final String spec, final Profile profile, final String expected)
@@ -215,7 +213,7 @@ class BucketFsUrlTest {
     }
 
     private BucketFsUrl testee(final String spec) throws MalformedURLException, URISyntaxException {
-        return testee(spec, this.profile);
+        return testee(spec, Profile.empty());
     }
 
     private BucketFsUrl testee(final String spec, final Profile profile)

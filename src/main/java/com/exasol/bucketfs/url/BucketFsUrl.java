@@ -5,7 +5,6 @@ import static java.util.Objects.requireNonNull;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Objects;
-import java.util.Set;
 
 import com.exasol.bucketfs.Fallback;
 import com.exasol.bucketfs.client.BucketFsClientException;
@@ -25,16 +24,12 @@ public final class BucketFsUrl {
      * @return {@code true} if URI refers to BucketFS
      */
     public static boolean isBucketFsUrl(final URI uri) {
-        return (uri != null) && (BUCKETFS_PROTOCOL.equals(uri.getScheme()) //
-                || BUCKETFS_PROTOCOL_WITH_TLS.equals(uri.getScheme()));
+        return (uri != null) && (BucketFsProtocol.BFS.getName().equals(uri.getScheme()) //
+                || BucketFsProtocol.BFSS.getName().equals(uri.getScheme()));
     }
 
     public static final String PATH_SEPARATOR = "/";
     public static final int UNDEFINED_PORT = -1;
-
-    static final String BUCKETFS_PROTOCOL = "bfs";
-    static final String BUCKETFS_PROTOCOL_WITH_TLS = "bfss";
-    private static final Set<String> ALLOWED_PROTOCOLS = Set.of(BUCKETFS_PROTOCOL, BUCKETFS_PROTOCOL_WITH_TLS);
 
     private static final String DEFAULT_HOST = "localhost";
     private static final int DEFAULT_PORT = 2580;

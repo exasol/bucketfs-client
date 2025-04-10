@@ -26,7 +26,7 @@ import picocli.CommandLine.ExitCode;
 class BucketFsClientExecutableJarIT {
     // BucketFS PUT requests will block until the UDF container is unpacked, causing timeouts. So we need to wait for
     // UDF, too.
-    private static IntegrationTestSetup SETUP = new IntegrationTestSetup();
+    private static final IntegrationTestSetup SETUP = new IntegrationTestSetup();
 
     @TempDir
     Path tempDir;
