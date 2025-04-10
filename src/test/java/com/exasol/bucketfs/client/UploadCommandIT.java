@@ -63,7 +63,7 @@ class UploadCommandIT {
     void testFailureUploadDirectoryWithoutRecursiveFlag(@SysErr final Capturable stream) throws IOException {
         final BFSC bfsc = createClientWithCert("cp", this.tempDir.toString(), bfsUri(""));
         stream.capture();
-        assertExitWithStatus(SOFTWARE, () -> bfsc.run());
+        assertExitWithStatus(SOFTWARE, bfsc::run);
         assertThat(stream.getCapturedData().trim(), matchesRegex("E-BFSC-8: Cannot upload directory '.*'."
                 + " Specify option -r or --recursive to upload directories."));
     }
