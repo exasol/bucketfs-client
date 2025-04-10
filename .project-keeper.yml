@@ -14,7 +14,7 @@ excludes:
   - regex: "E-PK-CORE-26: '.github[/\\\\]workflows[/\\\\]release_droid_print_quick_checksum.yml' exists but must not exist. Reason: Release-droid workflows are replaced by release.yml"
   - regex: "E-PK-CORE-26: '.github[/\\\\]workflows[/\\\\]release_droid_prepare_original_checksum.yml' exists but must not exist. Reason: Release-droid workflows are replaced by release.yml"
 build:
-  runnerOs: ubuntu-latest
+  runnerOs: ubuntu-20.04
   freeDiskSpace: false
   exasolDbVersions:
     - "8.32.0"
