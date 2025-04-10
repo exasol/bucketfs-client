@@ -52,7 +52,7 @@ For that you need Java 17 or later, the installation procedure depends on your o
       ```shell
       sudo yum install java-17-openjdk
       ```
-    * SuSE: OpenJDK build of the Leap project](https://software.opensuse.org/download/package?package=java-17-openjdk&project=openSUSE%3AFactory)
+    * SuSE: [OpenJDK build of the Leap project](https://software.opensuse.org/download/package?package=java-17-openjdk&project=openSUSE%3AFactory)
 
 As soon as Java 17 is available you can run BFSC's JAR file the following command:
 
