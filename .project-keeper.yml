@@ -6,7 +6,7 @@ sources:
       - jar_artifact
     artifacts:
       # Native image for Linux
-      - target/bfsc
+      - target/bfsc-Linux_amd64
 excludes:
   # Using Release Droid instead of PK release process as PK does not support building native images for Windows
   - "E-PK-CORE-26: 'release_config.yml' exists but must not exist. Reason: Release-droid configuration is replaced by release.yml"

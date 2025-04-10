@@ -44,5 +44,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: native-binary-${{ matrix.os }} # name of zip file
-          path: target/${{ matrix.binary }}
+          path: target/bfsc-*
           if-no-files-found: error
