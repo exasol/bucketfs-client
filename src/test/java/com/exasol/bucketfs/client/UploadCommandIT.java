@@ -51,7 +51,7 @@ class UploadCommandIT {
     // [itest->dsn~copy-command-copies-file-to-bucket~1]
     @Test
     void testFailureUploadWithMalformedBucketFsUrlRaisesError(@SysErr final Capturable stream) {
-        final BFSC client = createClientWithCert("cp", "some_file", "bfs://illegal/");
+        final BFSC client = createClient("cp", "some_file", "bfs://illegal/");
         stream.capture();
         client.withExpectedExitCode(SOFTWARE).run();
         assertThat(stream.getCapturedData(), startsWith("E-BFSC-5: Invalid BucketFS URL: 'bfs://illegal/'"));
@@ -59,7 +59,7 @@ class UploadCommandIT {
 
     @Test
     void testFailureUploadDirectoryWithoutRecursiveFlag(@SysErr final Capturable stream) throws IOException {
-        final BFSC bfsc = createClientWithCert("cp", this.tempDir.toString(), bfsUri(""));
+        final BFSC bfsc = createClient("cp", this.tempDir.toString(), bfsUri(""));
         stream.capture();
         bfsc.withExpectedExitCode(SOFTWARE).run();
         assertThat(stream.getCapturedData().trim(), matchesRegex("E-BFSC-8: Cannot upload directory '.*'."
@@ -71,7 +71,7 @@ class UploadCommandIT {
         final String filename = "non-existing-local-file";
         final Path sourceFile = Path.of(filename);
         stream.capture();
-        final BFSC client = createClientWithCert("cp", sourceFile.toString(), bfsUri(filename))
+        final BFSC client = createClient("cp", sourceFile.toString(), bfsUri(filename))
                 .feedStdIn(writePassword());
         client.withExpectedExitCode(SOFTWARE).run();
         assertThat(stream.getCapturedData().trim(),
@@ -83,7 +83,7 @@ class UploadCommandIT {
         final Path folder = this.tempDir.resolve("upload");
         Files.createDirectory(folder);
         final List<Path> files = createLocalFiles(folder, "aa.txt", "bb.txt");
-        final BFSC client = createClientWithCert("cp", "-r", folder.toString(), bfsUri("")).feedStdIn(writePassword());
+        final BFSC client = createClient("cp", "-r", folder.toString(), bfsUri("")).feedStdIn(writePassword());
         client.run();
         SETUP.waitUntilObjectSynchronized();
         for (final Path file : files) {
@@ -127,7 +127,7 @@ class UploadCommandIT {
     void testSuccessUploadWithRenaming() throws Exception {
         final Path local = createRandomFile();
         final String remote = "renamed";
-        final BFSC client = createClientWithCert("cp", local.toString(), bfsUri(remote)).feedStdIn(writePassword());
+        final BFSC client = createClient("cp", local.toString(), bfsUri(remote)).feedStdIn(writePassword());
         verifyUpload(client, local, remote);
     }
 
@@ -135,7 +135,7 @@ class UploadCommandIT {
     void testSuccessUploadToDirectory() throws Exception {
         final Path local = createRandomFile();
         final String remote = "dir/";
-        final BFSC client = createClientWithCert("cp", local.toString(), bfsUri(remote)).feedStdIn(writePassword());
+        final BFSC client = createClient("cp", local.toString(), bfsUri(remote)).feedStdIn(writePassword());
         verifyUpload(client, local, remote + FILENAME);
     }
 
@@ -143,7 +143,7 @@ class UploadCommandIT {
     @CsvSource({ "some_file", "./some_file" })
     void testSuccessUploadFile(final String localPath) throws Exception {
         final String remote = "uploaded_file";
-        final BFSC client = createClientWithCert("cp", localPath, bfsUri(remote)).feedStdIn(writePassword());
+        final BFSC client = createClient("cp", localPath, bfsUri(remote)).feedStdIn(writePassword());
         verifyUpload(client, Path.of("some_file"), remote);
     }
 
@@ -163,7 +163,7 @@ class UploadCommandIT {
         return createLocalFile(this.tempDir.resolve(FILENAME), String.valueOf(System.currentTimeMillis()));
     }
 
-    private BFSC createClientWithCert(final String... args) {
+    private BFSC createClient(final String... args) {
         final List<String> argsWithCertificate = new ArrayList<>(args.length + 1);
         argsWithCertificate.addAll(asList(args));
         SETUP.getTlsCertificatePath().ifPresent(cert -> argsWithCertificate.add("--certificate=" + cert.toString()));
@@ -175,7 +175,7 @@ class UploadCommandIT {
         final String[] args = Arrays.copyOf(initialArgs, n + 2);
         args[n] = this.tempDir.resolve(FILENAME).toString();
         args[n + 1] = bfsUri(FILENAME);
-        return createClientWithCert(args);
+        return createClient(args);
     }
 
     private String bfsUri(final String pathInBucket) {
