@@ -1,12 +1,14 @@
-# Bucketfs Client 2.1.3, released 2025-??-??
+# Bucketfs Client 2.2.0, released 2025-04-10
 
-Code name:
+Code name: TLS support
 
 ## Summary
 
+This release adds support for connecting to BucketFS via TLS. Command line option `--certificate` allows specifying the server certificate when it is self-signed. See the user guide for details.
+
 ## Features
 
-* ISSUE_NUMBER: description
+* #33: Added TLS support
 
 ## Dependency Updates
 

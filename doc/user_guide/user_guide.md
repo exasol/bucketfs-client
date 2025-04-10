@@ -130,6 +130,12 @@ ReadPasswd = <value>
 
 Please note that each of the passwords is base64-encoded. So before providing the passwords to BFSC please apply `echo <password> | base64 -d`.
 
+### Using TLS
+
+When your BucketFS server uses TLS (HTTPS), use protocol `bfss`. On the command line specify the bucket URL as `bfss://<host>:<port>/<path-in-bucket>`. When using a [configuration file](#configuration-file), add option `protocol = bfss` to the profile.
+
+If the BucketFS server uses a self-signed certificate or the certificate is not available in the Java truststore, the connection will fail during certificate validation. To solve this, store the certificate as a file and specify it with command line option `-c` / `--certificate` or with option `certificate` in the profile.
+
 ### Configuration File
 
 Besides specifying the complete URL on the command line you can use defaults for some parts of the URL.
@@ -145,22 +151,26 @@ The configuration file uses the INI-file syntax. An INI file is divided into sec
 
 BFCS uses the following elements of your profile with the specified hard coded default values:
 
-| Parameter                       | Variable         | Default value |
-|---------------------------------|------------------|---------------|
-| Host address of BucketFS server | `host`           | `localhost`   |
-| Port                            | `port`           | `2580`        |
-| Name of root bucket             | `bucket`         | (none)        |
-| Password for read operations    | `password.read`  | (none)        |
-| Password for write operations   | `password.write` | (none)        |
+| Parameter                       | Variable         | Default value                   |
+|---------------------------------|------------------|---------------------------------|
+| Protocol of BucketFS server     | `protocol`       | `bfs` or `bfss`, default: `bfs` |
+| Host address of BucketFS server | `host`           | `localhost`                     |
+| Port                            | `port`           | `2580`                          |
+| Name of root bucket             | `bucket`         | (none)                          |
+| Password for read operations    | `password.read`  | (none)                          |
+| Password for write operations   | `password.write` | (none)                          |
+| Path to TLS certificate         | `certificate`    | (none)                          |
 
 Here is an example for the content of a configuration file for BFSC:
 ```
 [default]
+protocol=bfss
 host=1.2.3.4
 port=8888
 bucket=simba
 password.read=abc
 password.write=def
+certificate=/path/to/cert.crt
 ```
 
 Using this configuration file the command line
