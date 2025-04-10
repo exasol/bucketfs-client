@@ -38,7 +38,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: "true"
       - name: Run tests for native image builds
-        run: mvn --batch-mode -Pnative clean verify "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -DtrimStackTrace=false
+        # Run only NativeImageIT because other tests require Docker which is not supported under Windows
+        run: mvn --batch-mode -Pnative clean verify "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" -DtrimStackTrace=false "-Dit.test=NativeImageIT"
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
