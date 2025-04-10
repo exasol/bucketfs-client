@@ -42,7 +42,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
           cd target
-          powershell "\$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8' ; (Get-FileHash ${{ matrix.binary }} -Algorithm SHA256).Hash.ToLower() > ${{ matrix.binary }}.sha256"
+          powershell "\$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8' ; (Get-FileHash '${{ matrix.binary }}' -Algorithm SHA256).Hash.ToLower() > '${{ matrix.binary }}.sha256'"
       - name: Generate sha256 checksum files on Ubuntu
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
