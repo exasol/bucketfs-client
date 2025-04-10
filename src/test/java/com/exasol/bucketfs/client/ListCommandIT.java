@@ -3,8 +3,6 @@ package com.exasol.bucketfs.client;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.itsallcode.junit.sysextensions.AssertExit.assertExitWithStatus;
-import static picocli.CommandLine.ExitCode.OK;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,7 +12,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.itsallcode.io.Capturable;
-import org.itsallcode.junit.sysextensions.ExitGuard;
 import org.itsallcode.junit.sysextensions.SystemOutGuard;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +21,6 @@ import com.exasol.bucketfs.BucketAccessException;
 import com.exasol.bucketfs.Lines;
 import com.exasol.bucketfs.url.BucketFsProtocol;
 
-@ExtendWith(ExitGuard.class)
 @ExtendWith(SystemOutGuard.class)
 // [itest->dsn~list-contents~1]
 // [itest->dsn~list-files-and-directories~1]
@@ -98,7 +94,7 @@ class ListCommandIT {
     @Test
     void nonExistingFolder() {
         final BFSC client = createClientWithBucketUri("ls", "non-existing-folder/");
-        assertExitWithStatus(1, client::run);
+        client.withExpectedExitCode(1).run();
     }
 
     private void verifyListCommand(final Capturable stream, final BFSC client, final List<String> expected) {
@@ -109,7 +105,7 @@ class ListCommandIT {
     private void verifyListCommand(final Capturable stream, final BFSC client, final Predicate<String> listingFilter,
             final List<String> expected) {
         stream.capture();
-        assertExitWithStatus(OK, client::run);
+        client.run();
         final String stdout = stream.getCapturedData().trim();
         final List<String> actual = listing(stdout, listingFilter);
         assertThat(actual, equalTo(expected));

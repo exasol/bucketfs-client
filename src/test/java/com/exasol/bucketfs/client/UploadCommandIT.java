@@ -6,8 +6,6 @@ import static com.exasol.bucketfs.client.IntegrationTestSetup.createLocalFiles;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.itsallcode.junit.sysextensions.AssertExit.assertExitWithStatus;
-import static picocli.CommandLine.ExitCode.OK;
 import static picocli.CommandLine.ExitCode.SOFTWARE;
 
 import java.io.IOException;
@@ -16,8 +14,9 @@ import java.nio.file.Path;
 import java.util.*;
 
 import org.itsallcode.io.Capturable;
-import org.itsallcode.junit.sysextensions.*;
+import org.itsallcode.junit.sysextensions.SystemErrGuard;
 import org.itsallcode.junit.sysextensions.SystemErrGuard.SysErr;
+import org.itsallcode.junit.sysextensions.SystemOutGuard;
 import org.itsallcode.junit.sysextensions.SystemOutGuard.SysOut;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +28,6 @@ import org.junitpioneer.jupiter.ClearSystemProperty;
 import com.exasol.bucketfs.BucketAccessException;
 import com.exasol.bucketfs.profile.ProfileReader;
 
-@ExtendWith(ExitGuard.class)
 @ExtendWith(SystemErrGuard.class)
 @ExtendWith(SystemOutGuard.class)
 class UploadCommandIT {
@@ -55,7 +53,7 @@ class UploadCommandIT {
     void testFailureUploadWithMalformedBucketFsUrlRaisesError(@SysErr final Capturable stream) {
         final BFSC client = createClientWithCert("cp", "some_file", "bfs://illegal/");
         stream.capture();
-        assertExitWithStatus(SOFTWARE, client::run);
+        client.withExpectedExitCode(SOFTWARE).run();
         assertThat(stream.getCapturedData(), startsWith("E-BFSC-5: Invalid BucketFS URL: 'bfs://illegal/'"));
     }
 
@@ -63,7 +61,7 @@ class UploadCommandIT {
     void testFailureUploadDirectoryWithoutRecursiveFlag(@SysErr final Capturable stream) throws IOException {
         final BFSC bfsc = createClientWithCert("cp", this.tempDir.toString(), bfsUri(""));
         stream.capture();
-        assertExitWithStatus(SOFTWARE, bfsc::run);
+        bfsc.withExpectedExitCode(SOFTWARE).run();
         assertThat(stream.getCapturedData().trim(), matchesRegex("E-BFSC-8: Cannot upload directory '.*'."
                 + " Specify option -r or --recursive to upload directories."));
     }
@@ -75,7 +73,7 @@ class UploadCommandIT {
         stream.capture();
         final BFSC client = createClientWithCert("cp", sourceFile.toString(), bfsUri(filename))
                 .feedStdIn(writePassword());
-        assertExitWithStatus(SOFTWARE, client::run);
+        client.withExpectedExitCode(SOFTWARE).run();
         assertThat(stream.getCapturedData().trim(),
                 equalTo("E-BFSC-2: Unable to upload. No such file or directory: 'non-existing-local-file'."));
     }
@@ -86,7 +84,7 @@ class UploadCommandIT {
         Files.createDirectory(folder);
         final List<Path> files = createLocalFiles(folder, "aa.txt", "bb.txt");
         final BFSC client = createClientWithCert("cp", "-r", folder.toString(), bfsUri("")).feedStdIn(writePassword());
-        assertExitWithStatus(OK, client::run);
+        client.run();
         SETUP.waitUntilObjectSynchronized();
         for (final Path file : files) {
             verifyFile("upload/" + file.getFileName(), file);
@@ -151,7 +149,7 @@ class UploadCommandIT {
 
     private void verifyUpload(final BFSC client, final Path localFile, final String remotePath)
             throws BucketAccessException, IOException, InterruptedException {
-        assertExitWithStatus(OK, client::run);
+        client.run();
         SETUP.waitUntilObjectSynchronized();
         verifyFile(remotePath, localFile);
     }

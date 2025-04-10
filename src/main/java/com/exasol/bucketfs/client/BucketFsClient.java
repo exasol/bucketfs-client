@@ -52,14 +52,14 @@ public class BucketFsClient implements Callable<Integer> {
     private Profile profile;
 
     public static void main(final String[] arguments) {
-        mainWithConsoleReader(PasswordReader.defaultConsoleReader(), arguments);
+        final int exitCode = mainWithConsoleReader(PasswordReader.defaultConsoleReader(), arguments);
+        System.exit(exitCode);
     }
 
-    static void mainWithConsoleReader(final ConsoleReader consoleReader, final String[] arguments) {
+    static int mainWithConsoleReader(final ConsoleReader consoleReader, final String[] arguments) {
         final CommandLine commandLineClient = new CommandLine(new BucketFsClient(consoleReader)) //
                 .setExecutionExceptionHandler(new PrintExceptionMessageHandler());
-        final int exitCode = commandLineClient.execute(arguments);
-        System.exit(exitCode);
+        return commandLineClient.execute(arguments);
     }
 
     public BucketFsClient(final ConsoleReader consoleReader) {
