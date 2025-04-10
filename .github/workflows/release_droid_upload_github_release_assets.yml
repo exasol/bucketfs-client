@@ -16,10 +16,10 @@ jobs:
         os: [windows-latest, ubuntu-latest]
         include:
           - os: windows-latest
-            binary: bfsc-win_x86
+            binary: bfsc
             suffix: .exe
           - os: ubuntu-latest
-            binary: bfsc-linux_x86
+            binary: bfsc
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4

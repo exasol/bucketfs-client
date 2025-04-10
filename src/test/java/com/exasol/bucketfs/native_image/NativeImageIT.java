@@ -21,7 +21,9 @@ class NativeImageIT {
     @Test
     void testNativeImage() throws IOException, InterruptedException {
         final String suffix = new OsCheck().getOperatingSystemType() == OSType.WINDOWS ? ".exe" : "";
-        final Path executable = Path.of("target/bfsc" + suffix).toAbsolutePath();
+        final String binaryName = "bfsc-" + System.getProperty("os.name") + "_" + System.getProperty("os.arch")
+                + suffix;
+        final Path executable = Path.of("target").resolve(binaryName).toAbsolutePath();
         assertTrue(Files.exists(executable),
                 "Executable %s does not exist, build it with 'mvn package'".formatted(executable));
         final ProcessExecutor executor = new ProcessExecutor(executable.toString()).run("--help");
