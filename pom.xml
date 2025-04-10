@@ -41,6 +41,7 @@
                         </executions>
                         <configuration>
                             <mainClass>${main.class}</mainClass>
+                            <imageName>bfsc</imageName>
                         </configuration>
                     </plugin>
                 </plugins>
