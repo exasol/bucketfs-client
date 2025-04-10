@@ -20,10 +20,7 @@ import com.exasol.bucketfs.url.OsCheck.OSType;
 class NativeImageIT {
     @Test
     void testNativeImage() throws IOException, InterruptedException {
-        final String suffix = new OsCheck().getOperatingSystemType() == OSType.WINDOWS ? ".exe" : "";
-        final String binaryName = "bfsc-" + System.getProperty("os.name") + "_" + System.getProperty("os.arch")
-                + suffix;
-        final Path executable = Path.of("target").resolve(binaryName).toAbsolutePath();
+        final Path executable = Path.of("target").resolve(getBinaryName()).toAbsolutePath();
         assertTrue(Files.exists(executable),
                 "Executable %s does not exist, build it with 'mvn package'".formatted(executable));
         final ProcessExecutor executor = new ProcessExecutor(executable.toString()).run("--help");
@@ -31,5 +28,19 @@ class NativeImageIT {
         assertAll(() -> assertThat("std out", executor.getStdOut(), startsWith("Usage: ")),
                 () -> assertThat("std err", executor.getStdErr(), emptyString()),
                 () -> assertThat("exit code", executor.getExitCode(), equalTo(0)));
+    }
+
+    private String getBinaryName() {
+        final OSType osType = new OsCheck().getOperatingSystemType();
+        switch (osType) {
+            case WINDOWS:
+                return "bfsc-windows_x86_64.exe";
+            case LINUX:
+                return "bfsc-linux_x86_64";
+            case MACOS:
+                return "bfsc-osx_x86_64";
+            default:
+                throw new IllegalStateException("Unsupported OS type %s".formatted(osType));
+        }
     }
 }

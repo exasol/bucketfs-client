@@ -12,11 +12,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest]
-        include:
-          - os: windows-latest
-            binary: bfsc.exe
-          - os: ubuntu-latest
-            binary: bfsc
     concurrency:
       group: ${{ github.workflow }}-${{ matrix.os }}-${{ github.ref }}
       cancel-in-progress: true

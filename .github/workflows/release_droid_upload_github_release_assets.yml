@@ -16,9 +16,9 @@ jobs:
         os: [windows-latest, ubuntu-latest]
         include:
           - os: windows-latest
-            binary: bfsc-Windows Server 2022_amd64.exe
+            binary: bfsc-windows_x86_64.exe
           - os: ubuntu-latest
-            binary: bfsc-Linux_amd64
+            binary: bfsc-linux_x86_64
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
           cd target
-          powershell "\$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8' ; (Get-FileHash '${{ matrix.binary }}' -Algorithm SHA256).Hash.ToLower() > '${{ matrix.binary }}.sha256'"
+          powershell "\$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8' ; (Get-FileHash ${{ matrix.binary }} -Algorithm SHA256).Hash.ToLower() > ${{ matrix.binary }}.sha256"
       - name: Generate sha256 checksum files on Ubuntu
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
