@@ -9,29 +9,42 @@
         <java.version>17</java.version>
         <junit.version>5.12.1</junit.version>
         <picocli.version>4.7.6</picocli.version>
+        <main.class>com.exasol.bucketfs.client.BucketFsClient</main.class>
     </properties>
     <profiles>
         <profile>
-            <id>Windows</id>
+            <id>default</id>
             <activation>
-                <os>
-                    <family>Windows</family>
-                </os>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <binary.suffix>.exe</binary.suffix>
+                <test.excludeTags>native-image</test.excludeTags>
             </properties>
         </profile>
         <profile>
-            <id>unix</id>
-            <activation>
-                <os>
-                    <family>unix</family>
-                </os>
-            </activation>
-            <properties>
-                <binary.suffix></binary.suffix>
-            </properties>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>0.10.6</version>
+                        <extensions>true</extensions>
+                        <executions>
+                            <execution>
+                                <id>build-native</id>
+                                <goals>
+                                    <goal>compile-no-fork</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <mainClass>${main.class}</mainClass>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
     <dependencies>
@@ -164,7 +177,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -196,33 +209,11 @@
                     <finalName>bfsc-${project.version}</finalName>
                     <archive>
                         <manifest>
-                            <mainClass>com.exasol.bucketfs.client.BucketFsClient</mainClass>
+                            <mainClass>${main.class}</mainClass>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
-                <executions>
-                    <execution>
-                        <id>build-native-image</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>native-image${binary.suffix}</executable>
-                            <arguments>
-                                <argument>-jar</argument>
-                                <argument>target/bfsc-${project.version}.jar</argument>
-                                <argument>target/bfsc</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.ossindex.maven</groupId>

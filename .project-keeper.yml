@@ -25,3 +25,14 @@ build:
               components: "native-image"
               github-token: ${{ secrets.GITHUB_TOKEN }}
               native-image-job-reports: "true"
+        - action: REPLACE
+          job: matrix-build
+          stepId: build-pk-verify
+          content:
+            name: Run tests and build with Maven with native image
+            id: build-pk-verify
+            run: |
+              mvn --batch-mode -Pnative clean verify \
+                  -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
+                  -DtrimStackTrace=false \
+                  -Dcom.exasol.dockerdb.image=${{ matrix.exasol_db_version }}

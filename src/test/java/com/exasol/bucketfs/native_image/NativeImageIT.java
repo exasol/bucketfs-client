@@ -9,12 +9,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import com.exasol.bucketfs.ProcessExecutor;
 import com.exasol.bucketfs.url.OsCheck;
 import com.exasol.bucketfs.url.OsCheck.OSType;
 
+@Tag("native-image")
 class NativeImageIT {
     @Test
     void testNativeImage() throws IOException, InterruptedException {
