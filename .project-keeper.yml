@@ -8,10 +8,12 @@ sources:
       # Native image for Linux
       - target/bfsc
 excludes:
+  # Using Release Droid instead of PK release process as PK does not support building native images for Windows
   - "E-PK-CORE-26: 'release_config.yml' exists but must not exist. Reason: Release-droid configuration is replaced by release.yml"
   - "E-PK-CORE-26: '.github/workflows/release_droid_upload_github_release_assets.yml' exists but must not exist. Reason: Release-droid workflows are replaced by release.yml"
   - "E-PK-CORE-26: '.github/workflows/release_droid_print_quick_checksum.yml' exists but must not exist. Reason: Release-droid workflows are replaced by release.yml"
   - "E-PK-CORE-26: '.github/workflows/release_droid_prepare_original_checksum.yml' exists but must not exist. Reason: Release-droid workflows are replaced by release.yml"
+  - "E-PK-CORE-17: Missing required file: '.github/workflows/release.yml'"
 build:
   runnerOs: ubuntu-latest
   freeDiskSpace: false
