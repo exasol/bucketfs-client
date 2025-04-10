@@ -3,14 +3,14 @@ package com.exasol.bucketfs.client;
 import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKET;
 import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKETFS;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -22,6 +22,7 @@ import com.exasol.bucketfs.http.HttpClientBuilder;
 import com.exasol.bucketfs.list.BucketContentLister;
 import com.exasol.bucketfs.list.ListingRetriever;
 import com.exasol.config.BucketConfiguration;
+import com.exasol.config.ClusterConfiguration;
 import com.exasol.containers.*;
 
 public class IntegrationTestSetup implements AutoCloseable {
@@ -65,7 +66,7 @@ public class IntegrationTestSetup implements AutoCloseable {
     }
 
     public UnsynchronizedBucket getDefaultBucket() {
-        final BucketConfiguration bucketConfiguration = this.exasol.getClusterConfiguration() //
+        final BucketConfiguration bucketConfiguration = this.getClusterConfiguration() //
                 .getBucketFsServiceConfiguration(DEFAULT_BUCKETFS) //
                 .getBucketConfiguration(DEFAULT_BUCKET);
         final Builder<?> builder = WriteEnabledBucket.builder() //
@@ -76,7 +77,7 @@ public class IntegrationTestSetup implements AutoCloseable {
                 .name("default") //
                 .writePassword(bucketConfiguration.getWritePassword()) //
                 .readPassword(bucketConfiguration.getReadPassword());
-        exasol.getTlsCertificate().ifPresent(cert -> builder.certificate(cert).allowAlternativeHostName("localhost"));
+        getCertificate().ifPresent(cert -> builder.certificate(cert).allowAlternativeHostName("localhost"));
         return builder.build();
     }
 
@@ -129,13 +130,36 @@ public class IntegrationTestSetup implements AutoCloseable {
 
     public List<String> listAll(final UnsynchronizedBucket bucket) throws BucketAccessException {
         final HttpClientBuilder httpClientBuilder = new HttpClientBuilder();
-        exasol.getTlsCertificate()
+        getCertificate()
                 .ifPresent(cert -> httpClientBuilder.certificate(cert).allowAlternativeHostName("localhost"));
         final HttpClient client = httpClientBuilder.build();
         final ListingRetriever contentLister = new ListingRetriever(client);
         final URI uri = ListingRetriever.publicReadUri(getProtocol(), getHost(), getMappedBucketFsPort(),
                 bucket.getBucketName());
         return new BucketContentLister(uri, contentLister, bucket.getReadPassword()).retrieve("", true);
+    }
+
+    private Optional<X509Certificate> getCertificate() {
+        return exasol.getTlsCertificate();
+    }
+
+    public Optional<Path> getTlsCertificatePath() {
+        return getCertificate().map(IntegrationTestSetup::writeCertificate);
+    }
+
+    private static Path writeCertificate(final X509Certificate cert) {
+        try {
+            final Path certPath = Files.createTempFile("tls-cert", ".crt");
+            try (Writer writer = Files.newBufferedWriter(certPath)) {
+                writer.write("-----BEGIN CERTIFICATE-----\n");
+                writer.write(Base64.getMimeEncoder(64, new byte[] { '\n' }).encodeToString(cert.getEncoded()));
+                writer.write("\n-----END CERTIFICATE-----\n");
+            }
+            return certPath;
+        } catch (final IOException | CertificateEncodingException exception) {
+            throw new IllegalStateException("Failed to write certificate to file: " + exception.getMessage(),
+                    exception);
+        }
     }
 
     private String getProtocol() {
@@ -156,5 +180,9 @@ public class IntegrationTestSetup implements AutoCloseable {
     @SuppressWarnings("java:S2925")
     public void waitUntilObjectSynchronized() throws InterruptedException {
         Thread.sleep(500);
+    }
+
+    public ClusterConfiguration getClusterConfiguration() {
+        return exasol.getClusterConfiguration();
     }
 }

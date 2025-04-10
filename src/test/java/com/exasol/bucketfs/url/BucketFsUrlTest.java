@@ -1,7 +1,5 @@
 package com.exasol.bucketfs.url;
 
-import static com.exasol.bucketfs.url.BucketFsUrl.BUCKETFS_PROTOCOL;
-import static com.exasol.bucketfs.url.BucketFsUrl.BUCKETFS_PROTOCOL_WITH_TLS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,10 +22,10 @@ class BucketFsUrlTest {
     Profile profile = Profile.empty();
 
     @Test
-    void invalidProtocol() {
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> new BucketFsUrl("invalid", "host", 0, null));
-        assertThat(exception.getMessage(), equalTo("Protocol 'invalid' is not supported, use one of [bfs, bfss]"));
+    void missingProtocol() {
+        final NullPointerException exception = assertThrows(NullPointerException.class,
+                () -> new BucketFsUrl(null, "host", 0, null));
+        assertThat(exception.getMessage(), equalTo("protocol"));
     }
 
     @ParameterizedTest
@@ -98,12 +96,12 @@ class BucketFsUrlTest {
 
     @Test
     void testGetProtocolWithoutTls() throws Exception {
-        assertThat(randomBucketFsUrl(false).getProtocol(), equalTo("bfs"));
+        assertThat(randomBucketFsUrl(false).getProtocol().getName(), equalTo("bfs"));
     }
 
     @Test
     void testGetProtocolWithTls() throws Exception {
-        assertThat(randomBucketFsUrl(true).getProtocol(), equalTo("bfss"));
+        assertThat(randomBucketFsUrl(true).getProtocol().getName(), equalTo("bfss"));
     }
 
     private BucketFsUrl randomBucketFsUrl(final boolean useTls) throws Exception {
@@ -171,7 +169,7 @@ class BucketFsUrlTest {
             "bfs:/bucket/file,          bfs://host-from-profile:2580/bucket/file",
             "bfs://1.2.3.4/bucket/file, bfs://1.2.3.4:2580/bucket/file", })
     void hostFromProfile(final String spec, final String expected) throws Exception {
-        final Profile profile = new Profile("host-from-profile", null, null, null, null);
+        final Profile profile = Profile.builder().host("host-from-profile").build();
         verifyWithEnv(spec, profile, expected);
     }
 
@@ -180,14 +178,14 @@ class BucketFsUrlTest {
             "bfs:/bucket/file,               bfs://localhost:9999/bucket/file",
             "bfs://1.2.3.4:1234/bucket/file, bfs://1.2.3.4:1234/bucket/file", })
     void portFromProfile(final String spec, final String expected) throws Exception {
-        final Profile profile = new Profile(null, "9999", null, null, null);
+        final Profile profile = Profile.builder().port(9999).build();
         verifyWithEnv(spec, profile, expected);
     }
 
     @ParameterizedTest
     @CsvSource(value = { "bfs:/a/b.txt, bfs://localhost:2580/bucket-from-environment/a/b.txt" })
     void bucketFromProfile(final String spec, final String expected) throws Exception {
-        final Profile profile = new Profile(null, null, "bucket-from-environment", null, null);
+        final Profile profile = Profile.builder().bucket("bucket-from-environment").build();
         verifyWithEnv(spec, profile, expected);
     }
 
@@ -212,8 +210,8 @@ class BucketFsUrlTest {
         return new BucketFsUrl(calculateProtocol(useTls), host, port, new BucketFsPath(bucketName, "/" + pathInBucket));
     }
 
-    private String calculateProtocol(final boolean useTls) {
-        return useTls ? BUCKETFS_PROTOCOL_WITH_TLS : BUCKETFS_PROTOCOL;
+    private BucketFsProtocol calculateProtocol(final boolean useTls) {
+        return useTls ? BucketFsProtocol.BFSS : BucketFsProtocol.BFS;
     }
 
     private BucketFsUrl testee(final String spec) throws MalformedURLException, URISyntaxException {

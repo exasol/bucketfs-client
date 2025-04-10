@@ -1,16 +1,24 @@
 package com.exasol.bucketfs.client;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.cert.*;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import com.exasol.bucketfs.*;
+import com.exasol.bucketfs.WriteEnabledBucket.Builder;
 import com.exasol.bucketfs.client.PasswordReader.ConsoleReader;
 import com.exasol.bucketfs.http.HttpClientBuilder;
 import com.exasol.bucketfs.list.ListingRetriever;
 import com.exasol.bucketfs.profile.Profile;
 import com.exasol.bucketfs.profile.ProfileReader;
 import com.exasol.bucketfs.url.BucketFsUrl;
+import com.exasol.errorreporting.ExaError;
 
 import picocli.CommandLine;
 import picocli.CommandLine.*;
@@ -36,8 +44,9 @@ public class BucketFsClient implements Callable<Integer> {
     @Option(names = { "-pw", "--require-read-password" }, //
             description = "whether BFSC should ask for a read password", scope = ScopeType.INHERIT)
     private boolean requireReadPassword;
-    @Option(names = { "-c", "--certificate" }, //
-            description = "local path to the server certificate in case the certificate is not contained in the Java keystore", scope = ScopeType.INHERIT)
+    @Option(names = { "-c", "--certificate" }, required = false, //
+            description = "local path to the server's TLS certificate in case the certificate is not contained in the Java keystore", scope = ScopeType.INHERIT)
+    private Path tlsCertificatePath;
 
     private final ConsoleReader consoleReader;
     private Profile profile;
@@ -94,29 +103,66 @@ public class BucketFsClient implements Callable<Integer> {
     UnsynchronizedBucket buildWriteEnabledBucket(final URI destination) {
         final Profile profile = this.getProfile();
         final BucketFsUrl url = BucketFsUrl.from(destination, profile);
-        return WriteEnabledBucket.builder()
+        final Builder<? extends Builder<?>> builder = WriteEnabledBucket.builder()
+                .useTls(url.isTlsEnabled())
                 .host(url.getHost())
                 .port(url.getPort())
                 .name(url.getBucketName())
                 .readPassword(this.readPassword())
-                .writePassword(this.writePassword())
-                .build();
+                .writePassword(this.writePassword());
+        certificate().ifPresent(cert -> builder.certificate(cert)
+                .allowAlternativeHostName(url.getHost())
+                .allowAlternativeIpAddress(url.getHost()));
+        return builder.build();
     }
 
     ReadOnlyBucket buildReadOnlyBucket(final URI source) {
         final Profile profile = this.getProfile();
         final BucketFsUrl url = BucketFsUrl.from(source, profile);
-        return ReadEnabledBucket.builder()
+        final var builder = ReadEnabledBucket.builder()
+                .useTls(url.isTlsEnabled())
                 .host(url.getHost())
                 .port(url.getPort())
                 .name(url.getBucketName())
-                .readPassword(this.readPassword())
-                .build();
+                .readPassword(this.readPassword());
+        certificate().ifPresent(cert -> builder.certificate(cert)
+                .allowAlternativeHostName(url.getHost())
+                .allowAlternativeIpAddress(url.getHost()));
+        return builder.build();
     }
 
-    ListingRetriever createListingRetriever() {
-        final HttpClient client = new HttpClientBuilder().build();
+    ListingRetriever createListingRetriever(final BucketFsUrl bucketFsUrl) {
+        final HttpClientBuilder httpClientBuilder = new HttpClientBuilder();
+        certificate().ifPresent(cert -> httpClientBuilder.certificate(cert)
+                .allowAlternativeHostName(bucketFsUrl.getHost())
+                .allowAlternativeIPAddress(bucketFsUrl.getHost()));
+        final HttpClient client = httpClientBuilder.build();
         return new ListingRetriever(client);
+    }
+
+    private Optional<X509Certificate> certificate() {
+        if (this.tlsCertificatePath == null) {
+            return Optional.empty();
+        }
+        final Path absolutePath = this.tlsCertificatePath.toAbsolutePath();
+        if (!Files.exists(absolutePath)) {
+            throw new IllegalStateException(ExaError.messageBuilder("E-BFSC-15")
+                    .message("TLS certificate does not exist at configured path {{certificate path}}", absolutePath)
+                    .toString());
+        }
+        return Optional.of(readCertificate(absolutePath));
+    }
+
+    private X509Certificate readCertificate(final Path path) {
+        try (InputStream fis = Files.newInputStream(path)) {
+            final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+            return (X509Certificate) certificateFactory.generateCertificate(fis);
+        } catch (final IOException | CertificateException exception) {
+            throw new IllegalStateException(ExaError.messageBuilder("E-BFSC-16")
+                    .message("Error reading TLS certificate from file {{certificate path}}: {{error message}}", path,
+                            exception.getMessage())
+                    .toString(), exception);
+        }
     }
 
     @Override

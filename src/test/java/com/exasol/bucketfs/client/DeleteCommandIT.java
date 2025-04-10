@@ -7,7 +7,7 @@ import static org.hamcrest.Matchers.not;
 import static org.itsallcode.junit.sysextensions.AssertExit.assertExitWithStatus;
 import static picocli.CommandLine.ExitCode.OK;
 
-import java.util.List;
+import java.util.*;
 
 import org.itsallcode.junit.sysextensions.ExitGuard;
 import org.itsallcode.junit.sysextensions.SystemErrGuard;
@@ -102,8 +102,15 @@ class DeleteCommandIT {
     }
 
     private BFSC createClient(final String... args) {
+        final ArrayList<String> argList = new ArrayList<>(args.length + 2);
+        Arrays.stream(args).forEach(argList::add);
         final String path = args[args.length - 1];
-        args[args.length - 1] = SETUP.getDefaultBucketUriToFile(path);
-        return BFSC.create(args).feedStdIn(SETUP.getDefaultBucket().getWritePassword());
+        argList.set(args.length - 1, SETUP.getDefaultBucketUriToFile(path));
+        SETUP.getTlsCertificatePath().ifPresent(certPath -> {
+            argList.add("--certificate");
+            argList.add(certPath.toString());
+        });
+        System.out.println(argList);
+        return BFSC.create(argList.toArray(new String[0])).feedStdIn(SETUP.getDefaultBucket().getWritePassword());
     }
 }

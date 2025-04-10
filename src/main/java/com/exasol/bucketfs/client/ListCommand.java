@@ -29,7 +29,7 @@ public class ListCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         final BucketFsUrl bucketFsUrl = getBucketFsUrl(this.uri, this.parent.getProfile());
-        final ListingRetriever contentLister = this.parent.createListingRetriever();
+        final ListingRetriever contentLister = this.parent.createListingRetriever(bucketFsUrl);
         final String protocol = bucketFsUrl.isTlsEnabled() ? "https" : "http";
         final String bucketName = bucketFsUrl.getBucketName();
 

@@ -1,6 +1,6 @@
 package com.exasol.bucketfs.client;
 
-import static com.exasol.bucketfs.Lines.lines;
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.itsallcode.junit.sysextensions.AssertExit.assertExitWithStatus;
@@ -9,8 +9,7 @@ import static picocli.CommandLine.ExitCode.OK;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -22,6 +21,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.exasol.bucketfs.BucketAccessException;
+import com.exasol.bucketfs.Lines;
+import com.exasol.bucketfs.url.BucketFsProtocol;
 
 @ExtendWith(ExitGuard.class)
 @ExtendWith(SystemOutGuard.class)
@@ -52,44 +53,43 @@ class ListCommandIT {
 
     @Test
     void testRoot(final Capturable stream) {
-        verifyListCommand(stream, createClient("ls", ""), List.of("a.txt", "b.txt", "folder/"));
+        verifyListCommand(stream, createClientWithBucketUri("ls", ""), List.of("a.txt", "b.txt", "folder/"));
     }
 
     @Test
     void testRecursive(final Capturable stream) {
-        verifyListCommand(stream, createClient("ls", "-r", ""),
+        verifyListCommand(stream, createClientWithBucketUri("ls", "-r", ""),
                 List.of("a.txt", "b.txt", "folder/aa.txt", "folder/bb.txt"));
     }
 
     @Test
     void testSubdirectory(final Capturable stream) {
-        verifyListCommand(stream, createClient("ls", "folder/"), a -> true, List.of("aa.txt", "bb.txt"));
-    }
-
-    @Test
-    void testSubFolderWithoutProtocol(@TempDir final Path tempDir, final Capturable stream) throws IOException {
-        final BFSC client = BFSC.create("ls", "folder").withConfigFile(createConfigFile(tempDir, "default"));
-        verifyListCommand(stream, client, List.of("aa.txt", "bb.txt"));
+        verifyListCommand(stream, createClientWithBucketUri("ls", "folder/"), a -> true, List.of("aa.txt", "bb.txt"));
     }
 
     @Test
     void testRootWithProfile(@TempDir final Path tempDir, final Capturable stream) throws IOException {
-        final BFSC client = BFSC.create("ls").withConfigFile(createConfigFile(tempDir, "default"));
+        final BFSC client = createClient("ls").withConfigFile(createConfigFile(tempDir, "default"));
         verifyListCommand(stream, client, List.of("a.txt", "b.txt"));
     }
 
     @Test
     void testBuckets(@TempDir final Path tempDir, final Capturable stream) throws IOException {
-        final BFSC client = BFSC.create("ls").withConfigFile(createConfigFile(tempDir, null));
+        final BFSC client = createClient("ls").withConfigFile(createConfigFile(tempDir, null));
         verifyListCommand(stream, client, List.of("default"));
     }
 
     private Path createConfigFile(final Path dir, final String bucket) throws IOException {
         final Path configFile = dir.resolve(".bucketfs-client-config");
-        Files.writeString(configFile, lines("[default]", //
-                (bucket != null ? "bucket=default" : ""), //
-                "host=" + SETUP.getHost(), //
-                "port=" + SETUP.getMappedBucketFsPort()));
+        final Optional<Path> tlsCertificatePath = SETUP.getTlsCertificatePath();
+        final String protocol = tlsCertificatePath.map(cert -> BucketFsProtocol.BFSS)
+                .orElse(BucketFsProtocol.BFSS).getName();
+        Files.writeString(configFile, Lines.lines("[default]",
+                (bucket != null ? "bucket=default" : ""),
+                "host=" + SETUP.getHost(),
+                "port=" + SETUP.getMappedBucketFsPort(),
+                "protocol=" + protocol,
+                tlsCertificatePath.map(cert -> "certificate=" + cert.toString()).orElse("")));
         return configFile;
     }
 
@@ -97,7 +97,7 @@ class ListCommandIT {
 
     @Test
     void nonExistingFolder() {
-        final BFSC client = createClient("ls", "non-existing-folder/");
+        final BFSC client = createClientWithBucketUri("ls", "non-existing-folder/");
         assertExitWithStatus(1, () -> client.run());
     }
 
@@ -115,10 +115,17 @@ class ListCommandIT {
         assertThat(actual, equalTo(expected));
     }
 
-    private BFSC createClient(final String... args) {
+    private BFSC createClientWithBucketUri(final String... args) {
         final String path = args[args.length - 1];
         args[args.length - 1] = SETUP.getDefaultBucketUriToFile(path);
-        return BFSC.create(args).feedStdIn(SETUP.getDefaultBucket().getReadPassword());
+        return createClient(args).feedStdIn(SETUP.getDefaultBucket().getReadPassword());
+    }
+
+    private BFSC createClient(final String... args) {
+        final List<String> argsWithCertificate = new ArrayList<>(args.length + 1);
+        argsWithCertificate.addAll(asList(args));
+        SETUP.getTlsCertificatePath().ifPresent(cert -> argsWithCertificate.add("--certificate=" + cert.toString()));
+        return BFSC.create(argsWithCertificate.toArray(new String[0]));
     }
 
     private List<String> listing(final String stdout, final Predicate<String> filter) {

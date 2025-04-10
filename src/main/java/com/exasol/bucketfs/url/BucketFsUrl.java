@@ -49,7 +49,9 @@ public final class BucketFsUrl {
     public static BucketFsUrl from(final URI uri, final Profile profile) {
         try {
             final BucketFsPath path = BucketFsPath.from(uri, profile.bucket());
-            return from(uri.getScheme(), uri.getHost(), uri.getPort(), path, profile);
+            final String scheme = uri.getScheme();
+            final BucketFsProtocol protocol = scheme != null ? BucketFsProtocol.forName(scheme) : BucketFsProtocol.BFS;
+            return from(protocol, uri.getHost(), uri.getPort(), path, profile);
         } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-5") //
                     .message("Invalid BucketFS URL: {{url}}.", uri) //
@@ -66,10 +68,10 @@ public final class BucketFsUrl {
      */
     public static BucketFsUrl from(final Profile profile) {
         final BucketFsPath bucketFsPath = new BucketFsPath(profile.bucket(), "");
-        return from(null, null, UNDEFINED_PORT, bucketFsPath, profile);
+        return from(profile.protocol(), null, UNDEFINED_PORT, bucketFsPath, profile);
     }
 
-    private static BucketFsUrl from(final String protocol, final String host, final int port,
+    private static BucketFsUrl from(final BucketFsProtocol protocol, final String host, final int port,
             final BucketFsPath bucketFsPath, final Profile profile) {
         return new BucketFsUrl( //
                 protocol, //
@@ -78,7 +80,7 @@ public final class BucketFsUrl {
                 bucketFsPath);
     }
 
-    private final String protocol;
+    private final BucketFsProtocol protocol;
     private final String host;
     private final int port;
     private final BucketFsPath bucketFsPath;
@@ -95,11 +97,7 @@ public final class BucketFsUrl {
      * @param port         port number, or -1 if the port is not set
      * @param bucketFsPath name of the bucket and remaining path inside the bucket
      */
-    BucketFsUrl(final String protocol, final String host, final int port, final BucketFsPath bucketFsPath) {
-        if (!ALLOWED_PROTOCOLS.contains(protocol)) {
-            throw new IllegalArgumentException(
-                    "Protocol '%s' is not supported, use one of %s".formatted(protocol, ALLOWED_PROTOCOLS));
-        }
+    BucketFsUrl(final BucketFsProtocol protocol, final String host, final int port, final BucketFsPath bucketFsPath) {
         this.protocol = requireNonNull(protocol, "protocol");
         this.host = requireNonNull(host, "host");
         this.port = requireNonNull(port, "port");
@@ -149,19 +147,15 @@ public final class BucketFsUrl {
      * @return {@code true} if the URL is points to a resource accessed via a TLS-secured connection.
      */
     public boolean isTlsEnabled() {
-        return BUCKETFS_PROTOCOL_WITH_TLS.equals(getProtocol());
+        return protocol.isTlsEnabled();
     }
 
     /**
-     * Get the protocol name of this URL: one of
-     * <ul>
-     * <li>{@link #BUCKETFS_PROTOCOL}</li>
-     * <li>{@link #BUCKETFS_PROTOCOL_WITH_TLS}</li>
-     * </ul>
+     * Get the protocol name of this URL.
      *
      * @return protocol of this URL
      */
-    public String getProtocol() {
+    public BucketFsProtocol getProtocol() {
         return this.protocol;
     }
 
@@ -176,7 +170,7 @@ public final class BucketFsUrl {
 
     @Override
     public String toString() {
-        return this.protocol + "://" + this.host + ":" + this.port + this.bucketFsPath.getUriPath();
+        return this.protocol.getName() + "://" + this.host + ":" + this.port + this.bucketFsPath.getUriPath();
     }
 
     @Override

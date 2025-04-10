@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junitpioneer.jupiter.ClearSystemProperty;
 
+import com.exasol.bucketfs.url.BucketFsProtocol;
+
 class ProfileReaderTest {
 
     @TempDir
@@ -63,18 +65,25 @@ class ProfileReaderTest {
         final String bucket = "bucket-from-profile";
         final String readPassword = "read-password-from-profile";
         final String writePassword = "write-password-from-profile";
+        final BucketFsProtocol protocol = BucketFsProtocol.BFS;
+        final Path tlsCertificatePath = Path.of("/path/to/cert.pem");
         Files.writeString(file, lines("[default]", //
                 "host=" + host, //
                 "port=" + port, //
                 "bucket=" + bucket, //
+                "protocol=" + protocol.getName(), //
+                "certificate=" + tlsCertificatePath.toString(), //
                 "password.read=" + readPassword, //
                 "password.write=" + writePassword));
-        assertThat(testee(file).getProfile(), equalTo(new Profile( //
-                host, //
-                port, //
-                bucket, //
-                readPassword, //
-                writePassword)));
+        assertThat(testee(file).getProfile(), equalTo(Profile.builder()
+                .protocol(protocol)
+                .host(host)
+                .port(port)
+                .bucket(bucket)
+                .readPassword(readPassword)
+                .writePassword(writePassword)
+                .tlsCertificate(tlsCertificatePath)
+                .build()));
     }
 
     private ProfileReader testee(final Path file) {

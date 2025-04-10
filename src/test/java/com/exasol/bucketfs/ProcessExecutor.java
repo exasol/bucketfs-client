@@ -72,7 +72,18 @@ public class ProcessExecutor {
      *
      * @param args additional command line arguments for execution
      * @return this for fluent programming
-     * @throws IOException          in case of errors
+     * @throws IOException in case of errors
+     */
+    public ProcessExecutor run(final List<String> args) throws IOException {
+        return run(args.toArray(new String[0]));
+    }
+
+    /**
+     * Execute sub process defined by this {@link ProcessExecutor}.
+     *
+     * @param args additional command line arguments for execution
+     * @return this for fluent programming
+     * @throws IOException in case of errors
      */
     public ProcessExecutor run(final String... args) throws IOException {
         final List<String> commandLine = new ArrayList<>(asList(this.initialArgs));

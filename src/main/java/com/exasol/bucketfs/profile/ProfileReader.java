@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.exasol.bucketfs.Fallback;
+import com.exasol.bucketfs.profile.Profile.Builder;
+import com.exasol.bucketfs.url.BucketFsProtocol;
 import com.exasol.bucketfs.url.BucketFsUrl;
 import com.exasol.errorreporting.ExaError;
 import com.github.vincentrussell.ini.Ini;
@@ -58,12 +60,22 @@ public class ProfileReader {
         if (section == null) {
             return defaultProfile();
         }
-        return new Profile( //
-                (String) section.get("host"), //
-                validate("integer", Integer::valueOf, section, "port"), //
-                (String) section.get("bucket"), //
-                (String) section.get("password.read"), //
-                (String) section.get("password.write"));
+        final Builder builder = Profile.builder()
+                .host((String) section.get("host"))
+                .port(validate("integer", Integer::valueOf, section, "port"))
+                .bucket((String) section.get("bucket"))
+                .readPassword((String) section.get("password.read"))
+                .writePassword((String) section.get("password.write"));
+
+        final String protocol = (String) section.get("protocol");
+        if (protocol != null) {
+            builder.protocol(BucketFsProtocol.forName(protocol));
+        }
+        final String certificate = (String) section.get("certificate");
+        if (certificate != null) {
+            builder.tlsCertificate(Path.of(certificate));
+        }
+        return builder.build();
     }
 
     Ini read() throws IOException {

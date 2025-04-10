@@ -55,8 +55,6 @@ public class BFSC {
 
     /**
      * Run the BucketFS client.
-     *
-     * @throws Exception
      */
     public void run() {
         final String value = this.configFile != null ? this.configFile.toString() : "/non/existing/file";
