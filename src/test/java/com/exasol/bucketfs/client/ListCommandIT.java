@@ -79,7 +79,7 @@ class ListCommandIT {
         final Path configFile = dir.resolve(".bucketfs-client-config");
         final Optional<Path> tlsCertificatePath = SETUP.getTlsCertificatePath();
         final String protocol = tlsCertificatePath.map(cert -> BucketFsProtocol.BFSS)
-                .orElse(BucketFsProtocol.BFSS).getName();
+                .orElse(BucketFsProtocol.BFS).getName();
         Files.writeString(configFile, Lines.lines("[default]",
                 (bucket != null ? "bucket=default" : ""),
                 "host=" + SETUP.getHost(),
