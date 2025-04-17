@@ -1,4 +1,4 @@
-# Bucketfs Client 2.2.0, released 2025-04-17
+# Bucketfs Client 2.2.0, released 2025-04-22
 
 Code name: TLS support
 
