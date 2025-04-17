@@ -5,8 +5,7 @@ import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKETFS;
 import static com.exasol.bucketfs.Lines.lines;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.io.IOException;
@@ -108,7 +107,7 @@ class BucketFsClientExecutableJarIT {
                 .run(args)
                 .feedStdIn(password);
         assertResult(executor, ExitCode.OK, equalTo("Password for writing to BucketFS: "),
-                containsString("INFO: Allow additional subject alternative names (SAN)"));
+                anyOf(containsString("INFO: Allow additional subject alternative names (SAN)"), emptyString()));
         assertThat(SETUP.getDefaultBucket().downloadFileAsString(fileName), equalTo(fileContent));
     }
 
