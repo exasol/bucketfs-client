@@ -30,7 +30,10 @@ public class IntegrationTestSetup implements AutoCloseable {
 
     @SuppressWarnings("resource") // Will be closed in close() method
     private final ExasolContainer<? extends ExasolContainer<?>> exasol = new ExasolContainer<>()//
-            .withRequiredServices(ExasolService.BUCKETFS).withReuse(true);
+            .withRequiredServices(ExasolService.BUCKETFS,
+                    // Wait until SLC is unpacked to avoid hanging tests on Exasol 7.1
+                    ExasolService.UDF)
+            .withReuse(true);
 
     @Override
     public void close() {
