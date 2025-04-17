@@ -166,6 +166,7 @@ class UploadCommandIT {
     private BFSC createClient(final String... args) {
         final List<String> argsWithCertificate = new ArrayList<>(args.length + 1);
         argsWithCertificate.addAll(asList(args));
+        // [itest -> dsn~tls-support.self-signed-certificates~1]
         SETUP.getTlsCertificatePath().ifPresent(cert -> argsWithCertificate.add("--certificate=" + cert.toString()));
         return BFSC.create(argsWithCertificate.toArray(new String[0]));
     }

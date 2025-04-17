@@ -16,7 +16,7 @@ import com.exasol.errorreporting.ExaError;
  *
  * For compatibility this class is modeled after {@link java.net.URL}.
  */
-// [impl->dsn~bucket-fs-url~1]
+// [impl->dsn~bucket-fs-url~2]
 public final class BucketFsUrl {
 
     /**

@@ -138,6 +138,7 @@ public class BucketFsClient implements Callable<Integer> {
         return new ListingRetriever(client);
     }
 
+    // [impl -> dsn~tls-support.self-signed-certificates~1]
     private Optional<X509Certificate> certificate() {
         if (this.tlsCertificatePath == null) {
             return Optional.empty();

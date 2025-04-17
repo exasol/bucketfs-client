@@ -103,10 +103,10 @@ class DeleteCommandIT {
         final String path = args[args.length - 1];
         argList.set(args.length - 1, SETUP.getDefaultBucketUriToFile(path));
         SETUP.getTlsCertificatePath().ifPresent(certPath -> {
+            // [itest -> dsn~tls-support.self-signed-certificates~1]
             argList.add("--certificate");
             argList.add(certPath.toString());
         });
-        System.out.println(argList);
         return BFSC.create(argList.toArray(new String[0])).feedStdIn(SETUP.getDefaultBucket().getWritePassword());
     }
 }

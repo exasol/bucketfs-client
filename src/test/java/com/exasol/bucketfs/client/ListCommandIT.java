@@ -77,6 +77,7 @@ class ListCommandIT {
 
     private Path createConfigFile(final Path dir, final String bucket) throws IOException {
         final Path configFile = dir.resolve(".bucketfs-client-config");
+        // [itest -> dsn~tls-support.self-signed-certificates~1]
         final Optional<Path> tlsCertificatePath = SETUP.getTlsCertificatePath();
         final String protocol = tlsCertificatePath.map(cert -> BucketFsProtocol.BFSS)
                 .orElse(BucketFsProtocol.BFS).getName();

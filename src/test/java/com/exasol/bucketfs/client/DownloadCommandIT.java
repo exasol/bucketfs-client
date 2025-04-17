@@ -165,6 +165,7 @@ class DownloadCommandIT {
     private BFSC create(final String... parameters) {
         final List<String> paramsWithCertificate = new ArrayList<>(parameters.length + 1);
         paramsWithCertificate.addAll(asList(parameters));
+        // [itest -> dsn~tls-support.self-signed-certificates~1]
         SETUP.getTlsCertificatePath().ifPresent(cert -> paramsWithCertificate.add("--certificate=" + cert.toString()));
         return BFSC.create(paramsWithCertificate.toArray(new String[0]));
     }

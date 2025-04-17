@@ -15,7 +15,7 @@ import com.exasol.bucketfs.profile.Profile;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
-// [utest->dsn~bucket-fs-url~1]
+// [utest->dsn~bucket-fs-url~2]
 
 class BucketFsUrlTest {
 
@@ -37,46 +37,57 @@ class BucketFsUrlTest {
     }
 
     @ParameterizedTest
-    @CsvSource({ //
-            "bfs://localhost:8888/the_bucket/file.txt", //
-            "bfs://127.0.0.1:123/b/foo/bar/baz" //
+    @CsvSource({
+            "bfs://localhost:8888/the_bucket/file.txt",
+            "bfs://127.0.0.1:123/b/foo/bar/baz",
+            "bfss://localhost:8888/the_bucket/file.txt",
+            "bfss://127.0.0.1:123/b/foo/bar/baz"
     })
     void createFromString(final String spec) throws Exception {
         assertThat(testee(spec).toString(), equalTo(spec));
     }
 
     @ParameterizedTest
-    @CsvSource({ //
-            "bfs://localhost:8888/the_bucket/file.txt", //
-            "bfs://127.0.0.1:123/b/foo/bar/baz" //
+    @CsvSource({
+            "bfs://localhost:8888/the_bucket/file.txt",
+            "bfs://127.0.0.1:123/b/foo/bar/baz",
+            "bfss://localhost:8888/the_bucket/file.txt",
+            "bfss://127.0.0.1:123/b/foo/bar/baz"
     })
     void createFromUri(final String spec) throws Exception {
         assertThat(BucketFsUrl.from(URI.create(spec), Profile.empty()).toString(), equalTo(spec));
     }
 
     @ParameterizedTest
-    @CsvSource({ //
-            "bfs://localhost:8888/the_bucket/file.txt, the_bucket", //
-            "bfs://127.0.0.1:123/b/foo/bar/baz, b" //
+    @CsvSource({
+            "bfs://localhost:8888/the_bucket/file.txt, the_bucket",
+            "bfs://127.0.0.1:123/b/foo/bar/baz, b",
+            "bfss://localhost:8888/the_bucket/file.txt, the_bucket",
+            "bfss://127.0.0.1:123/b/foo/bar/baz, b"
     })
     void testGetBucketName(final String inputUri, final String expectedBucketName) throws Exception {
         assertThat(testee(inputUri).getBucketName(), equalTo(expectedBucketName));
     }
 
     @ParameterizedTest
-    @CsvSource({ //
-            "bfs://localhost:8888/the_bucket/file.txt, /file.txt", //
-            "bfs://127.0.0.1:123/b/foo/bar/baz,        /foo/bar/baz", //
-            "bfs://127.0.0.1:123/b/foo/bar/baz/,       /foo/bar/baz/" //
+    @CsvSource({
+            "bfs://localhost:8888/the_bucket/file.txt, /file.txt",
+            "bfs://127.0.0.1:123/b/foo/bar/baz,        /foo/bar/baz",
+            "bfs://127.0.0.1:123/b/foo/bar/baz/,       /foo/bar/baz/",
+            "bfss://localhost:8888/the_bucket/file.txt, /file.txt",
+            "bfss://127.0.0.1:123/b/foo/bar/baz,        /foo/bar/baz",
+            "bfss://127.0.0.1:123/b/foo/bar/baz/,       /foo/bar/baz/"
     })
     void testGetPathInBucket(final String inputUri, final String expectedPath) throws Exception {
         assertThat(testee(inputUri).getPathInBucket(), equalTo(expectedPath));
     }
 
     @ParameterizedTest
-    @CsvSource({ //
-            "bfs://localhost:8888/the_bucket/file.txt, 8888", //
-            "bfs://127.0.0.1:123/b/foo/bar/baz, 123" //
+    @CsvSource({
+            "bfs://localhost:8888/the_bucket/file.txt, 8888",
+            "bfs://127.0.0.1:123/b/foo/bar/baz, 123",
+            "bfss://localhost:8888/the_bucket/file.txt, 8888",
+            "bfss://127.0.0.1:123/b/foo/bar/baz, 123"
     })
     void testGetPort(final String inputUri, final int expectedPath) throws Exception {
         assertThat(testee(inputUri).getPort(), equalTo(expectedPath));
@@ -106,9 +117,12 @@ class BucketFsUrlTest {
         return testee("foo", 1234, "bucket", "/path", useTls);
     }
 
-    @CsvSource({ //
-            "bfs://localhost:777/a/b, localhost", //
-            "bfs://192.168.1.1/a/b, 192.168.1.1" })
+    @CsvSource({
+            "bfs://localhost:777/a/b, localhost",
+            "bfs://192.168.1.1/a/b, 192.168.1.1",
+            "bfss://localhost:777/a/b, localhost",
+            "bfss://192.168.1.1/a/b, 192.168.1.1"
+    })
     @ParameterizedTest
     void testGetHost(final String inputUri, final String expectedHost) throws Exception {
         assertThat(testee(inputUri).getHost(), equalTo(expectedHost));
@@ -124,9 +138,9 @@ class BucketFsUrlTest {
         assertThat(url.toString(), equalTo(expectedUri));
     }
 
-    @CsvSource({ //
-            "bfs://a/b/, false", //
-            "bfss://a/b/, true" //
+    @CsvSource({
+            "bfs://a/b/, false",
+            "bfss://a/b/, true"
     })
     @ParameterizedTest
     void testIsTlsEnabled(final String inputUri, final boolean useTls) throws Exception {
@@ -152,10 +166,13 @@ class BucketFsUrlTest {
      */
 
     @ParameterizedTest
-    @CsvSource(value = { //
-            "bfs:/bucket/file,               bfs://localhost:2580/bucket/file", // nothing
-            "bfs://1.2.3.4/bucket/file,      bfs://1.2.3.4:2580/bucket/file", // host
-            "bfs://1.2.3.4:9999/bucket/file, bfs://1.2.3.4:9999/bucket/file", // host and port
+    @CsvSource(value = {
+            "bfs:/bucket/file,                bfs://localhost:2580/bucket/file", // nothing
+            "bfs://1.2.3.4/bucket/file,       bfs://1.2.3.4:2580/bucket/file", // host
+            "bfs://1.2.3.4:9999/bucket/file,  bfs://1.2.3.4:9999/bucket/file", // host and port
+            "bfss:/bucket/file,               bfss://localhost:2580/bucket/file", // nothing
+            "bfss://1.2.3.4/bucket/file,      bfss://1.2.3.4:2580/bucket/file", // host
+            "bfss://1.2.3.4:9999/bucket/file, bfss://1.2.3.4:9999/bucket/file", // host and port
     // port can only be specified together with host
     })
     void emptyEnvironment(final String spec, final String expected) throws Exception {
@@ -163,25 +180,33 @@ class BucketFsUrlTest {
     }
 
     @ParameterizedTest
-    @CsvSource(value = { //
-            "bfs:/bucket/file,          bfs://host-from-profile:2580/bucket/file",
-            "bfs://1.2.3.4/bucket/file, bfs://1.2.3.4:2580/bucket/file", })
+    @CsvSource(value = {
+            "bfs:/bucket/file,           bfs://host-from-profile:2580/bucket/file",
+            "bfs://1.2.3.4/bucket/file,  bfs://1.2.3.4:2580/bucket/file",
+            "bfss:/bucket/file,          bfss://host-from-profile:2580/bucket/file",
+            "bfss://1.2.3.4/bucket/file, bfss://1.2.3.4:2580/bucket/file",
+    })
     void hostFromProfile(final String spec, final String expected) throws Exception {
         final Profile profile = Profile.builder().host("host-from-profile").build();
         verifyWithEnv(spec, profile, expected);
     }
 
     @ParameterizedTest
-    @CsvSource(value = { //
-            "bfs:/bucket/file,               bfs://localhost:9999/bucket/file",
-            "bfs://1.2.3.4:1234/bucket/file, bfs://1.2.3.4:1234/bucket/file", })
+    @CsvSource(value = {
+            "bfs:/bucket/file,                bfs://localhost:9999/bucket/file",
+            "bfs://1.2.3.4:1234/bucket/file,  bfs://1.2.3.4:1234/bucket/file",
+            "bfss:/bucket/file,               bfss://localhost:9999/bucket/file",
+            "bfss://1.2.3.4:1234/bucket/file, bfss://1.2.3.4:1234/bucket/file",
+    })
     void portFromProfile(final String spec, final String expected) throws Exception {
         final Profile profile = Profile.builder().port(9999).build();
         verifyWithEnv(spec, profile, expected);
     }
 
     @ParameterizedTest
-    @CsvSource(value = { "bfs:/a/b.txt, bfs://localhost:2580/bucket-from-environment/a/b.txt" })
+    @CsvSource(value = {
+            "bfs:/a/b.txt,  bfs://localhost:2580/bucket-from-environment/a/b.txt",
+            "bfss:/a/b.txt, bfss://localhost:2580/bucket-from-environment/a/b.txt" })
     void bucketFromProfile(final String spec, final String expected) throws Exception {
         final Profile profile = Profile.builder().bucket("bucket-from-environment").build();
         verifyWithEnv(spec, profile, expected);

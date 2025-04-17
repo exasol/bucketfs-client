@@ -54,12 +54,12 @@ This section describes the runtime behavior of the software.
 ## Copying Files
 
 ### BucketFsUrl
-`dsn~bucket-fs-url~1`
+`dsn~bucket-fs-url~2`
 
 The `BucketFsUrl` represents the uniform resource locator for objects on BucketFs.
 
 Covers:
-* `req~bucketfs-url~1`
+* `req~bucketfs-url~2`
 
 Needs: impl, utest
 
@@ -223,6 +223,19 @@ Covers:
 Needs: impl, itest
 
 # Cross-cutting Concerns
+
+## Support Self-Signed TLS Certificates
+`dsn~tls-support.self-signed-certificates~1`
+
+BFSC allows specifying the path to a TLS certificate that should be used to verify the TLS connection to the server.
+
+Rationale:
+
+Encrypted connections to servers would fail if the certificate is not contained in the local Java trust store. Ignoring certificate validation is insecure. Instead we allow the user to specify the expected TLS certificate and verify the server's certificate against the expected one.
+
+Needs: impl, itest
+Covers:
+* [`req~tls-support~1`](./system_requirements.md#tls-support)
 
 # Design Decisions
 
