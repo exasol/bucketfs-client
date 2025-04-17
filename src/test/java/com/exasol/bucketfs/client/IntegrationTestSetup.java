@@ -143,7 +143,11 @@ public class IntegrationTestSetup implements AutoCloseable {
     }
 
     private Optional<X509Certificate> getCertificate() {
-        return exasol.getTlsCertificate();
+        if (useTls()) {
+            return exasol.getTlsCertificate();
+        } else {
+            return Optional.empty();
+        }
     }
 
     public Optional<Path> getTlsCertificatePath() {
