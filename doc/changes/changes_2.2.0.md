@@ -14,14 +14,14 @@ This release adds support for connecting to BucketFS via TLS. Command line optio
 
 ### Compile Dependency Updates
 
-* Updated `commons-io:commons-io:2.17.0` to `2.18.0`
+* Updated `commons-io:commons-io:2.17.0` to `2.19.0`
 
 ### Test Dependency Updates
 
 * Updated `com.exasol:exasol-testcontainers:7.1.1` to `7.1.4`
 * Updated `nl.jqno.equalsverifier:equalsverifier:3.17.3` to `3.19.3`
-* Added `org.junit.jupiter:junit-jupiter-api:5.12.1`
-* Updated `org.junit.jupiter:junit-jupiter-params:5.11.3` to `5.12.1`
+* Added `org.junit.jupiter:junit-jupiter-api:5.12.2`
+* Updated `org.junit.jupiter:junit-jupiter-params:5.11.3` to `5.12.2`
 * Removed `org.junit.jupiter:junit-jupiter:5.11.3`
 * Updated `org.mockito:mockito-junit-jupiter:5.14.2` to `5.17.0`
 * Updated `org.slf4j:slf4j-jdk14:2.0.16` to `2.0.17`
