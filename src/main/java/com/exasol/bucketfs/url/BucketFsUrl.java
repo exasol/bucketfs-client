@@ -1,5 +1,7 @@
 package com.exasol.bucketfs.url;
 
+import static java.util.Objects.requireNonNull;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Objects;
@@ -14,7 +16,7 @@ import com.exasol.errorreporting.ExaError;
  *
  * For compatibility this class is modeled after {@link java.net.URL}.
  */
-// [impl->dsn~bucket-fs-url~1]
+// [impl->dsn~bucket-fs-url~2]
 public final class BucketFsUrl {
 
     /**
@@ -22,15 +24,12 @@ public final class BucketFsUrl {
      * @return {@code true} if URI refers to BucketFS
      */
     public static boolean isBucketFsUrl(final URI uri) {
-        return (uri != null) && (BUCKETFS_PROTOCOL.equals(uri.getScheme()) //
-                || BUCKETFS_PROTOCOL_WITH_TLS.equals(uri.getScheme()));
+        return (uri != null) && (BucketFsProtocol.BFS.getName().equals(uri.getScheme()) //
+                || BucketFsProtocol.BFSS.getName().equals(uri.getScheme()));
     }
 
     public static final String PATH_SEPARATOR = "/";
     public static final int UNDEFINED_PORT = -1;
-
-    static final String BUCKETFS_PROTOCOL = "bfs";
-    static final String BUCKETFS_PROTOCOL_WITH_TLS = "bfss";
 
     private static final String DEFAULT_HOST = "localhost";
     private static final int DEFAULT_PORT = 2580;
@@ -45,7 +44,9 @@ public final class BucketFsUrl {
     public static BucketFsUrl from(final URI uri, final Profile profile) {
         try {
             final BucketFsPath path = BucketFsPath.from(uri, profile.bucket());
-            return from(uri.getScheme(), uri.getHost(), uri.getPort(), path, profile);
+            final String scheme = uri.getScheme();
+            final BucketFsProtocol protocol = scheme != null ? BucketFsProtocol.forName(scheme) : BucketFsProtocol.BFS;
+            return from(protocol, uri.getHost(), uri.getPort(), path, profile);
         } catch (final MalformedURLException exception) {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-5") //
                     .message("Invalid BucketFS URL: {{url}}.", uri) //
@@ -62,10 +63,10 @@ public final class BucketFsUrl {
      */
     public static BucketFsUrl from(final Profile profile) {
         final BucketFsPath bucketFsPath = new BucketFsPath(profile.bucket(), "");
-        return from(null, null, UNDEFINED_PORT, bucketFsPath, profile);
+        return from(profile.protocol(), null, UNDEFINED_PORT, bucketFsPath, profile);
     }
 
-    private static BucketFsUrl from(final String protocol, final String host, final int port,
+    private static BucketFsUrl from(final BucketFsProtocol protocol, final String host, final int port,
             final BucketFsPath bucketFsPath, final Profile profile) {
         return new BucketFsUrl( //
                 protocol, //
@@ -74,23 +75,28 @@ public final class BucketFsUrl {
                 bucketFsPath);
     }
 
-    private final String protocol;
+    private final BucketFsProtocol protocol;
     private final String host;
     private final int port;
     private final BucketFsPath bucketFsPath;
 
     /**
-     *
-     * @param protocol     protocol of this URL
+     * Create a new instance.
+     * 
+     * @param protocol     protocol of this URL, one of
+     *                     <ul>
+     *                     <li>{@link #BUCKETFS_PROTOCOL}</li>
+     *                     <li>{@link #BUCKETFS_PROTOCOL_WITH_TLS}</li>
+     *                     </ul>
      * @param host         host of this URL
      * @param port         port number, or -1 if the port is not set
      * @param bucketFsPath name of the bucket and remaining path inside the bucket
      */
-    BucketFsUrl(final String protocol, final String host, final int port, final BucketFsPath bucketFsPath) {
-        this.protocol = protocol;
-        this.host = host;
-        this.port = port;
-        this.bucketFsPath = bucketFsPath;
+    BucketFsUrl(final BucketFsProtocol protocol, final String host, final int port, final BucketFsPath bucketFsPath) {
+        this.protocol = requireNonNull(protocol, "protocol");
+        this.host = requireNonNull(host, "host");
+        this.port = requireNonNull(port, "port");
+        this.bucketFsPath = requireNonNull(bucketFsPath, "bucketFsPath");
     }
 
     /**
@@ -136,7 +142,7 @@ public final class BucketFsUrl {
      * @return {@code true} if the URL is points to a resource accessed via a TLS-secured connection.
      */
     public boolean isTlsEnabled() {
-        return BUCKETFS_PROTOCOL_WITH_TLS.equals(getProtocol());
+        return protocol.isTlsEnabled();
     }
 
     /**
@@ -144,7 +150,7 @@ public final class BucketFsUrl {
      *
      * @return protocol of this URL
      */
-    public String getProtocol() {
+    public BucketFsProtocol getProtocol() {
         return this.protocol;
     }
 
@@ -159,7 +165,7 @@ public final class BucketFsUrl {
 
     @Override
     public String toString() {
-        return this.protocol + "://" + this.host + ":" + this.port + this.bucketFsPath.getUriPath();
+        return this.protocol.getName() + "://" + this.host + ":" + this.port + this.bucketFsPath.getUriPath();
     }
 
     @Override

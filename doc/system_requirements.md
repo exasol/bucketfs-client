@@ -82,14 +82,14 @@ Needs: req
 To make BucketFS access similar to other file systems, BFSC introduces the concept of a BucketFS URL. This URL serves to identify resources inside a bucket.
 
 #### BucketFS URL
-`req~bucketfs-url~1`
+`req~bucketfs-url~2`
 
 A Bucket URL locates a resource inside a bucket with the following syntax:
 
-```bash
+```
 bucket-url = protocol-identifier "://" bucketfs-service-name "/" bucket-name path-in-bucket
 
-protocol-identifier = "bfs"
+protocol-identifier = ("bfs" / "bfss")
 
 bucketfs-service-name = segment
 
@@ -109,6 +109,19 @@ Covers:
 * [feat~copying-files~1](#copying-files)
 
 Needs: dsn
+
+### TLS Support
+`req~tls-support~1`
+
+Users can manage copy files, list content and delete files with a BucketFS service that uses TLS encryption.
+
+Needs: dsn
+
+Covers:
+
+* [`feat~copying-files~1`](#copying-files)
+* [`feat~listing-contents~1`](#listing-contents)
+* [`feat~deleting-files~1`](#deleting-files)
 
 ### Copying Files
 
@@ -138,7 +151,7 @@ bfs cp <local-path> <bfs-url>
 
 Comment:
 
-See also: [Password Protected Bucket Access](#interactive-password-entry)
+See also: [Password Protected Bucket Access](#password-protected-bucket-access)
 
 Covers:
 
@@ -192,7 +205,7 @@ Needs: dsn
 #### Password Protected Bucket Access
 `req~password-protected-bucket-access~1`
 
-For write operations like copying files to the BucketFS or deleting files from the BucketFS BFSC will retrieve the required write password. BFSC supports to read the password either from an [environment variable](#environment-variables-for-default-parameters) or from an interactive prompt hiding the characters typed by the user.
+For write operations like copying files to the BucketFS or deleting files from the BucketFS BFSC will retrieve the required write password. BFSC supports to read the password either from an environment variable or from an interactive prompt hiding the characters typed by the user.
 
 Covers:
 * `feat~command-line-interface~1`
@@ -210,6 +223,5 @@ Covers:
 Rationale:
 
 Passwords should never be supplied via the command line because they otherwise are logged in the command history. This is not the case with interactive input.
-
 
 Needs: dsn

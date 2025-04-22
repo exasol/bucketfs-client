@@ -16,10 +16,9 @@ jobs:
         os: [windows-latest, ubuntu-latest]
         include:
           - os: windows-latest
-            binary: bfsc-win_x86
-            suffix: .exe
+            binary: bfsc-windows_x86_64.exe
           - os: ubuntu-latest
-            binary: bfsc-linux_x86
+            binary: bfsc-linux_x86_64
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
@@ -38,15 +37,12 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: "true"
       - name: Build with Maven skipping tests
-        run: |
-          mvn --batch-mode clean verify -DskipTests
-          native-image -jar target/*.jar target/${{ matrix.binary }}
-
+        run: mvn --batch-mode clean package -DskipTests
       - name: Generate sha256 checksum file on Windows
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
           cd target
-          powershell "\$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8' ; (Get-FileHash ${{ matrix.binary }}.exe -Algorithm SHA256).Hash.ToLower() > ${{ matrix.binary }}.exe.sha256"
+          powershell "\$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8' ; (Get-FileHash ${{ matrix.binary }} -Algorithm SHA256).Hash.ToLower() > ${{ matrix.binary }}.sha256"
       - name: Generate sha256 checksum files on Ubuntu
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
@@ -59,12 +55,12 @@ jobs:
         uses: shogo82148/actions-upload-release-asset@v1
         with:
           upload_url: ${{ github.event.inputs.upload_url }}
-          asset_path: target/${{ matrix.binary }}${{ matrix.suffix }}
+          asset_path: target/${{ matrix.binary }}
       - name: Upload native executable sha256 checksum file
         uses: shogo82148/actions-upload-release-asset@v1
         with:
           upload_url: ${{ github.event.inputs.upload_url }}
-          asset_path: target/${{ matrix.binary }}${{ matrix.suffix }}.sha256
+          asset_path: target/${{ matrix.binary }}.sha256
       - name: Upload jar and sha256 checksum file
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: shogo82148/actions-upload-release-asset@v1

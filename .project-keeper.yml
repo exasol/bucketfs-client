@@ -4,12 +4,61 @@ sources:
     modules:
       - integration_tests
       - jar_artifact
+    artifacts:
+      # Native image for Linux
+      - target/bfsc-linux_x86_64
 excludes:
-  - "E-PK-CORE-18: Outdated content: '.github/workflows/release_droid_upload_github_release_assets.yml'"
-  - regex: "W-PK-CORE-153: Project-keeper version 4.1.0 is outdated. Please update project-keeper to latest version .*."
+  # Using Release Droid instead of PK release process as PK does not support building native images for Windows
+  - "E-PK-CORE-26: 'release_config.yml' exists but must not exist. Reason: Release-droid configuration is replaced by release.yml"
+  - regex: "E-PK-CORE-26: '.github[/\\\\]workflows[/\\\\]release_droid_upload_github_release_assets.yml' exists but must not exist. Reason: Release-droid workflows are replaced by release.yml"
+  - regex: "E-PK-CORE-26: '.github[/\\\\]workflows[/\\\\]release_droid_print_quick_checksum.yml' exists but must not exist. Reason: Release-droid workflows are replaced by release.yml"
+  - regex: "E-PK-CORE-26: '.github[/\\\\]workflows[/\\\\]release_droid_prepare_original_checksum.yml' exists but must not exist. Reason: Release-droid workflows are replaced by release.yml"
 build:
-  runnerOs: ubuntu-20.04
+  runnerOs: ubuntu-latest
   freeDiskSpace: false
   exasolDbVersions:
-    - "8.27.0"
-    - "7.1.26"
+    - "8.34.0"
+    - "7.1.30"
+  workflows:
+    - name: ci-build.yml
+      stepCustomizations:
+        - action: INSERT_AFTER
+          job: matrix-build
+          stepId: setup-java
+          content:
+            name: Setup GraalVM 17
+            id: setup-graalvm
+            uses: graalvm/setup-graalvm@v1
+            with:
+              java-version: "17"
+              components: "native-image"
+              github-token: ${{ secrets.GITHUB_TOKEN }}
+              native-image-job-reports: "true"
+        - action: REPLACE
+          job: matrix-build
+          stepId: build-pk-verify
+          content:
+            name: Run tests and build with Maven with native image
+            id: build-pk-verify
+            run: |
+              mvn --batch-mode -Pnative clean verify \
+                  -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
+                  -DtrimStackTrace=false \
+                  -Dcom.exasol.dockerdb.image=${{ matrix.exasol_db_version }}
+
+    - name: release.yml
+      stepCustomizations:
+        - action: REPLACE
+          job: release
+          stepId: deploy-maven-central
+          content:
+            name: Skip Maven Central Release
+            id: deploy-maven-central
+            run: echo "Maven Central release not needed"
+        - action: REPLACE
+          job: release
+          stepId: create-github-release
+          content:
+            name: Skip GitHub release
+            id: create-github-release
+            run: echo "GitHub release is done via Release Droid"

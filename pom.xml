@@ -2,13 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>bucketfs-client</artifactId>
-    <version>2.1.2</version>
+    <version>2.2.0</version>
     <description>Command line client for BucketFS</description>
     <url>https://github.com/exasol/bucketfs-client/</url>
     <properties>
         <java.version>17</java.version>
-        <junit.version>5.11.3</junit.version>
+        <junit.version>5.12.2</junit.version>
         <picocli.version>4.7.6</picocli.version>
+        <main.class>com.exasol.bucketfs.client.BucketFsClient</main.class>
     </properties>
     <profiles>
         <profile>
@@ -21,7 +22,30 @@
             </properties>
         </profile>
         <profile>
-            <id>native-image</id>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>0.10.6</version>
+                        <extensions>true</extensions>
+                        <executions>
+                            <execution>
+                                <id>build-native</id>
+                                <goals>
+                                    <goal>compile-no-fork</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <mainClass>${main.class}</mainClass>
+                            <imageName>bfsc-${os.detected.name}_${os.detected.arch}</imageName>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
     <dependencies>
@@ -49,7 +73,7 @@
             <!-- Update transitive dependency to fix CVE-2024-47554 -->
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.17.0</version>
+            <version>2.19.0</version>
         </dependency>
         <dependency>
             <!-- Update transitive dependency because exasol-testcontainers requires newer version -->
@@ -60,7 +84,7 @@
         <!-- test dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
+            <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -79,25 +103,25 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.14.2</version>
+            <version>5.17.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.exasol</groupId>
             <artifactId>exasol-testcontainers</artifactId>
-            <version>7.1.1</version>
+            <version>7.1.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.20.3</version>
+            <version>1.20.6</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <version>3.17.3</version>
+            <version>3.19.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -111,16 +135,31 @@
             <artifactId>junit-pioneer</artifactId>
             <version>2.3.0</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <!-- Fix error "TestEngine with ID 'junit-jupiter' failed to discover tests" -->
+                    <groupId>org.junit.platform</groupId>
+                    <artifactId>junit-platform-launcher</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <!-- Enable testcontainers log output for integration tests -->
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>2.0.16</version>
+            <version>2.0.17</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
+        <extensions>
+            <extension>
+                <!-- Generate properties with OS family required for native binaries -->
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.1</version>
+            </extension>
+        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -147,7 +186,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>4.1.0</version>
+                <version>5.0.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -179,10 +218,20 @@
                     <finalName>bfsc-${project.version}</finalName>
                     <archive>
                         <manifest>
-                            <mainClass>com.exasol.bucketfs.client.BucketFsClient</mainClass>
+                            <mainClass>${main.class}</mainClass>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.ossindex.maven</groupId>
+                <artifactId>ossindex-maven-plugin</artifactId>
+                <configuration>
+                    <excludeVulnerabilityIds>
+                        <!-- com.exasol:exasol-jdbc -->
+                        <exclude>CVE-2024-55551</exclude>
+                    </excludeVulnerabilityIds>
                 </configuration>
             </plugin>
         </plugins>
@@ -190,7 +239,7 @@
     <parent>
         <artifactId>bucketfs-client-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>2.1.2</version>
+        <version>2.2.0</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>

@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junitpioneer.jupiter.ClearSystemProperty;
 
+import com.exasol.bucketfs.url.BucketFsProtocol;
+
 class ProfileReaderTest {
 
     @TempDir
@@ -50,7 +52,7 @@ class ProfileReaderTest {
         final Path file = this.tempDir.resolve("file");
         Files.writeString(file, lines("[default]", "port=abc"));
         final ProfileReader testee = testee(file);
-        final Exception exception = assertThrows(IllegalStateException.class, () -> testee.getProfile());
+        final Exception exception = assertThrows(IllegalStateException.class, testee::getProfile);
         assertThat(exception.getMessage(), matchesRegex("E-BFSC-7: Failed to read profile from '.*'"
                 + " caused by invalid integer value in entry 'port=abc'."));
     }
@@ -63,18 +65,33 @@ class ProfileReaderTest {
         final String bucket = "bucket-from-profile";
         final String readPassword = "read-password-from-profile";
         final String writePassword = "write-password-from-profile";
+        final BucketFsProtocol protocol = BucketFsProtocol.BFS;
+        final Path tlsCertificatePath = Path.of("/path/cert.pem");
         Files.writeString(file, lines("[default]", //
                 "host=" + host, //
                 "port=" + port, //
                 "bucket=" + bucket, //
+                "protocol=" + protocol.getName(), //
+                "certificate=" + tlsCertificatePath.toString(), //
                 "password.read=" + readPassword, //
                 "password.write=" + writePassword));
-        assertThat(testee(file).getProfile(), equalTo(new Profile( //
-                host, //
-                port, //
-                bucket, //
-                readPassword, //
-                writePassword)));
+        assertThat(testee(file).getProfile(), equalTo(Profile.builder()
+                .protocol(protocol)
+                .host(host)
+                .port(port)
+                .bucket(bucket)
+                .readPassword(readPassword)
+                .writePassword(writePassword)
+                .tlsCertificate(tlsCertificatePath)
+                .build()));
+    }
+
+    @Test
+    void testWindowsCertificatePath() throws IOException {
+        final Path file = this.tempDir.resolve("file");
+        Files.writeString(file, lines("[default]",
+                "certificate=C:\\path\\cert.pem"));
+        assertThat(testee(file).getProfile().tlsCertificate(), equalTo(Path.of("C:\\path\\cert.pem")));
     }
 
     private ProfileReader testee(final Path file) {

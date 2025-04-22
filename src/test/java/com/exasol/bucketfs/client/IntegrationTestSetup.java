@@ -3,35 +3,39 @@ package com.exasol.bucketfs.client;
 import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKET;
 import static com.exasol.bucketfs.BucketConstants.DEFAULT_BUCKETFS;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.exasol.bucketfs.*;
+import com.exasol.bucketfs.WriteEnabledBucket.Builder;
 import com.exasol.bucketfs.http.HttpClientBuilder;
 import com.exasol.bucketfs.list.BucketContentLister;
 import com.exasol.bucketfs.list.ListingRetriever;
 import com.exasol.config.BucketConfiguration;
-import com.exasol.containers.ExasolContainer;
-import com.exasol.containers.ExasolService;
+import com.exasol.config.ClusterConfiguration;
+import com.exasol.containers.*;
 
-public class IntegrationTestSetup {
+public class IntegrationTestSetup implements AutoCloseable {
     private static final Logger LOGGER = Logger.getLogger(IntegrationTestSetup.class.getName());
 
+    @SuppressWarnings("resource") // Will be closed in close() method
     private final ExasolContainer<? extends ExasolContainer<?>> exasol = new ExasolContainer<>()//
-            .withRequiredServices(ExasolService.BUCKETFS).withReuse(true);
+            .withRequiredServices(ExasolService.BUCKETFS)
+            .withReuse(true);
 
-    public void stop() {
-        this.exasol.stop();
+    @Override
+    public void close() {
+        this.exasol.close();
     }
 
     public IntegrationTestSetup() {
@@ -63,17 +67,19 @@ public class IntegrationTestSetup {
     }
 
     public UnsynchronizedBucket getDefaultBucket() {
-        final BucketConfiguration bucketConfiguration = this.exasol.getClusterConfiguration() //
+        final BucketConfiguration bucketConfiguration = this.getClusterConfiguration() //
                 .getBucketFsServiceConfiguration(DEFAULT_BUCKETFS) //
                 .getBucketConfiguration(DEFAULT_BUCKET);
-        return WriteEnabledBucket.builder() //
+        final Builder<?> builder = WriteEnabledBucket.builder() //
+                .useTls(useTls())
                 .host(getHost()) //
                 .port(getMappedBucketFsPort()) //
                 .serviceName("bfsdefault") //
                 .name("default") //
                 .writePassword(bucketConfiguration.getWritePassword()) //
-                .readPassword(bucketConfiguration.getReadPassword()) //
-                .build();
+                .readPassword(bucketConfiguration.getReadPassword());
+        getCertificate().ifPresent(cert -> builder.certificate(cert).allowAlternativeHostName("localhost"));
+        return builder.build();
     }
 
     public String getDefaultBucketUriToFile(final String filename) {
@@ -81,7 +87,8 @@ public class IntegrationTestSetup {
     }
 
     public String getBucketFsUri(final String serviceName, final String bucketName, final String pathInBucket) {
-        return "bfs://" + getHost() + ":" + getMappedBucketFsPort() + "/" + bucketName + "/" + pathInBucket;
+        final String protocol = useTls() ? "bfss://" : "bfs://";
+        return protocol + getHost() + ":" + getMappedBucketFsPort() + "/" + bucketName + "/" + pathInBucket;
     }
 
     public static List<Path> createLocalFiles(final Path folder, final String... filenames) {
@@ -123,11 +130,50 @@ public class IntegrationTestSetup {
     }
 
     public List<String> listAll(final UnsynchronizedBucket bucket) throws BucketAccessException {
-        final HttpClient client = new HttpClientBuilder().build();
+        final HttpClientBuilder httpClientBuilder = new HttpClientBuilder();
+        getCertificate()
+                .ifPresent(cert -> httpClientBuilder.certificate(cert).allowAlternativeHostName("localhost"));
+        final HttpClient client = httpClientBuilder.build();
         final ListingRetriever contentLister = new ListingRetriever(client);
-        final URI uri = ListingRetriever.publicReadUri("http", getHost(), getMappedBucketFsPort(),
+        final URI uri = ListingRetriever.publicReadUri(getProtocol(), getHost(), getMappedBucketFsPort(),
                 bucket.getBucketName());
         return new BucketContentLister(uri, contentLister, bucket.getReadPassword()).retrieve("", true);
+    }
+
+    private Optional<X509Certificate> getCertificate() {
+        if (useTls()) {
+            return exasol.getTlsCertificate();
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<Path> getTlsCertificatePath() {
+        return getCertificate().map(IntegrationTestSetup::writeCertificate);
+    }
+
+    private static Path writeCertificate(final X509Certificate cert) {
+        try {
+            final Path certPath = Files.createTempFile("tls-cert", ".crt");
+            try (Writer writer = Files.newBufferedWriter(certPath)) {
+                writer.write("-----BEGIN CERTIFICATE-----\n");
+                writer.write(Base64.getMimeEncoder(64, new byte[] { '\n' }).encodeToString(cert.getEncoded()));
+                writer.write("\n-----END CERTIFICATE-----\n");
+            }
+            return certPath;
+        } catch (final IOException | CertificateEncodingException exception) {
+            throw new IllegalStateException("Failed to write certificate to file: " + exception.getMessage(),
+                    exception);
+        }
+    }
+
+    private String getProtocol() {
+        return useTls() ? "https" : "http";
+    }
+
+    private boolean useTls() {
+        final ExasolDockerImageReference version = exasol.getDockerImageReference();
+        return version.getMajor() >= 8;
     }
 
     public void uploadStringContent(final String content, final String pathInBucket)
@@ -139,5 +185,9 @@ public class IntegrationTestSetup {
     @SuppressWarnings("java:S2925")
     public void waitUntilObjectSynchronized() throws InterruptedException {
         Thread.sleep(500);
+    }
+
+    public ClusterConfiguration getClusterConfiguration() {
+        return exasol.getClusterConfiguration();
     }
 }
