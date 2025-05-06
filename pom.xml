@@ -43,7 +43,7 @@
                             <mainClass>${main.class}</mainClass>
                             <imageName>bfsc-${os.detected.name}_${os.detected.arch}</imageName>
                             <buildArgs>
-                                <!-- Optimize for lowest system requirements and broadest compatibility -->
+                                <!-- Optimize for compatibility -->
                                 <!-- Disable fallback to JIT compilation -->
                                 --no-fallback
                                 <!-- Build a statically linked executable -->
@@ -52,8 +52,6 @@
                                 --no-server
                                 <!-- Optimize for size rather than speed -->
                                 -O1
-                                <!-- Reduce memory usage during build -->
-                                --gc=G1
                                 <!-- Disable features that require newer CPUs -->
                                 -H:-UseOnStackReplacement
                                 -H:-UseCPUFeatures
