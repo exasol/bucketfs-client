@@ -19,18 +19,25 @@ The most common use case for BucketFS is storing files on it that UDFs need:
 
 The client is implemented in Java and provides native executables for x86 CPU with operating system Ubuntu Linux or Windows.
 
-Platforms
+#### Supported Platforms
+
 | Platform | Available?   | Notes |
 |----------|--------------|-------|
-| Linux    | &#x2705; yes | Built using GitHub hosted runner [latest_ubuntu](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources). For release 1.1.2 this is Ubuntu 22.04 with glibc 2.32. |
-| Windows  | &#x2705; yes | When downloading the native executable some browsers may display a warning about security risks imposed by downloading unsigned binaries. |
-| macOS    | &#x274c; no  | Latest macOS Ventura (e.g. version 13.2.1) refuses to execute unsigned binaries. |
+| Linux    | &#x2705; yes | ¹⁾    | 
+| Windows  | &#x2705; yes | ²⁾    | 
+| macOS    | &#x274c; no  | ³⁾    |
+
+¹⁾ Release 2.2.1 is tested on Ubuntu 24.04.
+
+²⁾ When downloading the native executable, some browsers may display a warning about security risks imposed by downloading unsigned binaries.
+
+³⁾ Latest macOS Ventura (e.g. version 13.2.1) refuses to execute unsigned binaries.
 
 Signed binaries for Windows and macOS will be provided as soon as a signing process is established.
 
-For all platforms not supported currently or in case you do not want to execute an unsigned binary on your platform please refer to the [jar file](#running-the-jar-file) provided with each release.
+For all platforms not supported currently or in case you do not want to execute an unsigned binary on your platform, please refer to the [jar file](#running-the-jar-file) provided with each release.
 
-To make BFSC really handy you can either rename the binary or set an alias
+To make using the BFSC more convenient, you can either rename the binary or set an alias
 
 ```shell
 alias bfsc='bfsc-linux_x86'
@@ -38,7 +45,7 @@ alias bfsc='bfsc-linux_x86'
 
 ### Running the JAR File
 
-Besides executing the binaries you can also download BFSC's JAR file and let a Java VM execute it.
+Besides executing the binaries, you can also download BFSC's JAR file and let a Java VM execute it.
 
 For that you need Java 17 or later, the installation procedure depends on your operating system.
 
@@ -54,7 +61,7 @@ For that you need Java 17 or later, the installation procedure depends on your o
       ```
     * SuSE: [OpenJDK build of the Leap project](https://software.opensuse.org/download/package?package=java-17-openjdk&project=openSUSE%3AFactory)
 
-As soon as Java 17 is available you can run BFSC's JAR file the following command:
+When Java 17 is available, you can run BFSC's JAR file with the following command:
 
 ```shell
 java -jar "<path-to-bfsc-jar>" <command> <option> ...
@@ -111,9 +118,9 @@ There are separate passwords for read- and write-operations:
 | Write operations | Upload files to BucketFS, delete files from the BucketFS   | Always password protected      |
 | Read operations  | List bucket contents, download files                       | Unprotected for public buckets |
 
-BFSC supports to read required passwords either from the profile in the [configuration file](#configuration-file) or from an interactive prompt hiding the characters typed by the user.
+BFSC supports reading required passwords either from the profile in the [configuration file](#configuration-file) or from an interactive prompt hiding the characters typed by the user.
 
-BFSC does not support to provide passwords on the command line to avoid the password showing up in the command history. As a general rule you should never put any credentials directly into a command line.
+BFSC does not support passwords on the command line to avoid the password showing up in the command history. As a general rule, you should never put any credentials directly into a command line.
 
 BFSC will normally not ask for a read-password interactively.
 * This is fine for public buckets as these are not password-protected.
@@ -122,6 +129,8 @@ BFSC will normally not ask for a read-password interactively.
 
 ### Retrieving the Password
 
+#### Variant 1: Reading the Password Directly From the EXAConf
+
 The passwords are usually stored in file `/exa/etc/EXAConf`:
 ```
 WritePasswd = <value>
@@ -129,6 +138,20 @@ ReadPasswd = <value>
 ```
 
 Please note that each of the passwords is base64-encoded. So before providing the passwords to BFSC please apply `echo <password> | base64 -d`.
+
+#### Variant 2: Reading the Password Using `confd_client` (Recommended)
+
+You can get the configuration of a BucketFS service with the `confd_client` tool (see also ["bucketfs_info"](https://docs.exasol.com/db/latest/confd/jobs/bucketfs_info.htm)):
+
+```shell
+confd_client bucketfs_info bucketfs_name: <bucketfs-service-name>
+```
+
+Example:
+
+```shell
+confd_client bucketfs_info bucketfs_name: bucketfs1
+```
 
 ### Using TLS
 
