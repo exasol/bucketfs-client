@@ -45,8 +45,6 @@
                             <buildArgs>
                                 <!-- Optimize for compatibility -->
                                 -march=compatibility
-                                <!-- Disable fallback to JIT compilation -->
-                                --no-fallback
                                 <!-- Disable server runtime mode, use client mode for lower memory footprint -->
                                 --no-server
                                 <!-- Optimize for size rather than speed -->
