@@ -44,12 +44,12 @@
                             <imageName>bfsc-${os.detected.name}_${os.detected.arch}</imageName>
                             <buildArgs>
                                 <!-- Optimize for compatibility -->
-                                -march=compatibility
+                                <buildArg>-march=compatibility</buildArg>
                                 <!-- Optimize for size rather than speed -->
-                                -O1
+                                <buildArg>-O1</buildArg>
                                 <!-- Disable features that require newer CPUs -->
-                                -H:-UseOnStackReplacement
-                                -H:-UseCPUFeatures
+                                <buildArg>-H:-UseOnStackReplacement</buildArg>
+                                <buildArg>-H:-UseCPUFeatures</buildArg>
                             </buildArgs>
                         </configuration>
                     </plugin>
