@@ -2,7 +2,7 @@
 
 ## CI-Build vs. Release
 
-Native executables can be built in two different life cycle phases. The phases are implementd in different workflow scripts, have additional differences and address different goals.
+Native executables can be built in two different life cycle phases. The phases are implemented in different workflow scripts, have additional differences and address different goals.
 
 |                         | ci-build                         | release workflow                                 |
 |-------------------------|----------------------------------|--------------------------------------------------|
@@ -58,7 +58,7 @@ Please note that for windows platform `native-image` automatically appends suffi
 
 ## Creating SHA256 Checksum Files
 
-To enable end users to verify the validity and integrity of the files offered for download BFSC's build script creates a corresponding checksum file of each of the files contained in a release. The following table shows the command used on each of the operating systems:
+To enable end users to verify the validity and integrity of the files offered for download, BFSC's build script creates a corresponding checksum file of each file contained in a release. The following table shows the command used on each of the operating systems:
 
 | Operating system | Command                                      | Reference |
 |------------------|----------------------------------------------|-----------|
@@ -76,9 +76,8 @@ For Windows Powershell there are some additional considerations described in the
 
 ## Testing the Release Script
 
-Full releases are time consuming and modify the Git repository by creating a Git Tag.
-
-To test creation and upload of native executables you can use the following approach
+Full releases are time-consuming and modify the Git repository by creating a Git Tag.-
+To test creation and upload of native executables, you can use the following approach
 
 1. Create a draft release
 2. Test creation and upload of native executables

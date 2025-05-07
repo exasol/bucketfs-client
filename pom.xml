@@ -43,7 +43,8 @@
                             <mainClass>${main.class}</mainClass>
                             <imageName>bfsc-${os.detected.name}_${os.detected.arch}</imageName>
                             <buildArgs>
-                                <!-- Optimize for compatibility -->
+                                <!-- Optimize for compatibility, reduce usage of specific CPU features -->
+                                -march=compatibility
                                 <!-- Disable fallback to JIT compilation -->
                                 --no-fallback
                                 <!-- Build a statically linked executable -->
