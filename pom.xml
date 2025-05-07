@@ -45,8 +45,6 @@
                             <buildArgs>
                                 <!-- Optimize for compatibility -->
                                 -march=compatibility
-                                <!-- Disable server runtime mode, use client mode for lower memory footprint -->
-                                --no-server
                                 <!-- Optimize for size rather than speed -->
                                 -O1
                                 <!-- Disable features that require newer CPUs -->
