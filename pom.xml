@@ -44,10 +44,9 @@
                             <imageName>bfsc-${os.detected.name}_${os.detected.arch}</imageName>
                             <buildArgs>
                                 <!-- Optimize for compatibility -->
+                                -march=compatibility
                                 <!-- Disable fallback to JIT compilation -->
                                 --no-fallback
-                                <!-- Build a statically linked executable -->
-                                --static
                                 <!-- Disable server runtime mode, use client mode for lower memory footprint -->
                                 --no-server
                                 <!-- Optimize for size rather than speed -->
