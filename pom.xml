@@ -49,6 +49,7 @@
                                 <buildArg>-O1</buildArg>
                                 <!-- Disable features that require newer CPUs -->
                                 <buildArg>-H:CPUFeatures=none</buildArg>
+                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                             </buildArgs>
                         </configuration>
                     </plugin>
