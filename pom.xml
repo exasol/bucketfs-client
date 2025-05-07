@@ -48,8 +48,7 @@
                                 <!-- Optimize for size rather than speed -->
                                 <buildArg>-O1</buildArg>
                                 <!-- Disable features that require newer CPUs -->
-                                <buildArg>-H:-UseOnStackReplacement</buildArg>
-                                <buildArg>-H:-CPUFeatures</buildArg>
+                                <buildArg>-H:CPUFeatures=none</buildArg>
                             </buildArgs>
                         </configuration>
                     </plugin>
