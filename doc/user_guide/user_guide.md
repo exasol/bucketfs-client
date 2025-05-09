@@ -129,17 +129,7 @@ BFSC will normally not ask for a read-password interactively.
 
 ### Retrieving the Password
 
-#### Variant 1: Reading the Password Directly From the EXAConf
-
-The passwords are usually stored in file `/exa/etc/EXAConf`:
-```
-WritePasswd = <value>
-ReadPasswd = <value>
-```
-
-Please note that each of the passwords is base64-encoded. So before providing the passwords to BFSC please apply `echo <password> | base64 -d`.
-
-#### Variant 2: Reading the Password Using `confd_client` (Recommended)
+#### Variant 1: Reading the Password Using `confd_client` (Recommended)
 
 You can get the configuration of a BucketFS service with the `confd_client` tool (see also ["bucketfs_info"](https://docs.exasol.com/db/latest/confd/jobs/bucketfs_info.htm)):
 
@@ -152,6 +142,16 @@ Example:
 ```shell
 confd_client bucketfs_info bucketfs_name: bucketfs1
 ```
+
+#### Variant 2: Reading the Password Directly From the EXAConf
+
+Please note that this variant requires filesystem access to the Exasol database. The passwords are usually stored in file `/exa/etc/EXAConf`:
+```
+WritePasswd = <value>
+ReadPasswd = <value>
+```
+
+Please note that each of the passwords is base64-encoded. So before providing the passwords to BFSC please apply `echo <password> | base64 -d`.
 
 ### Using TLS
 
