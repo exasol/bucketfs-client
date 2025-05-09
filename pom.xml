@@ -47,8 +47,6 @@
                                 <buildArg>-march=compatibility</buildArg>
                                 <!-- Optimize for size rather than speed -->
                                 <buildArg>-O1</buildArg>
-                                <!-- Build a static library with the exception of LibC -->
-                                <buildArg>--static-nolibc</buildArg>
                             </buildArgs>
                         </configuration>
                     </plugin>

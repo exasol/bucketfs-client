@@ -1,4 +1,4 @@
-# Bucketfs Client 2.2.1, released 2025-05-07
+# Bucketfs Client 2.2.1, released 2025-05-09
 
 Code name: Documentation improvements on top of 2.2.0
 
