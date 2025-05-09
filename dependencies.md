@@ -86,7 +86,7 @@
 [27]: https://maven.apache.org/plugins/maven-install-plugin/
 [28]: https://maven.apache.org/plugins/maven-resources-plugin/
 [29]: https://maven.apache.org/plugins/maven-site-plugin/
-[30]: http://docs.sonarqube.org/display/PLUG/Plugin+Library/sonar-maven-plugin
+[30]: http://docs.sonarqube.org/display/PLUG/Plugin+Library/sonar-scanner-maven/sonar-maven-plugin
 [31]: http://www.gnu.org/licenses/lgpl.txt
 [32]: https://maven.apache.org/plugins/maven-toolchains-plugin/
 [33]: https://github.com/itsallcode/openfasttrace-maven-plugin
