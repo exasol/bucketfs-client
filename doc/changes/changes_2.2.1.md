@@ -6,6 +6,12 @@ Code name: Documentation improvements on top of 2.2.0
 
 We improved the content, language and understandability of the BucketFS client user guide.
 
+Please note that we are in the process of removing some URL auto-magic that uses profile information, since that turned out to be confusing rather than convenient.
+
+We recommend using full BFS URLs, since the shortening will be removed with [#54](https://github.com/exasol/bucketfs-client/issues/54).
+
+The profile configuration as such will remain available, since it is required to hide passwords and point to server certificates.
+
 ## Features
 
 * 38: Improved user documentation

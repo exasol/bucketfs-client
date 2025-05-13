@@ -81,15 +81,15 @@ Sub-commands control the action that BFSC is taking. For each type of action the
 bfsc <sub-command> <option> ...
 ```
 
-BFSC supports the following sub commands to inspect and manipulate files in the BucketFS. You can use a [configuration file](#configuration-file) or rely on default values to abbreviate URLs in BucketFS.
+BFSC supports the following sub commands to inspect and manipulate files in the BucketFS.
 
-| Full                                           | Abbreviated            | Description                                        |
-|------------------------------------------------|------------------------|----------------------------------------------------|
-| `bfsc ls bfs://localhost:2580/default`         | `bfsc ls`              | List the contents of BucketFS                      |
-| `bfsc ls bfs://localhost:2580/default/folder`  | `bfsc ls folder`       | List the contents of a directory in BucketFS       |
-| `bfsc cp a.jar bfs://localhost:2580/default/`  | `bfsc cp a.jar bfs:/`  | Upload a file from local fie system to BucketFS    |
-| `bfsc cp bfs://localhost:2580/default/a.jar .` | `bfsc cp bfs:/a.jar .` | Download a file from BucketFS to local file system |
-| `bfsc rm bfs://localhost:2580/a.jar`           | `bfsc rm /a.jar`       | Remove a file from BucketFS                        |
+| Command                                        | Description                                        |
+|------------------------------------------------|----------------------------------------------------|
+| `bfsc ls bfs://localhost:2580/default/`        | List the contents of BucketFS                      |
+| `bfsc ls bfs://localhost:2580/default/folder/` | List the contents of a directory in BucketFS       |
+| `bfsc cp a.jar bfs://localhost:2580/default/`  | Upload a file from local fie system to BucketFS    |
+| `bfsc cp bfs://localhost:2580/default/a.jar .` | Download a file from BucketFS to local file system |
+| `bfsc rm bfs://localhost:2580/a.jar`           | Remove a file from BucketFS                        |
 
 The following sections will first explain some general concepts and then describe each of the commands in detail.
 
@@ -163,14 +163,6 @@ If the BucketFS server uses a self-signed certificate or the certificate is not 
 
 ### Configuration File
 
-Besides specifying the complete URL on the command line, you can use defaults for some parts of the URL.
-
-BFSC uses the following precedence for URI parts
-
-1. Supplied on the command line or entered interactively in case of a [password](#password-protected-bucket-access)
-2. Data in your profile
-3. Hard coded default value for host and port
-
 You can define the profile in BFSC's configuration file in your home directory: `~/.bucketfs-client/config.ini`. On Windows the home directory is `%USERPROFILE%`.
 
 The configuration file uses the INI-file syntax. An INI file is divided into sections. Each section contains a number of lines defining a *profile*. The first line of each section specifies the name of the profile in brackets. The default profile's name is `default`. Each line after the section header assigns a value to a variable.
@@ -179,9 +171,6 @@ BFSC uses the following elements of your profile with the specified hard-coded d
 
 | Parameter                       | Variable         | Default value                   |
 |---------------------------------|------------------|---------------------------------|
-| Protocol of BucketFS server     | `protocol`       | `bfs` or `bfss`, default: `bfs` |
-| Host address of BucketFS server | `host`           | `localhost`                     |
-| Port                            | `port`           | `2580`                          |
 | Name of root bucket             | `bucket`         | (none)                          |
 | Password for read operations    | `password.read`  | (none)                          |
 | Password for write operations   | `password.write` | (none)                          |
@@ -190,22 +179,10 @@ BFSC uses the following elements of your profile with the specified hard-coded d
 Here is an example content of a configuration file for BFSC:
 ```
 [default]
-protocol=bfss
-host=1.2.3.4
-port=8888
 bucket=simba
 password.read=abc
 password.write=def
 certificate=/path/to/cert.crt
-```
-
-Using this configuration file, the command line
-```shell
-bfsc cp foo.jar bfs://1.2.3.4:8888/simba/drivers/foo.jar
-```
-… can then be abbreviated to:
-```shell
-bfsc cp foo.jar bfs:/drivers
 ```
 
 ### Name of the Root Bucket
