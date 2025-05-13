@@ -15,6 +15,7 @@ import com.exasol.errorreporting.ExaError;
  * BucketFS-specific URL.
  * <p>
  * For compatibility this class is modeled after {@link java.net.URL}.
+ * </p>
  */
 // [impl->dsn~bucket-fs-url~2]
 public final class BucketFsUrl {
@@ -38,7 +39,7 @@ public final class BucketFsUrl {
      * @param uri     URI to create the URL from
      * @param profile default values for specific parts of BucketFS URLs
      * @return new instance of {@link BucketFsUrl}
-     * @throws BucketFsClientException if BucketFS service or bucket are missing in the path or the path is not an
+     * @throws BucketFsClientException if BucketFS service or bucket are missing in the path, or the path is not an
      *                               absolute path
      */
     public static BucketFsUrl from(final URI uri, final Profile profile) {
