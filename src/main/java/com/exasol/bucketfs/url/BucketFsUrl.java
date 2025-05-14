@@ -13,8 +13,9 @@ import com.exasol.errorreporting.ExaError;
 
 /**
  * BucketFS-specific URL.
- *
+ * <p>
  * For compatibility this class is modeled after {@link java.net.URL}.
+ * </p>
  */
 // [impl->dsn~bucket-fs-url~2]
 public final class BucketFsUrl {
@@ -38,7 +39,7 @@ public final class BucketFsUrl {
      * @param uri     URI to create the URL from
      * @param profile default values for specific parts of BucketFS URLs
      * @return new instance of {@link BucketFsUrl}
-     * @throws MalformedURLException if BucketFS service or bucket are missing in the path or the path is not an
+     * @throws BucketFsClientException if BucketFS service or bucket are missing in the path, or the path is not an
      *                               absolute path
      */
     public static BucketFsUrl from(final URI uri, final Profile profile) {
@@ -51,8 +52,7 @@ public final class BucketFsUrl {
             throw new BucketFsClientException(ExaError.messageBuilder("E-BFSC-5") //
                     .message("Invalid BucketFS URL: {{url}}.", uri) //
                     .message(" Cause: {{cause}}.", exception.getMessage()) //
-                    .mitigation("Please use URL with the following form: {{form}}.",
-                            "bfs://<bucketfs-service/<bucket>/<path-in-bucket>") //
+                    .mitigation("Please use URL with the following form: 'bfs[s]://<bucketfs-service>/<bucket>/[<path-in-bucket>]'.") //
                     .toString());
         }
     }
@@ -85,8 +85,8 @@ public final class BucketFsUrl {
      * 
      * @param protocol     protocol of this URL, one of
      *                     <ul>
-     *                     <li>{@link #BUCKETFS_PROTOCOL}</li>
-     *                     <li>{@link #BUCKETFS_PROTOCOL_WITH_TLS}</li>
+     *                     <li>{@link com.exasol.bucketfs.url.BucketFsProtocol#BFS}</li>
+     *                     <li>{@link com.exasol.bucketfs.url.BucketFsProtocol#BFSS}</li>
      *                     </ul>
      * @param host         host of this URL
      * @param port         port number, or -1 if the port is not set
@@ -95,7 +95,7 @@ public final class BucketFsUrl {
     BucketFsUrl(final BucketFsProtocol protocol, final String host, final int port, final BucketFsPath bucketFsPath) {
         this.protocol = requireNonNull(protocol, "protocol");
         this.host = requireNonNull(host, "host");
-        this.port = requireNonNull(port, "port");
+        this.port = port;
         this.bucketFsPath = requireNonNull(bucketFsPath, "bucketFsPath");
     }
 
