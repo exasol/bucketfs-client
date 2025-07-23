@@ -1,4 +1,4 @@
-# BucketFS Client 2.2.1, released ????-??-??
+# BucketFS Client 2.2.1, released 2025-07-00
 
 Code name: Documentation improvements on top of 2.2.0
 
