@@ -1,4 +1,4 @@
-# BucketFS Client 2.2.1, released 2025-05-13
+# BucketFS Client 2.2.1, released ????-??-??
 
 Code name: Documentation improvements on top of 2.2.0
 
@@ -17,6 +17,10 @@ The profile configuration as such will remain available, since it is required to
 * 38: Improved user documentation
 
 ## Dependency Updates
+
+### Compile Dependency Updates
+
+* Updated `org.apache.commons:commons-lang3:3.17.0` to `3.18.0`
 
 ### Plugin Dependency Updates
 
