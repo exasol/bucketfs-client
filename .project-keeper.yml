@@ -35,7 +35,7 @@ build:
               password: ${{ secrets.ESIGN_PASSWORD }}
               credential_id: ${{ secrets.ESIGN_CREDENTIAL_ID }}
               totp_secret: ${{ secrets.ESIGN_TOTP_SECRET }}
-              file_path: ${{ steps.build-pk-verify.outputs.release-artifacts }}
+              file_path: ${GITHUB_WORKSPACE}/target/bfsc-*.jar
               override: true
         - action: INSERT_AFTER
           job: matrix-build
