@@ -101,6 +101,14 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}',
           SONAR_TOKEN: '${{ secrets.SONAR_TOKEN }}'
         }
+      - name: Filter artifacts to be signed
+        id: esign-filter
+        run: |
+          echo "All artifacts:"
+          echo "${{ steps.build-pk-verify.outputs.release-artifacts }}"
+          jar_file=$(echo "${{ steps.build-pk-verify.outputs.release-artifacts }}" | grep -E '\.jar$' | head -n 1)
+          echo "Found jar file: $jar_file"
+          echo "jar_file=$jar_file" >> "$GITHUB_OUTPUT"
       - name: Sign Artifact with CodeSignTool
         id: esign-artifact
         uses: sslcom/esigner-codesign@develop
@@ -110,7 +118,7 @@ jobs:
           password: '${{ secrets.ESIGN_PASSWORD }}',
           credential_id: '${{ secrets.ESIGN_CREDENTIAL_ID }}',
           totp_secret: '${{ secrets.ESIGN_TOTP_SECRET }}',
-          file_path: '${GITHUB_WORKSPACE}/target/bfsc-2.2.1.jar',
+          file_path: '${{ steps.esign-filter.outputs.jar_file }}',
           override: true
         }
       - name: Verify Release Artifacts
