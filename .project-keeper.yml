@@ -40,7 +40,7 @@ build:
           content:
             name: Sign Artifact with CodeSignTool
             id: esign-artifact
-            uses: sslcom/esigner-codesign@develop
+            uses: sslcom/esigner-codesign@v1.3.1
             with:
               command: sign
               username: ${{ secrets.ESIGN_USERNAME }}
