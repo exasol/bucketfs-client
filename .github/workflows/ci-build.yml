@@ -101,6 +101,26 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}',
           SONAR_TOKEN: '${{ secrets.SONAR_TOKEN }}'
         }
+      - name: Filter artifacts to be signed
+        id: esign-filter
+        run: |
+          echo "All artifacts:"
+          echo "${{ steps.build-pk-verify.outputs.release-artifacts }}"
+          jar_file=$(echo "${{ steps.build-pk-verify.outputs.release-artifacts }}" | grep -E '\.jar$' | head -n 1)
+          echo "Found jar file: $jar_file"
+          echo "jar_file=$jar_file" >> "$GITHUB_OUTPUT"
+      - name: Sign Artifact with CodeSignTool
+        id: esign-artifact
+        uses: sslcom/esigner-codesign@v1.3.1
+        with: {
+          command: sign,
+          username: '${{ secrets.ESIGN_USERNAME }}',
+          password: '${{ secrets.ESIGN_PASSWORD }}',
+          credential_id: '${{ secrets.ESIGN_CREDENTIAL_ID }}',
+          totp_secret: '${{ secrets.ESIGN_TOTP_SECRET }}',
+          file_path: '${{ steps.esign-filter.outputs.jar_file }}',
+          override: true
+        }
       - name: Verify Release Artifacts
         id: verify-release-artifacts
         run: "print_message() {\n    local -r message=$1\n    echo \"$message\"\n    echo \"$message\" >> \"$GITHUB_STEP_SUMMARY\"\n}\n\nprint_message \"### Release Artifacts\"\n\nIFS=$'\\n' artifacts_array=($ARTIFACTS)\nmissing_files=()\nfor file in \"${artifacts_array[@]}\";\ndo  \n    echo \"Checking if file $file exists...\"\n    if ! [[ -f \"$file\" ]]; then\n        print_message \"* ⚠️ \\`$file\\` does not exist ⚠️\"\n        echo \"Content of directory $(dirname \"$file\"):\"\n        ls \"$(dirname \"$file\")\"\n        missing_files+=(\"$file\")\n    else\n        print_message \"* \\`$file\\` ✅\" \n    fi\ndone\nprint_message \"\"\nnumber_of_missing_files=${#missing_files[@]}\nif [[ $number_of_missing_files -gt 0 ]]; then\n    print_message \"⚠️ $number_of_missing_files release artifact(s) missing ⚠️\"\n    exit 1\nfi\n"
@@ -227,5 +247,6 @@ jobs:
     }
     uses: ./.github/workflows/release.yml
     with: {
-      started-from-ci: true
+      started-from-ci: true,
+      maven-central-auto-publish: true
     }

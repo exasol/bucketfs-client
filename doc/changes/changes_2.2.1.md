@@ -1,4 +1,4 @@
-# BucketFS Client 2.2.1, released 2025-05-13
+# BucketFS Client 2.2.1, released 2025-07-00
 
 Code name: Documentation improvements on top of 2.2.0
 
@@ -18,9 +18,13 @@ The profile configuration as such will remain available, since it is required to
 
 ## Dependency Updates
 
+### Compile Dependency Updates
+
+* Updated `org.apache.commons:commons-lang3:3.17.0` to `3.18.0`
+
 ### Plugin Dependency Updates
 
-* Updated `com.exasol:project-keeper-maven-plugin:5.0.1` to `5.1.0`
+* Updated `com.exasol:project-keeper-maven-plugin:5.0.1` to `5.2.2`
 * Updated `org.apache.maven.plugins:maven-failsafe-plugin:3.5.2` to `3.5.3`
 * Updated `org.apache.maven.plugins:maven-surefire-plugin:3.5.2` to `3.5.3`
 * Updated `org.jacoco:jacoco-maven-plugin:0.8.12` to `0.8.13`
