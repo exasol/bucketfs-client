@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 public class ProcessExecutor {
 
     private static final Logger LOGGER = Logger.getLogger(ProcessExecutor.class.getName());
-    private static final Duration TIMEOUT = Duration.ofSeconds(5);
+    private static final Duration TIMEOUT = Duration.ofSeconds(10);
 
     /** Name of the JAR file */
     public static final String JAR_NAME = "bfsc-2.2.1.jar";
