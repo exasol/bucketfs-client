@@ -86,7 +86,7 @@
             <!-- Update transitive dependency to fix CVE-2025-48924 -->
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.18.0</version>
+            <version>3.17.0</version>
         </dependency>
         <!-- test dependencies -->
         <dependency>
@@ -238,6 +238,7 @@
                     <excludeVulnerabilityIds>
                         <!-- Version 24.2.1 of the Exasol JDBC driver fixes CVE-2024-55551. But the OSSIndex does not contain fix version yet. -->
                         <exclude>CVE-2024-55551</exclude>
+                        <exclude>CVE-2025-48924</exclude>
                     </excludeVulnerabilityIds>
                 </configuration>
             </plugin>

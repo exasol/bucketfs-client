@@ -24,10 +24,6 @@ We also update transitive dependency to fix CVE-2025-48924.
 
 ## Dependency Updates
 
-### Compile Dependency Updates
-
-* Updated `org.apache.commons:commons-lang3:3.17.0` to `3.18.0`
-
 ### Plugin Dependency Updates
 
 * Updated `com.exasol:error-code-crawler-maven-plugin:2.0.3` to `2.0.4`
