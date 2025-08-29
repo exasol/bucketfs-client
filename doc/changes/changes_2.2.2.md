@@ -53,6 +53,10 @@ CWE: CWE-94
 
 * Updated `org.apache.commons:commons-lang3:3.17.0` to `3.18.0`
 
+### Test Dependency Updates
+
+* Updated `com.exasol:exasol-testcontainers:7.1.4` to `7.1.7`
+
 ### Plugin Dependency Updates
 
 * Updated `com.exasol:error-code-crawler-maven-plugin:2.0.3` to `2.0.4`
