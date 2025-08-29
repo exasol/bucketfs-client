@@ -9,6 +9,12 @@ on:
         required: true,
         default: false
       }
+      maven-central-auto-publish: {
+        description: 'Automatically publish to Maven Central. Deactivate to manually publish at https://central.sonatype.com/publishing/deployments',
+        required: true,
+        type: boolean,
+        default: true
+      }
   workflow_dispatch:
     inputs:
       skip-maven-central: {
@@ -16,6 +22,12 @@ on:
         required: true,
         type: boolean,
         default: false
+      }
+      maven-central-auto-publish: {
+        description: 'Automatically publish to Maven Central. Deactivate to manually publish at https://central.sonatype.com/publishing/deployments',
+        required: true,
+        type: boolean,
+        default: true
       }
       skip-github-release: {
         description: Skip creating the GitHub release,
@@ -54,7 +66,7 @@ jobs:
           distribution: temurin,
           java-version: '17',
           cache: maven,
-          server-id: ossrh,
+          server-id: maven-central-portal,
           server-username: MAVEN_USERNAME,
           server-password: MAVEN_PASSWORD,
           gpg-private-key: '${{ secrets.OSSRH_GPG_SECRET_KEY }}',
